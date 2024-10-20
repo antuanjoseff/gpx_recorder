@@ -1,8 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:location/location.dart';
+import '../classes/gps.dart';
+import 'utils/user_simple_preferences.dart';
+import 'package:location/location.dart';
+import './screens/settings.dart';
 
-void main() {
+void main() async {
+  // await _checkPermission();
+  WidgetsFlutterBinding.ensureInitialized();
+  await UserSimplePreferences.init();
+  await _checkPermission();
   runApp(const MyApp());
+}
+
+Future<void> _checkPermission() async {
+  bool hasPermission = false;
+  final gps = new Gps();
+
+  bool enabled = await gps.checkService();
+  if (enabled) {
+    hasPermission = await gps.checkPermission();
+  }
+  await UserSimplePreferences.setGpsEnabled(enabled);
+  await UserSimplePreferences.setHasPermission(hasPermission);
+  return;
 }
 
 class MyApp extends StatelessWidget {
@@ -37,8 +59,15 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isPaused = false;
   bool isStopped = false;
   bool isResumed = false;
+  bool mapCentered = true;
 
-  int milliseconds = 1000;
+  int milliseconds = 300;
+
+  late MapLibreMapController mapController;
+  Location location = new Location();
+  MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.compass;
+  MyLocationTrackingMode _myLocationTrackingMode =
+      MyLocationTrackingMode.trackingGps;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
     minimumSize: Size.zero, // Set this
@@ -46,18 +75,84 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    location.enableBackgroundMode(enable: true);
+    location.changeNotificationOptions(
+      title: 'Geolocation',
+      subtitle: 'Geolocation detection',
+    );
+  }
+
+  void _onMapCreated(MapLibreMapController controller) async {
+    mapController = controller;
+    bool gpsEnabled = UserSimplePreferences.getGpsEnabled() ?? false;
+    bool gpsPermission = UserSimplePreferences.getHasPermission() ?? false;
+
+    print(
+        '                                  GPS HAS PERMISSION ${gpsPermission}');
+    if (gpsPermission) {
+      location.onLocationChanged.listen((LocationData currentLocation) {
+        manageNewPosition(currentLocation);
+      });
+    }
+  }
+
+  void manageNewPosition(LocationData loc) {
+    print('...............${loc.latitude}...........${loc.longitude}');
+    centerMap(LatLng(loc.latitude!, loc.longitude!));
+  }
+
+  void centerMap(LatLng location) {
+    mapController!.animateCamera(
+      CameraUpdate.newLatLng(location),
+      duration: const Duration(milliseconds: 100),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text('Gpx Recorder'),
+          actions: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.settings),
+                      onPressed: () async {
+                        var result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Settings(),
+                            ));
+                        if (result != null) {
+                          // var (Color? trColor, double? trWidth) = result;
+                          // trackColor = trColor!;
+                          // trackWidth = trWidth!;
+                        }
+                      },
+                    )
+                  ],
+                ),
+              ],
+            )
+          ],
         ),
         body: Stack(
           children: [
             MapLibreMap(
+              myLocationEnabled: true,
+              myLocationTrackingMode: _myLocationTrackingMode,
+              myLocationRenderMode: _myLocationRenderMode,
+              onMapCreated: _onMapCreated,
               styleString:
                   'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
-              myLocationEnabled: true,
               initialCameraPosition:
                   const CameraPosition(target: LatLng(0.0, 0.0)),
               trackCameraPosition: true,

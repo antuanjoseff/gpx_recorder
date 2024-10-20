@@ -28,6 +28,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  shared_preferences: ^2.3.2
+  location: ^5.0.3
   maplibre_gl: ^0.20.0
   geoxml: ^2.6.1
   flutter:
