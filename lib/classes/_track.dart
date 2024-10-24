@@ -11,15 +11,6 @@ class Track {
   // Array of coordinates to draw a linestring on map
   List<LatLng> gpxCoords = [];
 
-  // Start recording time
-  DateTime startAt = DateTime.now();
-
-  // Track length
-  double length = 0;
-
-  // Current altitud
-  int? altitude = null;
-
   // Constructor
   Track(this.trackSegment);
 
@@ -53,44 +44,18 @@ class Track {
     return bounds!;
   }
 
-  double getLength() {
-    return length;
-  }
-
-  int? getElevation() {
-    return altitude;
-  }
-
-  DateTime getStartTime() {
-    return startAt;
-  }
-
   void reset() {
     gpxCoords = [];
     trackSegment = [];
   }
 
-  void push(Wpt wpt) {
-    double inc = 0;
-    LatLng P = LatLng(wpt.lat!, wpt.lon!);
-    if (gpxCoords.isNotEmpty) {
-      LatLng prev = gpxCoords[gpxCoords.length - 1];
-      inc = getDistanceFromLatLonInMeters(P, prev);
-    }
-
-    gpxCoords.add(P);
-    trackSegment.add(wpt);
-    length += inc;
-    altitude = wpt.ele!.floor();
-  }
-
-  void insert(int position, Wpt wpt) {
+  void addNode(int position, Wpt wpt) {
     LatLng P = LatLng(wpt.lat!, wpt.lon!);
     gpxCoords.insert(position + 1, P);
     trackSegment.insert(position + 1, wpt);
   }
 
-  void remove(int index) {
+  void removeNode(int index) {
     trackSegment.removeAt(index);
     gpxCoords.removeAt(index);
   }
