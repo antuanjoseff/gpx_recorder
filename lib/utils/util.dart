@@ -190,13 +190,3 @@ void showSnackBar(context, String txt) {
     ),
   );
 }
-
-Wpt createWptFromLocation(LocationData location) {
-  Wpt wpt = new Wpt();
-  wpt.lat = location.latitude;
-  wpt.lon = location.longitude;
-  wpt.ele = location.altitude;
-  wpt.time = DateTime.now();
-
-  return wpt;
-}

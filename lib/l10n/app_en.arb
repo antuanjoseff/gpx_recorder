@@ -1,0 +1,14 @@
+{
+  "appTitle": "Gpx Recorder",
+  "settings": "Settings",
+  "accuracy": "Accuracy",
+  "numSatelites": "Número de satèlites",
+  "speed": "Speed",
+  "heading": "Bearing",
+  "notificationTitle": "Gpx recorder",
+  "notificationContent": "Background recording",
+  "trackData": "Data" ,
+  "distance": "Distance",
+  "altitude": "Altitude",
+  "movingTime": "Moving time"
+}

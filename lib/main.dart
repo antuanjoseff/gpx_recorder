@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:gpx_recorder/classes/track.dart';
 import 'utils/user_simple_preferences.dart';
 import './screens/settings.dart';
 import './screens/map.dart';
+import './classes/trackSettings.dart';
+import './classes/user_preferences.dart';
+import './classes/vars.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await UserPreferences.init();
   runApp(const MyApp());
 }
 
@@ -15,23 +23,36 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        AppLocalizations.delegate, // Add this line
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ca'), // catalan
+        Locale('es'), // Spanish
+        Locale('en'), // English
+      ],
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  TrackSettings _trackSettings = TrackSettings();
   bool recording = false;
   bool showPauseButton = false;
   bool showResumeOrStopButtons = false;
@@ -40,17 +61,34 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isResumed = false;
   bool mapCentered = true;
   int milliseconds = 300;
+
+  late bool numSatelites;
+  late bool accuracy;
+  late bool speed;
+  late bool heading;
+
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
-    minimumSize: Size.zero, // Set this
-    padding: EdgeInsets.all(15), // and this
-  );
+      minimumSize: Size.zero, // Set this
+      padding: EdgeInsets.all(15), // and this
+      backgroundColor: lightColor);
+
+  @override
+  void initState() {
+    numSatelites = UserPreferences.getNumSatelites();
+    accuracy = UserPreferences.getAccuracy();
+    speed = UserPreferences.getSpeed();
+    heading = UserPreferences.getHeading();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Gpx Recorder'),
+          // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          backgroundColor: mainColor,
+          foregroundColor: Colors.white,
+          title: Text(AppLocalizations.of(context)!.appTitle),
           actions: [
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -64,12 +102,25 @@ class _MyHomePageState extends State<MyHomePage> {
                         var result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Settings(),
+                              builder: (context) => Settings(
+                                numSatelites: numSatelites,
+                                accuracy: accuracy,
+                                speed: speed,
+                                heading: heading,
+                              ),
                             ));
                         if (result != null) {
-                          // var (Color? trColor, double? trWidth) = result;
-                          // trackColor = trColor!;
-                          // trackWidth = trWidth!;
+                          var (bool numSat, bool Ac, bool Sp, bool He) = result;
+                          numSatelites = numSat;
+                          accuracy = Ac;
+                          speed = Sp;
+                          heading = He;
+                          await UserPreferences.setNumSatelites(numSat);
+                          await UserPreferences.setAccuracy(Ac);
+                          await UserPreferences.setSpeed(Sp);
+                          await UserPreferences.setHeading(He);
+                          _trackSettings.setTrackPreferences!(
+                              numSat, accuracy, speed, heading);
                         }
                       },
                     )
@@ -81,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Stack(
           children: [
-            MapWidget(),
+            MapWidget(trackSettings: _trackSettings),
             AnimatedPositioned(
               duration: Duration(milliseconds: milliseconds),
               onEnd: () {
