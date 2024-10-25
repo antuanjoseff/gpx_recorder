@@ -11,4 +11,7 @@ class TrackSettings {
     bool speed,
     bool heading,
   )? setTrackPreferences;
+  void Function()? startRecording;
+  void Function()? stopRecording;
+  void Function()? finishRecording;
 }

@@ -12,10 +12,12 @@ import 'package:geoxml/geoxml.dart';
 
 class MapWidget extends StatefulWidget {
   final TrackSettings trackSettings;
+  final Function onlongpress;
 
   const MapWidget({
     super.key,
     required this.trackSettings,
+    required this.onlongpress,
   });
 
   @override
@@ -29,6 +31,8 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _heading;
   late Gps gps;
   late Track track;
+  bool recording = false;
+  bool stop = false;
   late MapLibreMapController mapController;
   Location location = new Location();
   MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.compass;
@@ -37,12 +41,13 @@ class _MapWidgetState extends State<MapWidget> {
 
   _MapWidgetState(TrackSettings trackSettings) {
     trackSettings.setTrackPreferences = setTrackPreferences;
+    trackSettings.startRecording = startRecording;
+    trackSettings.stopRecording = stopRecording;
+    trackSettings.finishRecording = finishRecording;
   }
 
   void setTrackPreferences(
       bool numSatelites, bool accuracy, bool speed, bool heading) {
-    debugPrint(
-        '...........................IN SET TRACK PREFERENCES ....$numSatelites....$accuracy  $speed    $heading');
     _numSatelites = numSatelites;
     _accuracy = accuracy;
     _speed = speed;
@@ -63,14 +68,30 @@ class _MapWidgetState extends State<MapWidget> {
     super.initState();
   }
 
+  void startRecording() {
+    recording = true;
+    print('start recording!!!!');
+  }
+
+  void stopRecording() {
+    recording = false;
+    print('stop recording!!!!');
+  }
+
+  void finishRecording() {
+    recording = false;
+    stop = true;
+    print('finish recording!!!!');
+  }
+
   void _onMapCreated(MapLibreMapController controller) async {
     mapController = controller;
 
     bool enabled = await gps.checkService();
     if (enabled) {
       bool hasPermission = await gps.checkPermission();
-
       if (hasPermission!) {
+        gps.changeInterval(1000);
         gps.listenOnBackground(manageNewPosition);
       }
     }
@@ -82,21 +103,27 @@ class _MapWidgetState extends State<MapWidget> {
     wpt.lon = location.longitude;
     wpt.ele = location.altitude;
     wpt.time = DateTime.now();
-    if (_numSatelites) {
-      wpt.sat = location.satelliteNumber;
-    }
-    if (_accuracy || _speed || _heading) {
-      wpt.extensions = {
-        'accuracy': _accuracy ? location.accuracy.toString() : '',
-        'speed': _speed ? location.speed.toString() : '',
-        'heading': _heading ? location.heading.toString() : ''
-      };
-    }
+    // if (_numSatelites) {
+    //   wpt.sat = location.satelliteNumber;
+    // }
+    // if (_accuracy || _speed || _heading) {
+    //   wpt.extensions = {
+    //     'accuracy': _accuracy ? location.accuracy.toString() : '',
+    //     'speed': _speed ? location.speed.toString() : '',
+    //     'heading': _heading ? location.heading.toString() : ''
+    //   };
+    // }
     return wpt;
   }
 
   void manageNewPosition(LocationData loc) {
-    track.push(createWptFromLocation(loc));
+    print('manageNewPosition $loc');
+    if (recording) {
+      Wpt wpt = createWptFromLocation(loc);
+      track.push(wpt);
+      debugPrint(
+          '....................................................${track.trackSegment.length}');
+    }
     centerMap(LatLng(loc.latitude!, loc.longitude!));
   }
 
@@ -116,6 +143,9 @@ class _MapWidgetState extends State<MapWidget> {
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
+          onMapLongClick: (point, coordinates) {
+            widget.onlongpress();
+          },
           styleString:
               'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),

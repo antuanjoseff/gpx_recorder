@@ -62,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool mapCentered = true;
   int milliseconds = 300;
 
+  bool fullScreen = false;
   late bool numSatelites;
   late bool accuracy;
   late bool speed;
@@ -81,11 +82,18 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
+  void toggleAppBar() {
+    print('......................toggle appbar');
+    setState(() {
+      fullScreen = !fullScreen;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          // toolbarHeight: !fullScreen ? 40 : 0,
           backgroundColor: mainColor,
           foregroundColor: Colors.white,
           title: Text(AppLocalizations.of(context)!.appTitle),
@@ -132,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Stack(
           children: [
-            MapWidget(trackSettings: _trackSettings),
+            MapWidget(trackSettings: _trackSettings, onlongpress: toggleAppBar),
             AnimatedPositioned(
               duration: Duration(milliseconds: milliseconds),
               onEnd: () {
@@ -149,6 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       style: customStyleButton,
                       onPressed: () {
+                        _trackSettings.startRecording!();
                         setState(() {
                           recording = true;
                         });
@@ -201,6 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
               duration: Duration(milliseconds: milliseconds),
               left: showResumeOrStopButtons ? 10 : -160,
               onEnd: () {
+                _trackSettings.stopRecording!();
                 setState(() {
                   if (isResumed && !isPaused) {
                     showPauseButton = true;
@@ -217,6 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         style: customStyleButton,
                         onPressed: () {
+                          _trackSettings.startRecording!();
                           setState(() {
                             showResumeOrStopButtons = false;
                             isResumed = true;
@@ -233,6 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
+                          _trackSettings.finishRecording!();
                           setState(() {
                             isStopped = true;
                           });

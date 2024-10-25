@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 // Request a location
@@ -38,9 +39,14 @@ class Gps {
       title: 'Geolocation',
       subtitle: 'Geolocation detection',
     );
-
+    location.changeSettings(interval: 1000);
     location.onLocationChanged.listen((LocationData currentLocation) {
+      print('IN GPS CLASS $currentLocation');
       managePosition(currentLocation);
     });
+  }
+
+  changeInterval(int interval) {
+    location.changeSettings(interval: interval);
   }
 }
