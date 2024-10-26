@@ -53,92 +53,91 @@ class _SettingsState extends State<Settings> {
           },
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          (Platform.isAndroid)
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      width: 50,
-                    ),
-                    Switch(
-                        value: numSatelitesIsSwitched,
-                        activeTrackColor: mainColor,
-                        onChanged: (value) {
-                          setState(() {
-                            numSatelitesIsSwitched = value;
-                          });
-                        }),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(AppLocalizations.of(context)!.numSatelites)
-                  ],
-                )
-              : Container(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                width: 50,
-              ),
-              Switch(
-                  value: accuracyIsSwitched,
-                  activeTrackColor: mainColor,
-                  onChanged: (value) {
-                    setState(() {
-                      accuracyIsSwitched = value;
-                    });
-                  }),
-              const SizedBox(
-                width: 5,
-              ),
-              Text(AppLocalizations.of(context)!.accuracy)
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                width: 50,
-              ),
-              Switch(
-                  value: speedIsSwitched,
-                  activeTrackColor: mainColor,
-                  onChanged: (value) {
-                    setState(() {
-                      speedIsSwitched = value;
-                    });
-                  }),
-              const SizedBox(
-                width: 5,
-              ),
-              Text(AppLocalizations.of(context)!.speed)
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                width: 50,
-              ),
-              Switch(
-                  value: headingIsSwitched,
-                  activeTrackColor: mainColor,
-                  onChanged: (value) {
-                    setState(() {
-                      headingIsSwitched = value;
-                    });
-                  }),
-              const SizedBox(
-                width: 5,
-              ),
-              Text(AppLocalizations.of(context)!.heading)
-            ],
-          )
-        ],
+      body: DefaultTextStyle(
+        style: TextStyle(color: Colors.black, fontSize: 25),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            (Platform.isAndroid)
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(width: 50, height: 70),
+                      Transform.scale(
+                        scale: 1.5,
+                        child: Switch(
+                            value: numSatelitesIsSwitched,
+                            activeTrackColor: mainColor,
+                            onChanged: (value) {
+                              setState(() {
+                                numSatelitesIsSwitched = value;
+                              });
+                            }),
+                      ),
+                      SizedBox(width: 20),
+                      Text(AppLocalizations.of(context)!.numSatelites)
+                    ],
+                  )
+                : Container(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(width: 50, height: 70),
+                Transform.scale(
+                  scale: 1.5,
+                  child: Switch(
+                      value: accuracyIsSwitched,
+                      activeTrackColor: mainColor,
+                      onChanged: (value) {
+                        setState(() {
+                          accuracyIsSwitched = value;
+                        });
+                      }),
+                ),
+                SizedBox(width: 20),
+                Text(AppLocalizations.of(context)!.accuracy)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(width: 50, height: 70),
+                Transform.scale(
+                  scale: 1.5,
+                  child: Switch(
+                      value: speedIsSwitched,
+                      activeTrackColor: mainColor,
+                      onChanged: (value) {
+                        setState(() {
+                          speedIsSwitched = value;
+                        });
+                      }),
+                ),
+                SizedBox(width: 20),
+                Text(AppLocalizations.of(context)!.speed)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(width: 50, height: 70),
+                Transform.scale(
+                  scale: 1.5,
+                  child: Switch(
+                      value: headingIsSwitched,
+                      activeTrackColor: mainColor,
+                      onChanged: (value) {
+                        setState(() {
+                          headingIsSwitched = value;
+                        });
+                      }),
+                ),
+                SizedBox(width: 20),
+                Text(AppLocalizations.of(context)!.heading)
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

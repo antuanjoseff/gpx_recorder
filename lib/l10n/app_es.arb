@@ -10,5 +10,6 @@
     "trackData": "Datos",
     "distance": "Distancia",
     "altitude": "Altitud",
-    "movingTime": "Tiempo en movimiento"
+    "elapsedTime": "Tiempo transcurrido",
+    "trackSpeedAverage": "Velocidad media"
 }

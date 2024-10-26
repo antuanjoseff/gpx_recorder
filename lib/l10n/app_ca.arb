@@ -2,7 +2,7 @@
     "appTitle": "Gpx Recorder",
     "settings": "Configuració",
     "accuracy": "Precisió",
-    "numSatelites": "Número de satèl·lits",
+    "numSatelites": "Núm. satèl·lits",
     "speed": "Velocitat",
     "heading": "Orientació",
     "notificationTitle": "Gpx recorder",
@@ -10,5 +10,6 @@
     "trackData": "Dades",
     "distance": "Distància",
     "altitude": "Altitud",
-    "movingTime": "Temps en moviment"
+    "elapsedTime": "Temps transorregut",
+    "trackSpeedAverage": "Velocitat mitjana"
 }

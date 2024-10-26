@@ -2,7 +2,7 @@
   "appTitle": "Gpx Recorder",
   "settings": "Settings",
   "accuracy": "Accuracy",
-  "numSatelites": "Número de satèlites",
+  "numSatelites": "No. of satèlites",
   "speed": "Speed",
   "heading": "Bearing",
   "notificationTitle": "Gpx recorder",
@@ -10,5 +10,6 @@
   "trackData": "Data" ,
   "distance": "Distance",
   "altitude": "Altitude",
-  "movingTime": "Moving time"
+  "elapsedTime": "Elapsed time",
+  "trackSpeedAverage": "Average speed"
 }

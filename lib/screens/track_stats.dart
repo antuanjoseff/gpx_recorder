@@ -19,6 +19,7 @@ class _TrackStatsState extends State<TrackStats> {
   late String trackLength;
   late String trackTime;
   late String trackAltitude;
+  late String avgSpeed;
 
   String _formatDuration(Duration duration) {
     String negativeSign = duration.isNegative ? '-' : '';
@@ -52,6 +53,11 @@ class _TrackStatsState extends State<TrackStats> {
     trackLength = UserPreferences.getTrackLength();
     trackTime = UserPreferences.getTrackTime();
     trackAltitude = UserPreferences.getTrackAltitude();
+    double kmh = 3.6 *
+        (_track.getLength() /
+            DateTime.now().difference(_track.getStartTime()).inSeconds);
+
+    avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
 
     // defines a timer
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
@@ -62,6 +68,12 @@ class _TrackStatsState extends State<TrackStats> {
         trackAltitude = _track.getElevation() != null
             ? _track.getElevation().toString() + 'm'
             : '--';
+        double kmh = 3.6 *
+            (_track.getLength() /
+                DateTime.now().difference(_track.getStartTime()).inSeconds);
+        avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
+        debugPrint(
+            '${_track.getLength()}       -------------      ${DateTime.now().difference(_track.getStartTime()).inSeconds}');
       });
     });
   }
@@ -96,6 +108,13 @@ class _TrackStatsState extends State<TrackStats> {
                   trackLength,
                   style: const TextStyle(fontSize: 45),
                 ),
+                const SizedBox(height: 15),
+                Text(AppLocalizations.of(context)!.trackSpeedAverage,
+                    style: TextStyle(fontSize: 25)),
+                Text(
+                  avgSpeed,
+                  style: const TextStyle(fontSize: 45),
+                ),
                 SizedBox(height: 15),
                 Text(AppLocalizations.of(context)!.altitude,
                     style: TextStyle(fontSize: 25)),
@@ -104,7 +123,7 @@ class _TrackStatsState extends State<TrackStats> {
                   style: const TextStyle(fontSize: 45),
                 ),
                 const SizedBox(height: 15),
-                Text(AppLocalizations.of(context)!.movingTime,
+                Text(AppLocalizations.of(context)!.elapsedTime,
                     style: TextStyle(fontSize: 25)),
                 Text(
                   trackTime,
