@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:geoxml/geoxml.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'bounds.dart' as my;
@@ -14,11 +16,17 @@ class Track {
   // Start recording time
   DateTime startAt = DateTime.now();
 
+  //Time not moving
+  Duration notMovingTime = Duration(seconds: 0);
+
   // Track length
   double length = 0;
 
+  // Track last / current speedlength
+  double? currentSpeed = 0;
+
   // Current altitud
-  int? altitude = null;
+  int? currentAltitude = null;
 
   // Constructor
   Track(this.trackSegment);
@@ -27,6 +35,12 @@ class Track {
   my.Bounds? bounds;
 
   Future<void> init() async {
+    startAt = DateTime.now();
+    notMovingTime = Duration(seconds: 0);
+  }
+
+  my.Bounds? getBounds() {
+    if (trackSegment.isEmpty) return null;
     LatLng cur;
 
     // Init track bounds with first track point
@@ -39,6 +53,7 @@ class Track {
       bounds!.expand(cur);
       gpxCoords.add(cur);
     }
+    return bounds;
   }
 
   List<LatLng> getCoordsList() {
@@ -49,20 +64,36 @@ class Track {
     return trackSegment;
   }
 
-  my.Bounds getBounds() {
-    return bounds!;
-  }
-
   double getLength() {
     return length;
   }
 
-  int? getElevation() {
-    return altitude;
+  double? getCurrentSpeed() {
+    return currentSpeed;
+  }
+
+  int? getCurrentElevation() {
+    return currentAltitude;
   }
 
   DateTime getStartTime() {
     return startAt;
+  }
+
+  Duration getNotMovingTime() {
+    return notMovingTime;
+  }
+
+  void setCurrentSpeed(double? speed) {
+    currentSpeed = speed;
+  }
+
+  void setCurrentElevation(int? elevation) {
+    currentAltitude = elevation;
+  }
+
+  void setNotMovingTime(Duration time) {
+    notMovingTime = time;
   }
 
   void reset() {
@@ -81,7 +112,6 @@ class Track {
     gpxCoords.add(P);
     trackSegment.add(wpt);
     length += inc;
-    altitude = wpt.ele!.floor();
   }
 
   void insert(int position, Wpt wpt) {

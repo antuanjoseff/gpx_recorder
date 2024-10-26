@@ -11,5 +11,6 @@
     "distance": "Distancia",
     "altitude": "Altitud",
     "elapsedTime": "Tiempo transcurrido",
+    "stoppedTime": "Tiempo parado",
     "trackSpeedAverage": "Velocidad media"
 }

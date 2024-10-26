@@ -41,12 +41,16 @@ class Gps {
     );
     location.changeSettings(interval: 1000);
     location.onLocationChanged.listen((LocationData currentLocation) {
-      print('IN GPS CLASS $currentLocation');
+      print('IN GPS CLASS ${currentLocation.speed}');
       managePosition(currentLocation);
     });
   }
 
-  changeInterval(int interval) {
+  changeIntervalByTime(int interval) {
     location.changeSettings(interval: interval);
+  }
+
+  changeIntervalByDistance(double distance) {
+    location.changeSettings(distanceFilter: distance);
   }
 }

@@ -10,6 +10,7 @@
     "trackData": "Dades",
     "distance": "Distància",
     "altitude": "Altitud",
-    "elapsedTime": "Temps transorregut",
+    "elapsedTime": "Temps transcorregut",
+    "stoppedTime": "Temps aturat",
     "trackSpeedAverage": "Velocitat mitjana"
 }

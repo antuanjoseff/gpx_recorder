@@ -191,6 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         style: customStyleButton,
                         onPressed: () {
+                          _trackSettings.stopRecording!();
                           setState(() {
                             showPauseButton = false;
                             isPaused = true;
@@ -210,7 +211,6 @@ class _MyHomePageState extends State<MyHomePage> {
               duration: Duration(milliseconds: milliseconds),
               left: showResumeOrStopButtons ? 10 : -160,
               onEnd: () {
-                _trackSettings.stopRecording!();
                 setState(() {
                   if (isResumed && !isPaused) {
                     showPauseButton = true;
@@ -227,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         style: customStyleButton,
                         onPressed: () {
-                          _trackSettings.startRecording!();
+                          _trackSettings.resumeRecording!();
                           setState(() {
                             showResumeOrStopButtons = false;
                             isResumed = true;

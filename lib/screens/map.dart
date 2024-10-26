@@ -33,6 +33,10 @@ class _MapWidgetState extends State<MapWidget> {
   late Track track;
   bool recording = false;
   bool stop = false;
+  bool isMoving = false;
+  late DateTime notMovingStartedAt;
+  Duration timeNotMoving = Duration(seconds: 0);
+
   late MapLibreMapController mapController;
   Location location = new Location();
   MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.compass;
@@ -42,6 +46,7 @@ class _MapWidgetState extends State<MapWidget> {
   _MapWidgetState(TrackSettings trackSettings) {
     trackSettings.setTrackPreferences = setTrackPreferences;
     trackSettings.startRecording = startRecording;
+    trackSettings.resumeRecording = resumeRecording;
     trackSettings.stopRecording = stopRecording;
     trackSettings.finishRecording = finishRecording;
   }
@@ -70,7 +75,13 @@ class _MapWidgetState extends State<MapWidget> {
 
   void startRecording() {
     recording = true;
+    track.init();
     print('start recording!!!!');
+  }
+
+  void resumeRecording() {
+    recording = true;
+    print('resume recording!!!!');
   }
 
   void stopRecording() {
@@ -91,38 +102,68 @@ class _MapWidgetState extends State<MapWidget> {
     if (enabled) {
       bool hasPermission = await gps.checkPermission();
       if (hasPermission!) {
-        gps.changeInterval(1000);
-        gps.listenOnBackground(manageNewPosition);
+        gps.changeIntervalByTime(1000);
+        gps.listenOnBackground(handleNewPosition);
       }
     }
   }
 
   Wpt createWptFromLocation(LocationData location) {
     Wpt wpt = new Wpt();
+
     wpt.lat = location.latitude;
     wpt.lon = location.longitude;
     wpt.ele = location.altitude;
     wpt.time = DateTime.now();
-    // if (_numSatelites) {
-    //   wpt.sat = location.satelliteNumber;
-    // }
-    // if (_accuracy || _speed || _heading) {
-    //   wpt.extensions = {
-    //     'accuracy': _accuracy ? location.accuracy.toString() : '',
-    //     'speed': _speed ? location.speed.toString() : '',
-    //     'heading': _heading ? location.heading.toString() : ''
-    //   };
-    // }
+
+    if (_accuracy) {
+      wpt.extensions = {'accuracy': location.accuracy.toString()};
+    }
+
+    if (_speed) {
+      wpt.extensions = {'speed': location.speed.toString()};
+    }
+
+    if (_heading) {
+      wpt.extensions = {'heading': location.heading.toString()};
+    }
+
     return wpt;
   }
 
-  void manageNewPosition(LocationData loc) {
-    print('manageNewPosition $loc');
+  void handleNewPosition(LocationData loc) {
+    print('-------------------------------');
+    print(loc.speed);
+    print(loc.speed?.toStringAsFixed(3));
+    print('-------------------------------');
+    if ((loc.speed?.toStringAsFixed(3) == "0.00")) {
+      if (isMoving) {
+        isMoving = false;
+        notMovingStartedAt = DateTime.now();
+      } else {
+        //user remains stopped
+        timeNotMoving = DateTime.now().difference(notMovingStartedAt);
+        track.setNotMovingTime(timeNotMoving);
+      }
+    } else {
+      if (!isMoving) {
+        timeNotMoving = DateTime.now().difference(notMovingStartedAt);
+        track.setNotMovingTime(timeNotMoving);
+      } else {
+        //user remains moving
+      }
+      isMoving = true;
+    }
+
+    debugPrint('...................SPEED');
+    debugPrint('...................${loc.speed.toString()}');
     if (recording) {
       Wpt wpt = createWptFromLocation(loc);
       track.push(wpt);
+      track.setCurrentSpeed(double.parse(loc.speed!.toStringAsFixed(2)));
+      track.setCurrentElevation(loc.altitude?.floor());
       debugPrint(
-          '....................................................${track.trackSegment.length}');
+          '................................${track.trackSegment.length}');
     }
     centerMap(LatLng(loc.latitude!, loc.longitude!));
   }

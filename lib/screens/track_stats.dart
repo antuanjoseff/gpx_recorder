@@ -18,6 +18,7 @@ class _TrackStatsState extends State<TrackStats> {
   Timer? _timer;
   late String trackLength;
   late String trackTime;
+  late String notMovingTime;
   late String trackAltitude;
   late String avgSpeed;
 
@@ -57,23 +58,27 @@ class _TrackStatsState extends State<TrackStats> {
         (_track.getLength() /
             DateTime.now().difference(_track.getStartTime()).inSeconds);
 
-    avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
-
+    // avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
+    avgSpeed = _track.getCurrentSpeed().toString() + ' Km/h';
+    notMovingTime = _formatDuration(_track.getNotMovingTime());
     // defines a timer
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
       setState(() {
         trackLength = formatDistance(_track.getLength());
         trackTime =
             _formatDuration(DateTime.now().difference(_track.getStartTime()));
-        trackAltitude = _track.getElevation() != null
-            ? _track.getElevation().toString() + 'm'
+        trackAltitude = _track.getCurrentElevation() != null
+            ? _track.getCurrentElevation().toString() + 'm'
             : '--';
-        double kmh = 3.6 *
-            (_track.getLength() /
-                DateTime.now().difference(_track.getStartTime()).inSeconds);
+        // double kmh = 3.6 *
+        //     (_track.getLength() /
+        //         DateTime.now().difference(_track.getStartTime()).inSeconds);
+        double kmh = 3.6 * _track.getCurrentSpeed()!;
+        notMovingTime = _formatDuration(_track.getNotMovingTime());
+
         avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
-        debugPrint(
-            '${_track.getLength()}       -------------      ${DateTime.now().difference(_track.getStartTime()).inSeconds}');
+        // debugPrint(
+        //     '${_track.getLength()}       -------------      ${DateTime.now().difference(_track.getStartTime()).inSeconds}');
       });
     });
   }
@@ -103,31 +108,38 @@ class _TrackStatsState extends State<TrackStats> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(AppLocalizations.of(context)!.distance,
-                    style: TextStyle(fontSize: 25)),
+                    style: TextStyle(fontSize: 20)),
                 Text(
                   trackLength,
-                  style: const TextStyle(fontSize: 45),
+                  style: const TextStyle(fontSize: 40),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
                 Text(AppLocalizations.of(context)!.trackSpeedAverage,
-                    style: TextStyle(fontSize: 25)),
+                    style: TextStyle(fontSize: 20)),
                 Text(
                   avgSpeed,
-                  style: const TextStyle(fontSize: 45),
+                  style: const TextStyle(fontSize: 40),
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 10),
                 Text(AppLocalizations.of(context)!.altitude,
-                    style: TextStyle(fontSize: 25)),
+                    style: TextStyle(fontSize: 20)),
                 Text(
                   trackAltitude,
-                  style: const TextStyle(fontSize: 45),
+                  style: const TextStyle(fontSize: 40),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
+                Text(AppLocalizations.of(context)!.stoppedTime,
+                    style: TextStyle(fontSize: 20)),
+                Text(
+                  notMovingTime,
+                  style: const TextStyle(fontSize: 40),
+                ),
+                const SizedBox(height: 10),
                 Text(AppLocalizations.of(context)!.elapsedTime,
-                    style: TextStyle(fontSize: 25)),
+                    style: TextStyle(fontSize: 20)),
                 Text(
                   trackTime,
-                  style: const TextStyle(fontSize: 45),
+                  style: const TextStyle(fontSize: 40),
                 )
               ],
             ),

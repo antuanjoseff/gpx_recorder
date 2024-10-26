@@ -13,5 +13,6 @@ class TrackSettings {
   )? setTrackPreferences;
   void Function()? startRecording;
   void Function()? stopRecording;
+  void Function()? resumeRecording;
   void Function()? finishRecording;
 }
