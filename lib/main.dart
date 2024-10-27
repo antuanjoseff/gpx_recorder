@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gpx_recorder/classes/track.dart';
-import 'utils/user_simple_preferences.dart';
+// import 'utils/user_simple_preferences.dart';
 import './screens/settings.dart';
 import './screens/map.dart';
 import './classes/trackSettings.dart';
@@ -67,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool accuracy;
   late bool speed;
   late bool heading;
+  late bool provider;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
       minimumSize: Size.zero, // Set this
@@ -79,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     accuracy = UserPreferences.getAccuracy();
     speed = UserPreferences.getSpeed();
     heading = UserPreferences.getHeading();
+    provider = UserPreferences.getProvider();
     super.initState();
   }
 
@@ -115,20 +117,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                 accuracy: accuracy,
                                 speed: speed,
                                 heading: heading,
+                                provider: provider,
                               ),
                             ));
                         if (result != null) {
-                          var (bool numSat, bool Ac, bool Sp, bool He) = result;
+                          var (
+                            bool numSat,
+                            bool Ac,
+                            bool Sp,
+                            bool He,
+                            bool Pro
+                          ) = result;
                           numSatelites = numSat;
                           accuracy = Ac;
                           speed = Sp;
                           heading = He;
+                          provider = Pro;
                           await UserPreferences.setNumSatelites(numSat);
                           await UserPreferences.setAccuracy(Ac);
                           await UserPreferences.setSpeed(Sp);
                           await UserPreferences.setHeading(He);
                           _trackSettings.setTrackPreferences!(
-                              numSat, accuracy, speed, heading);
+                              numSat, accuracy, speed, heading, provider);
                         }
                       },
                     )

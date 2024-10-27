@@ -8,6 +8,7 @@ class UserPreferences {
   static const _accuracy = 'accuracy';
   static const _speed = 'speed';
   static const _heading = 'heading';
+  static const _provider = 'provider';
   static const _trackLength = 'trackLength';
   static const _trackTime = 'trackTime';
   static const _trackAltitude = 'trackAltitude';
@@ -38,6 +39,11 @@ class UserPreferences {
     return heading == null ? false : heading;
   }
 
+  static bool getProvider() {
+    final provider = _preferences.getBool(_provider);
+    return provider == null ? false : provider;
+  }
+
   static String getTrackLength() {
     final trackLength = _preferences.getString(_trackLength);
     return trackLength == null ? '0' : trackLength;
@@ -66,6 +72,9 @@ class UserPreferences {
 
   static Future setHeading(bool heading) async =>
       await _preferences.setBool(_heading, heading);
+
+  static Future setProvider(bool provider) async =>
+      await _preferences.setBool(_provider, provider);
 
   static Future setTrackLength(String length) async =>
       await _preferences.setString(_trackLength, length);

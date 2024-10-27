@@ -29,6 +29,7 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _accuracy;
   late bool _speed;
   late bool _heading;
+  late bool _provider;
   late Gps gps;
   late Track track;
   bool recording = false;
@@ -51,12 +52,13 @@ class _MapWidgetState extends State<MapWidget> {
     trackSettings.finishRecording = finishRecording;
   }
 
-  void setTrackPreferences(
-      bool numSatelites, bool accuracy, bool speed, bool heading) {
+  void setTrackPreferences(bool numSatelites, bool accuracy, bool speed,
+      bool heading, bool provider) {
     _numSatelites = numSatelites;
     _accuracy = accuracy;
     _speed = speed;
     _heading = heading;
+    _provider = provider;
   }
 
   @override
@@ -138,7 +140,7 @@ class _MapWidgetState extends State<MapWidget> {
     // wpt.extensions = {'accuracy': location.accuracy.toString()};
     // wpt.extensions = {'speed': location.speed.toString()};
 
-    if (_accuracy || _speed || _heading || _numSatelites) {
+    if (_accuracy || _speed || _heading || _numSatelites || _provider) {
       wpt.extensions = {};
     }
     if (_accuracy) {
@@ -155,6 +157,10 @@ class _MapWidgetState extends State<MapWidget> {
 
     if (_heading) {
       wpt.extensions['heading'] = location.heading.toString();
+    }
+
+    if (_provider) {
+      wpt.extensions['provider'] = location.provider.toString();
     }
 
     return wpt;

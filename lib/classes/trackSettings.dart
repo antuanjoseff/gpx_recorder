@@ -10,6 +10,7 @@ class TrackSettings {
     bool accuracy,
     bool speed,
     bool heading,
+    bool provider,
   )? setTrackPreferences;
   void Function()? startRecording;
   void Function()? stopRecording;

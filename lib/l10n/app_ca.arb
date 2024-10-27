@@ -5,6 +5,7 @@
     "numSatelites": "Núm. satèl·lits",
     "speed": "Velocitat",
     "heading": "Orientació",
+    "provider": "Proveïdor",
     "notificationTitle": "Gpx recorder",
     "notificationContent": "Gravant en segon plà",
     "trackData": "Dades",

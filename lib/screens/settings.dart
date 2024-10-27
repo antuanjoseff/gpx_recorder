@@ -8,13 +8,15 @@ class Settings extends StatefulWidget {
   final bool accuracy;
   final bool speed;
   final bool heading;
+  final bool provider;
 
   Settings(
       {super.key,
       required this.numSatelites,
       required this.accuracy,
       required this.speed,
-      required this.heading});
+      required this.heading,
+      required this.provider});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -25,6 +27,7 @@ class _SettingsState extends State<Settings> {
   late bool accuracyIsSwitched;
   late bool speedIsSwitched;
   late bool headingIsSwitched;
+  late bool providerIsSwitched;
 
   @override
   void initState() {
@@ -32,6 +35,7 @@ class _SettingsState extends State<Settings> {
     accuracyIsSwitched = widget.accuracy;
     speedIsSwitched = widget.speed;
     headingIsSwitched = widget.heading;
+    providerIsSwitched = widget.provider;
     super.initState();
   }
 
@@ -49,6 +53,7 @@ class _SettingsState extends State<Settings> {
               accuracyIsSwitched,
               speedIsSwitched,
               headingIsSwitched,
+              providerIsSwitched,
             ));
           },
         ),
@@ -58,6 +63,44 @@ class _SettingsState extends State<Settings> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(width: 50, height: 70),
+                Transform.scale(
+                  scale: 1.5,
+                  child: Switch(
+                      value: speedIsSwitched,
+                      activeTrackColor: mainColor,
+                      onChanged: (value) {
+                        setState(() {
+                          speedIsSwitched = value;
+                        });
+                      }),
+                ),
+                SizedBox(width: 20),
+                Text(AppLocalizations.of(context)!.speed)
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(width: 50, height: 70),
+                Transform.scale(
+                  scale: 1.5,
+                  child: Switch(
+                      value: headingIsSwitched,
+                      activeTrackColor: mainColor,
+                      onChanged: (value) {
+                        setState(() {
+                          headingIsSwitched = value;
+                        });
+                      }),
+                ),
+                SizedBox(width: 20),
+                Text(AppLocalizations.of(context)!.heading)
+              ],
+            ),
             (Platform.isAndroid)
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -105,35 +148,16 @@ class _SettingsState extends State<Settings> {
                 Transform.scale(
                   scale: 1.5,
                   child: Switch(
-                      value: speedIsSwitched,
+                      value: providerIsSwitched,
                       activeTrackColor: mainColor,
                       onChanged: (value) {
                         setState(() {
-                          speedIsSwitched = value;
+                          providerIsSwitched = value;
                         });
                       }),
                 ),
                 SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.speed)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(width: 50, height: 70),
-                Transform.scale(
-                  scale: 1.5,
-                  child: Switch(
-                      value: headingIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          headingIsSwitched = value;
-                        });
-                      }),
-                ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.heading)
+                Text(AppLocalizations.of(context)!.provider)
               ],
             )
           ],
