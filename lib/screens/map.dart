@@ -5,10 +5,10 @@ import '../classes/gps.dart';
 import '../classes/track.dart';
 import '../classes/trackSettings.dart';
 import '../screens/track_stats.dart';
-import '../utils/util.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geoxml/geoxml.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:convert' show utf8;
 
 class MapWidget extends StatefulWidget {
   final TrackSettings trackSettings;
@@ -73,10 +73,19 @@ class _MapWidgetState extends State<MapWidget> {
     super.initState();
   }
 
-  void startRecording() {
-    recording = true;
-    track.init();
+  void startRecording() async {
     print('start recording!!!!');
+    bool enabled = await gps.checkService();
+    if (enabled) {
+      bool hasPermission = await gps.checkPermission();
+      if (hasPermission!) {
+        recording = true;
+        track.init();
+        notMovingStartedAt = DateTime.now();
+        gps.changeIntervalByTime(1000);
+        gps.listenOnBackground(handleNewPosition);
+      }
+    }
   }
 
   void resumeRecording() {
@@ -89,23 +98,33 @@ class _MapWidgetState extends State<MapWidget> {
     print('stop recording!!!!');
   }
 
-  void finishRecording() {
+  void finishRecording() async {
     recording = false;
     stop = true;
-    print('finish recording!!!!');
+    final gpx = GeoXml();
+    gpx.version = '1.1';
+    gpx.creator = 'dart-gpx library';
+    gpx.metadata = Metadata();
+    gpx.metadata?.name = 'world cities';
+    gpx.metadata?.desc = 'location of some of world cities';
+    gpx.metadata?.time = DateTime.utc(2010, 1, 2, 3, 4, 5);
+    gpx.wpts = track.wpts;
+
+    // get GPX string
+    // final gpxString = GpxWriter().asString(gpx, pretty: true);
+    final gpxString = gpx.toGpxString(pretty: true);
+
+    String? outputFile = await FilePicker.platform.saveFile(
+      dialogTitle: 'Please select an output file:',
+      bytes: utf8.encode(gpxString),
+      // bytes: convertStringToUint8List(gpxString),
+      fileName: 'track_name.gpx',
+      allowedExtensions: ['gpx'],
+    );
   }
 
   void _onMapCreated(MapLibreMapController controller) async {
     mapController = controller;
-
-    bool enabled = await gps.checkService();
-    if (enabled) {
-      bool hasPermission = await gps.checkPermission();
-      if (hasPermission!) {
-        gps.changeIntervalByTime(1000);
-        gps.listenOnBackground(handleNewPosition);
-      }
-    }
   }
 
   Wpt createWptFromLocation(LocationData location) {
@@ -116,52 +135,65 @@ class _MapWidgetState extends State<MapWidget> {
     wpt.ele = location.altitude;
     wpt.time = DateTime.now();
 
-    // if (_accuracy) {
-    //   wpt.extensions = {'accuracy': location.accuracy.toString()};
-    // }
+    // wpt.extensions = {'accuracy': location.accuracy.toString()};
+    // wpt.extensions = {'speed': location.speed.toString()};
 
-    // if (_speed) {
-    //   wpt.extensions = {'speed': location.speed.toString()};
-    // }
+    if (_accuracy || _speed || _heading || _numSatelites) {
+      wpt.extensions = {};
+    }
+    if (_accuracy) {
+      wpt.extensions['accuracy'] = location.accuracy.toString();
+    }
 
-    // if (_heading) {
-    //   wpt.extensions = {'heading': location.heading.toString()};
-    // }
+    if (_numSatelites) {
+      wpt.extensions['satelites'] = location.satelliteNumber.toString();
+    }
+
+    if (_speed) {
+      wpt.extensions['speed'] = location.speed.toString();
+    }
+
+    if (_heading) {
+      wpt.extensions['heading'] = location.heading.toString();
+    }
 
     return wpt;
   }
 
+  bool userIsNotMoving(LocationData loc) {
+    return (loc.speed?.round() == 0);
+  }
+
   void handleNewPosition(LocationData loc) {
-    print('-------------------------------');
-    print(loc.speed);
-    print(loc.speed?.toStringAsFixed(3));
-    print('-------------------------------');
-    // if ((loc.speed?.round() == 0)) {
-    // if (isMoving) {
-    //   isMoving = false;
-    //   notMovingStartedAt = DateTime.now();
-    // } else {
-    //     // user remains stopped
-    //     timeNotMoving = DateTime.now().difference(notMovingStartedAt);
-    //     track.setNotMovingTime(timeNotMoving);
-    //   }
-    // } else {
-    //   if (!isMoving) {
-    //     timeNotMoving = DateTime.now().difference(notMovingStartedAt);
-    //     track.setNotMovingTime(timeNotMoving);
-    //   } else {
-    //     //user remains moving
-    //   }
-    //   isMoving = true;
-    // }
+    if (userIsNotMoving(loc)) {
+      // USER IS NOT MOVING
+      if (isMoving) {
+        isMoving = false;
+        notMovingStartedAt = DateTime.now();
+      } else {
+        // user remains stopped
+        String timestopped =
+            DateTime.now().difference(notMovingStartedAt).toString();
+        track.setNotMovingTime(timeNotMoving);
+      }
+    } else {
+      // USER IS MOVING
+      if (!isMoving) {
+        //user changes state
+        timeNotMoving = DateTime.now().difference(notMovingStartedAt);
+        track.setNotMovingTime(timeNotMoving);
+      } else {
+        //user remains moving
+      }
+      isMoving = true;
+    }
 
     if (recording) {
       Wpt wpt = createWptFromLocation(loc);
       track.push(wpt);
       track.setCurrentSpeed(double.parse(loc.speed!.toStringAsFixed(2)));
       track.setCurrentElevation(loc.altitude?.floor());
-      debugPrint(
-          '................................${track.trackSegment.length}');
+      debugPrint('................................${track.wpts.length}');
     }
     centerMap(LatLng(loc.latitude!, loc.longitude!));
   }

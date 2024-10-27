@@ -8,7 +8,7 @@ import '../utils/util.dart';
 
 class Track {
   // Original track
-  List<Wpt> trackSegment = [];
+  List<Wpt> wpts = [];
 
   // Array of coordinates to draw a linestring on map
   List<LatLng> gpxCoords = [];
@@ -29,7 +29,7 @@ class Track {
   int? currentAltitude = null;
 
   // Constructor
-  Track(this.trackSegment);
+  Track(this.wpts);
 
   // Bbox del track
   my.Bounds? bounds;
@@ -40,15 +40,15 @@ class Track {
   }
 
   my.Bounds? getBounds() {
-    if (trackSegment.isEmpty) return null;
+    if (wpts.isEmpty) return null;
     LatLng cur;
 
     // Init track bounds with first track point
-    bounds = my.Bounds(LatLng(trackSegment.first.lat!, trackSegment.first.lon!),
-        LatLng(trackSegment.first.lat!, trackSegment.first.lon!));
+    bounds = my.Bounds(LatLng(wpts.first.lat!, wpts.first.lon!),
+        LatLng(wpts.first.lat!, wpts.first.lon!));
 
-    for (var i = 0; i < trackSegment.length; i++) {
-      cur = LatLng(trackSegment[i].lat!, trackSegment[i].lon!);
+    for (var i = 0; i < wpts.length; i++) {
+      cur = LatLng(wpts[i].lat!, wpts[i].lon!);
 
       bounds!.expand(cur);
       gpxCoords.add(cur);
@@ -60,8 +60,8 @@ class Track {
     return gpxCoords;
   }
 
-  List<Wpt> getTrack() {
-    return trackSegment;
+  List<Wpt> getWpts() {
+    return wpts;
   }
 
   double getLength() {
@@ -98,7 +98,7 @@ class Track {
 
   void reset() {
     gpxCoords = [];
-    trackSegment = [];
+    wpts = [];
   }
 
   void push(Wpt wpt) {
@@ -110,34 +110,34 @@ class Track {
     }
 
     gpxCoords.add(P);
-    trackSegment.add(wpt);
+    wpts.add(wpt);
     length += inc;
   }
 
   void insert(int position, Wpt wpt) {
     LatLng P = LatLng(wpt.lat!, wpt.lon!);
     gpxCoords.insert(position + 1, P);
-    trackSegment.insert(position + 1, wpt);
+    wpts.insert(position + 1, wpt);
   }
 
   void remove(int index) {
-    trackSegment.removeAt(index);
+    wpts.removeAt(index);
     gpxCoords.removeAt(index);
   }
 
   void addWpt(int idx, Wpt wpt) {
-    trackSegment.insert(idx, wpt);
+    wpts.insert(idx, wpt);
     LatLng latlon = LatLng(wpt.lat!, wpt.lon!);
     gpxCoords.insert(idx, latlon);
   }
 
   void removeWpt(int idx, Wpt wpt) {
-    trackSegment.removeAt(idx);
+    wpts.removeAt(idx);
     gpxCoords.removeAt(idx);
   }
 
   void moveWpt(int idx, Wpt wpt) {
-    trackSegment[idx] = wpt;
+    wpts[idx] = wpt;
     LatLng latlon = LatLng(wpt.lat!, wpt.lon!);
     gpxCoords[idx] = latlon;
   }
@@ -184,10 +184,10 @@ class Track {
   }
 
   Wpt getWptAt(int idx) {
-    return trackSegment[idx];
+    return wpts[idx];
   }
 
   void setWptAt(int idx, Wpt wpt) {
-    trackSegment[idx] = wpt;
+    wpts[idx] = wpt;
   }
 }

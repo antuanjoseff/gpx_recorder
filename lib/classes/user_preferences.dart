@@ -16,6 +16,8 @@ class UserPreferences {
       _preferences = await SharedPreferences.getInstance();
 
   // GETTERS
+
+  // only for android
   static bool getNumSatelites() {
     final numSatelites = _preferences.getBool(_numSatelites);
     return numSatelites == null ? false : numSatelites;
