@@ -28,7 +28,7 @@ class _SettingsState extends State<Settings> {
   late bool speedIsSwitched;
   late bool headingIsSwitched;
   late bool providerIsSwitched;
-
+  double switchScale = 1.3;
   @override
   void initState() {
     numSatelitesIsSwitched = widget.numSatelites;
@@ -68,7 +68,7 @@ class _SettingsState extends State<Settings> {
               children: [
                 SizedBox(width: 50, height: 70),
                 Transform.scale(
-                  scale: 1.5,
+                  scale: switchScale,
                   child: Switch(
                       value: speedIsSwitched,
                       activeTrackColor: mainColor,
@@ -87,7 +87,7 @@ class _SettingsState extends State<Settings> {
               children: [
                 SizedBox(width: 50, height: 70),
                 Transform.scale(
-                  scale: 1.5,
+                  scale: switchScale,
                   child: Switch(
                       value: headingIsSwitched,
                       activeTrackColor: mainColor,
@@ -107,7 +107,7 @@ class _SettingsState extends State<Settings> {
                     children: [
                       SizedBox(width: 50, height: 70),
                       Transform.scale(
-                        scale: 1.5,
+                        scale: switchScale,
                         child: Switch(
                             value: numSatelitesIsSwitched,
                             activeTrackColor: mainColor,
@@ -127,7 +127,7 @@ class _SettingsState extends State<Settings> {
               children: [
                 SizedBox(width: 50, height: 70),
                 Transform.scale(
-                  scale: 1.5,
+                  scale: switchScale,
                   child: Switch(
                       value: accuracyIsSwitched,
                       activeTrackColor: mainColor,
@@ -146,7 +146,7 @@ class _SettingsState extends State<Settings> {
               children: [
                 SizedBox(width: 50, height: 70),
                 Transform.scale(
-                  scale: 1.5,
+                  scale: switchScale,
                   child: Switch(
                       value: providerIsSwitched,
                       activeTrackColor: mainColor,

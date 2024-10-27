@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gpx_recorder/classes/track.dart';
 // import 'utils/user_simple_preferences.dart';
-import './screens/settings.dart';
+import 'screens/gpxSettings.dart';
+import './screens/settingsPage.dart';
 import './screens/map.dart';
 import './classes/trackSettings.dart';
 import './classes/user_preferences.dart';
@@ -112,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         var result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Settings(
+                              builder: (context) => SettingsPage(
                                 numSatelites: numSatelites,
                                 accuracy: accuracy,
                                 speed: speed,
@@ -137,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           await UserPreferences.setAccuracy(Ac);
                           await UserPreferences.setSpeed(Sp);
                           await UserPreferences.setHeading(He);
+                          await UserPreferences.setProvider(Pro);
                           _trackSettings.setTrackPreferences!(
                               numSat, accuracy, speed, heading, provider);
                         }
