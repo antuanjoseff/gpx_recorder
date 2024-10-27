@@ -116,17 +116,17 @@ class _MapWidgetState extends State<MapWidget> {
     wpt.ele = location.altitude;
     wpt.time = DateTime.now();
 
-    if (_accuracy) {
-      wpt.extensions = {'accuracy': location.accuracy.toString()};
-    }
+    // if (_accuracy) {
+    //   wpt.extensions = {'accuracy': location.accuracy.toString()};
+    // }
 
-    if (_speed) {
-      wpt.extensions = {'speed': location.speed.toString()};
-    }
+    // if (_speed) {
+    //   wpt.extensions = {'speed': location.speed.toString()};
+    // }
 
-    if (_heading) {
-      wpt.extensions = {'heading': location.heading.toString()};
-    }
+    // if (_heading) {
+    //   wpt.extensions = {'heading': location.heading.toString()};
+    // }
 
     return wpt;
   }
@@ -136,27 +136,25 @@ class _MapWidgetState extends State<MapWidget> {
     print(loc.speed);
     print(loc.speed?.toStringAsFixed(3));
     print('-------------------------------');
-    if ((loc.speed?.toStringAsFixed(3) == "0.00")) {
-      if (isMoving) {
-        isMoving = false;
-        notMovingStartedAt = DateTime.now();
-      } else {
-        //user remains stopped
-        timeNotMoving = DateTime.now().difference(notMovingStartedAt);
-        track.setNotMovingTime(timeNotMoving);
-      }
-    } else {
-      if (!isMoving) {
-        timeNotMoving = DateTime.now().difference(notMovingStartedAt);
-        track.setNotMovingTime(timeNotMoving);
-      } else {
-        //user remains moving
-      }
-      isMoving = true;
-    }
+    // if ((loc.speed?.round() == 0)) {
+    // if (isMoving) {
+    //   isMoving = false;
+    //   notMovingStartedAt = DateTime.now();
+    // } else {
+    //     // user remains stopped
+    //     timeNotMoving = DateTime.now().difference(notMovingStartedAt);
+    //     track.setNotMovingTime(timeNotMoving);
+    //   }
+    // } else {
+    //   if (!isMoving) {
+    //     timeNotMoving = DateTime.now().difference(notMovingStartedAt);
+    //     track.setNotMovingTime(timeNotMoving);
+    //   } else {
+    //     //user remains moving
+    //   }
+    //   isMoving = true;
+    // }
 
-    debugPrint('...................SPEED');
-    debugPrint('...................${loc.speed.toString()}');
     if (recording) {
       Wpt wpt = createWptFromLocation(loc);
       track.push(wpt);
