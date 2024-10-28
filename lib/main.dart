@@ -9,11 +9,31 @@ import './classes/user_preferences.dart';
 import './classes/vars.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../classes/gps.dart';
 
 void main() async {
+  // await _checkPermission();
   WidgetsFlutterBinding.ensureInitialized();
   await UserPreferences.init();
+  // await _checkPermission();
   runApp(const MyApp());
+}
+
+Future<void> _checkPermission() async {
+  bool? hasPermission = false;
+  final gps = Gps();
+
+  bool enabled = await gps.checkService();
+  if (enabled) {
+    hasPermission = await gps.checkPermission();
+
+    if (hasPermission!) {
+      gps.listenOnBackground((loc) {
+        debugPrint('${loc.accuracy}');
+      });
+    }
+  }
+  return;
 }
 
 class MyApp extends StatelessWidget {
@@ -87,9 +107,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void toggleAppBar() {
     print('......................toggle appbar');
-    setState(() {
-      fullScreen = !fullScreen;
-    });
+    // setState(() {
+    //   fullScreen = !fullScreen;
+    // });
   }
 
   @override
@@ -114,10 +134,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => SettingsPage(
-                                numSatelites: numSatelites,
-                                accuracy: accuracy,
                                 speed: speed,
                                 heading: heading,
+                                numSatelites: numSatelites,
+                                accuracy: accuracy,
                                 provider: provider,
                               ),
                             ));
@@ -134,13 +154,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           speed = Sp;
                           heading = He;
                           provider = Pro;
-                          await UserPreferences.setNumSatelites(numSat);
-                          await UserPreferences.setAccuracy(Ac);
-                          await UserPreferences.setSpeed(Sp);
-                          await UserPreferences.setHeading(He);
-                          await UserPreferences.setProvider(Pro);
-                          _trackSettings.setTrackPreferences!(
-                              numSat, accuracy, speed, heading, provider);
                         }
                       },
                     )

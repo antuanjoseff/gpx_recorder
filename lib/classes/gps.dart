@@ -32,6 +32,10 @@ class Gps {
     return true;
   }
 
+  Future<LocationData?> getLocation() async {
+    return await location.getLocation();
+  }
+
   listenOnBackground(Function managePosition) async {
     location.enableBackgroundMode(enable: true);
 
@@ -39,9 +43,13 @@ class Gps {
       title: 'Geolocation',
       subtitle: 'Geolocation detection',
     );
-    location.changeSettings(interval: 1000);
+    location.changeSettings(
+      interval: 100,
+      distanceFilter: 0,
+      accuracy: LocationAccuracy.high,
+    );
     location.onLocationChanged.listen((LocationData currentLocation) {
-      print('IN GPS CLASS ${currentLocation.speed}');
+      print('IN GPS CLASS ${DateTime.now()}       ${currentLocation.accuracy}');
       managePosition(currentLocation);
     });
   }

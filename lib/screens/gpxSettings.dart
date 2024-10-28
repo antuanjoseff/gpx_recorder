@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:io' show Platform;
 import '../classes/vars.dart';
+import '../classes/user_preferences.dart';
 
-class Settings extends StatefulWidget {
+class GpxSettings extends StatefulWidget {
   final bool numSatelites;
   final bool accuracy;
   final bool speed;
   final bool heading;
   final bool provider;
 
-  Settings(
+  GpxSettings(
       {super.key,
       required this.numSatelites,
       required this.accuracy,
@@ -19,10 +20,10 @@ class Settings extends StatefulWidget {
       required this.provider});
 
   @override
-  State<Settings> createState() => _SettingsState();
+  State<GpxSettings> createState() => _GpxSettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class _GpxSettingsState extends State<GpxSettings> {
   late bool numSatelitesIsSwitched;
   late bool accuracyIsSwitched;
   late bool speedIsSwitched;
@@ -59,6 +60,7 @@ class _SettingsState extends State<Settings> {
                       onChanged: (value) {
                         setState(() {
                           speedIsSwitched = value;
+                          UserPreferences.setSpeed(value);
                         });
                       }),
                 ),
@@ -77,6 +79,7 @@ class _SettingsState extends State<Settings> {
                       onChanged: (value) {
                         setState(() {
                           headingIsSwitched = value;
+                          UserPreferences.setHeading(value);
                         });
                       }),
                 ),
@@ -96,6 +99,7 @@ class _SettingsState extends State<Settings> {
                             onChanged: (value) {
                               setState(() {
                                 numSatelitesIsSwitched = value;
+                                UserPreferences.setNumSatelites(value);
                               });
                             }),
                       ),
@@ -115,6 +119,7 @@ class _SettingsState extends State<Settings> {
                       onChanged: (value) {
                         setState(() {
                           accuracyIsSwitched = value;
+                          UserPreferences.setAccuracy(value);
                         });
                       }),
                 ),
@@ -133,6 +138,7 @@ class _SettingsState extends State<Settings> {
                       onChanged: (value) {
                         setState(() {
                           providerIsSwitched = value;
+                          UserPreferences.setProvider(value);
                         });
                       }),
                 ),

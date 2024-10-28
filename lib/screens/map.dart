@@ -4,6 +4,7 @@ import 'package:location/location.dart';
 import '../classes/gps.dart';
 import '../classes/track.dart';
 import '../classes/trackSettings.dart';
+import '../classes/user_preferences.dart';
 import '../screens/track_stats.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geoxml/geoxml.dart';
@@ -72,7 +73,16 @@ class _MapWidgetState extends State<MapWidget> {
       // title: AppLocalizations.of(context)!.notificationTitle,
       // subtitle: AppLocalizations.of(context)!.notificationContent,
     );
+    getUserPreferences();
     super.initState();
+  }
+
+  void getUserPreferences() {
+    _accuracy = UserPreferences.getAccuracy();
+    _numSatelites = UserPreferences.getNumSatelites();
+    _speed = UserPreferences.getSpeed();
+    _heading = UserPreferences.getHeading();
+    _provider = UserPreferences.getProvider();
   }
 
   void startRecording() async {
@@ -84,7 +94,7 @@ class _MapWidgetState extends State<MapWidget> {
         recording = true;
         track.init();
         notMovingStartedAt = DateTime.now();
-        gps.changeIntervalByTime(1000);
+        // gps.changeIntervalByTime(1000);
         gps.listenOnBackground(handleNewPosition);
       }
     }
@@ -130,39 +140,38 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   Wpt createWptFromLocation(LocationData location) {
-    Wpt wpt = new Wpt();
+    Wpt wpt = Wpt();
 
     wpt.lat = location.latitude;
     wpt.lon = location.longitude;
     wpt.ele = location.altitude;
     wpt.time = DateTime.now();
 
-    // wpt.extensions = {'accuracy': location.accuracy.toString()};
-    // wpt.extensions = {'speed': location.speed.toString()};
-
     if (_accuracy || _speed || _heading || _numSatelites || _provider) {
       wpt.extensions = {};
     }
+
+    debugPrint('${wpt.extensions}');
     if (_accuracy) {
       wpt.extensions['accuracy'] = location.accuracy.toString();
     }
-
+    debugPrint('${wpt.extensions}');
     if (_numSatelites) {
       wpt.extensions['satelites'] = location.satelliteNumber.toString();
     }
-
+    debugPrint('${wpt.extensions}');
     if (_speed) {
       wpt.extensions['speed'] = location.speed.toString();
     }
-
+    debugPrint('${wpt.extensions}');
     if (_heading) {
       wpt.extensions['heading'] = location.heading.toString();
     }
-
+    debugPrint('${wpt.extensions}');
     if (_provider) {
       wpt.extensions['provider'] = location.provider.toString();
     }
-
+    debugPrint('${wpt.extensions}');
     return wpt;
   }
 
@@ -171,16 +180,19 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void handleNewPosition(LocationData loc) {
+    debugPrint('INSIDE HANDLE NEW POSITION FUNCTION');
     if (userIsNotMoving(loc)) {
       // USER IS NOT MOVING
+      debugPrint('NOOOOOT MOVING');
       if (isMoving) {
         isMoving = false;
         notMovingStartedAt = DateTime.now();
       } else {
-        // user remains stopped
-        String timestopped =
-            DateTime.now().difference(notMovingStartedAt).toString();
-        track.setNotMovingTime(timeNotMoving);
+        debugPrint('user remains stopped');
+        Duration timestopped = DateTime.now().difference(notMovingStartedAt);
+        debugPrint('STOPPED AT $notMovingStartedAt');
+        debugPrint('TIME STOPPED ${timestopped.toString}');
+        track.setNotMovingTime(timestopped);
       }
     } else {
       // USER IS MOVING
@@ -195,6 +207,7 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     if (recording) {
+      debugPrint('${loc.accuracy}');
       Wpt wpt = createWptFromLocation(loc);
       track.push(wpt);
       track.setCurrentSpeed(double.parse(loc.speed!.toStringAsFixed(2)));
@@ -220,9 +233,7 @@ class _MapWidgetState extends State<MapWidget> {
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
-          onMapLongClick: (point, coordinates) {
-            widget.onlongpress();
-          },
+          onMapLongClick: widget.onlongpress(),
           styleString:
               'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),

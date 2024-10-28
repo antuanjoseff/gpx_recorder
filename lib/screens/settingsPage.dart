@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpx_recorder/classes/user_preferences.dart';
 import '../classes/vars.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:accordion/accordion.dart';
@@ -13,10 +14,10 @@ class SettingsPage extends StatefulWidget {
 
   SettingsPage(
       {super.key,
-      required this.numSatelites,
-      required this.accuracy,
       required this.speed,
       required this.heading,
+      required this.numSatelites,
+      required this.accuracy,
       required this.provider});
 
   @override
@@ -36,10 +37,20 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: mainColor,
-          foregroundColor: Colors.white,
-          title: Text(AppLocalizations.of(context)!.settings),
-        ),
+            backgroundColor: mainColor,
+            foregroundColor: Colors.white,
+            title: Text(AppLocalizations.of(context)!.settings),
+            leading: BackButton(
+              onPressed: () {
+                Navigator.of(context).pop((
+                  UserPreferences.getSpeed(),
+                  UserPreferences.getHeading(),
+                  UserPreferences.getNumSatelites(),
+                  UserPreferences.getAccuracy(),
+                  UserPreferences.getProvider(),
+                ));
+              },
+            )),
         body: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -68,11 +79,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       leftIcon: const Icon(Icons.insert_drive_file_outlined,
                           color: Colors.white),
                       header: const Text('GPX properties', style: headerStyle),
-                      content: Settings(
-                        numSatelites: widget.numSatelites,
-                        accuracy: widget.accuracy,
+                      content: GpxSettings(
                         speed: widget.speed,
                         heading: widget.heading,
+                        numSatelites: widget.numSatelites,
+                        accuracy: widget.accuracy,
                         provider: widget.provider,
                       ),
                     ),
@@ -84,11 +95,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       leftIcon:
                           const Icon(Icons.satellite_alt, color: Colors.white),
                       header: const Text('GPS properties', style: headerStyle),
-                      content: Settings(
-                        numSatelites: widget.numSatelites,
-                        accuracy: widget.accuracy,
+                      content: GpxSettings(
                         speed: widget.speed,
                         heading: widget.heading,
+                        numSatelites: widget.numSatelites,
+                        accuracy: widget.accuracy,
                         provider: widget.provider,
                       ),
                     ),
@@ -101,11 +112,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           const Icon(Icons.remove_red_eye, color: Colors.white),
                       header:
                           const Text('Track properties', style: headerStyle),
-                      content: Settings(
-                        numSatelites: widget.numSatelites,
-                        accuracy: widget.accuracy,
+                      content: GpxSettings(
                         speed: widget.speed,
                         heading: widget.heading,
+                        numSatelites: widget.numSatelites,
+                        accuracy: widget.accuracy,
                         provider: widget.provider,
                       ),
                     ),
