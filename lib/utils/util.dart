@@ -5,7 +5,6 @@ import 'dart:math';
 import 'dart:core';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 
 /// Adds an asset image to the currently displayed style
 Future<void> addImageFromAsset(

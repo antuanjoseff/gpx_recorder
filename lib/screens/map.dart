@@ -64,15 +64,9 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   void initState() {
-    gps = new Gps();
+    gps = Gps();
     track = Track([]);
-    location.enableBackgroundMode(enable: true);
-    location.changeNotificationOptions(
-      title: "GPX Recorder",
-      subtitle: 'Recording ....',
-      // title: AppLocalizations.of(context)!.notificationTitle,
-      // subtitle: AppLocalizations.of(context)!.notificationContent,
-    );
+
     getUserPreferences();
     super.initState();
   }
@@ -94,7 +88,8 @@ class _MapWidgetState extends State<MapWidget> {
         recording = true;
         track.init();
         notMovingStartedAt = DateTime.now();
-        // gps.changeIntervalByTime(1000);
+        gps.enableBackground('Geolocation', 'Geolocation detection');
+        gps.changeIntervalByTime(1000);
         gps.listenOnBackground(handleNewPosition);
       }
     }

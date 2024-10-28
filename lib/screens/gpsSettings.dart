@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:gpx_recorder/classes/gps.dart';
 
 class Gpssettings extends StatefulWidget {
   const Gpssettings({super.key});

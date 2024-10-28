@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 // Request a location
@@ -36,18 +35,16 @@ class Gps {
     return await location.getLocation();
   }
 
-  listenOnBackground(Function managePosition) async {
+  enableBackground(String notificationTitle, String notificationContent) {
     location.enableBackgroundMode(enable: true);
 
     location.changeNotificationOptions(
-      title: 'Geolocation',
-      subtitle: 'Geolocation detection',
+      title: notificationTitle,
+      subtitle: notificationContent,
     );
-    location.changeSettings(
-      interval: 100,
-      distanceFilter: 0,
-      accuracy: LocationAccuracy.high,
-    );
+  }
+
+  listenOnBackground(Function managePosition) async {
     location.onLocationChanged.listen((LocationData currentLocation) {
       print('IN GPS CLASS ${DateTime.now()}       ${currentLocation.accuracy}');
       managePosition(currentLocation);
@@ -55,7 +52,11 @@ class Gps {
   }
 
   changeIntervalByTime(int interval) {
-    location.changeSettings(interval: interval);
+    location.changeSettings(
+      interval: interval,
+      distanceFilter: 0,
+      accuracy: LocationAccuracy.high,
+    );
   }
 
   changeIntervalByDistance(double distance) {

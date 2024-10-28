@@ -4,7 +4,7 @@ import '../classes/vars.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:accordion/accordion.dart';
 import 'gpxSettings.dart';
-import 'GpsSettings.dart';
+import 'gpsSettings.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool numSatelites;
