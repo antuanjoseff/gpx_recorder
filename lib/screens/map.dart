@@ -62,6 +62,13 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    gps?.cancelSubscription();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     gps = new Gps();
     track = Track([]);
@@ -80,11 +87,11 @@ class _MapWidgetState extends State<MapWidget> {
     bool enabled = await gps.checkService();
     if (enabled) {
       bool hasPermission = await gps.checkPermission();
-      if (hasPermission!) {
+      if (hasPermission) {
         recording = true;
         track.init();
         notMovingStartedAt = DateTime.now();
-        gps.changeIntervalByTime(1000);
+        // gps.changeIntervalByTime(50);
         gps.listenOnBackground(handleNewPosition);
       }
     }
@@ -116,7 +123,7 @@ class _MapWidgetState extends State<MapWidget> {
     // final gpxString = GpxWriter().asString(gpx, pretty: true);
     final gpxString = gpx.toGpxString(pretty: true);
 
-    String? outputFile = await FilePicker.platform.saveFile(
+    await FilePicker.platform.saveFile(
       dialogTitle: 'Please select an output file:',
       bytes: utf8.encode(gpxString),
       // bytes: convertStringToUint8List(gpxString),
@@ -140,6 +147,8 @@ class _MapWidgetState extends State<MapWidget> {
     // wpt.extensions = {'accuracy': location.accuracy.toString()};
     // wpt.extensions = {'speed': location.speed.toString()};
 
+    debugPrint(
+        '_accuracy   $_speed   $_heading    $_numSatelites   $_provider');
     if (_accuracy || _speed || _heading || _numSatelites || _provider) {
       wpt.extensions = {};
     }
@@ -171,6 +180,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void handleNewPosition(LocationData loc) {
+    print(loc.accuracy);
     if (userIsNotMoving(loc)) {
       // USER IS NOT MOVING
       if (isMoving) {
@@ -178,8 +188,6 @@ class _MapWidgetState extends State<MapWidget> {
         notMovingStartedAt = DateTime.now();
       } else {
         // user remains stopped
-        String timestopped =
-            DateTime.now().difference(notMovingStartedAt).toString();
         track.setNotMovingTime(timeNotMoving);
       }
     } else {
@@ -193,9 +201,10 @@ class _MapWidgetState extends State<MapWidget> {
       }
       isMoving = true;
     }
-
+    debugPrint('Recording           $recording');
     if (recording) {
       Wpt wpt = createWptFromLocation(loc);
+      print('WPT $wpt');
       track.push(wpt);
       track.setCurrentSpeed(double.parse(loc.speed!.toStringAsFixed(2)));
       track.setCurrentElevation(loc.altitude?.floor());
@@ -205,7 +214,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void centerMap(LatLng location) {
-    mapController!.animateCamera(
+    mapController.animateCamera(
       CameraUpdate.newLatLng(location),
       duration: const Duration(milliseconds: 100),
     );
@@ -242,7 +251,7 @@ class _MapWidgetState extends State<MapWidget> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => TrackStats(track: track!)));
+                          builder: (context) => TrackStats(track: track)));
                 },
                 child: Text(AppLocalizations.of(context)!.trackData,
                     style: TextStyle(color: Colors.white, fontSize: 18))))

@@ -26,12 +26,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   static const headerStyle = TextStyle(
       color: Color(0xffffffff), fontSize: 18, fontWeight: FontWeight.bold);
-  static const contentStyleHeader =
-      TextStyle(color: Colors.amber, fontSize: 14, fontWeight: FontWeight.w700);
-  static const contentStyle = TextStyle(
-      color: Color(0xff999999), fontSize: 14, fontWeight: FontWeight.normal);
-  static const loremIpsum =
-      '''Lorem ipsum is typically a corrupted version of 'De finibus bonorum et malorum', a 1st century BC text by the Roman statesman and philosopher Cicero, with words altered, added, and removed to make it nonsensical and improper Latin.''';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

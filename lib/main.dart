@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gpx_recorder/classes/track.dart';
-// import 'utils/user_simple_preferences.dart';
-import 'screens/gpxSettings.dart';
 import './screens/settingsPage.dart';
 import './screens/map.dart';
 import './classes/trackSettings.dart';

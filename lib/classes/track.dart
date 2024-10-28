@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:geoxml/geoxml.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'bounds.dart' as my;
@@ -102,13 +100,14 @@ class Track {
   }
 
   void push(Wpt wpt) {
+    debugPrint('TRACK PUSH .............');
     double inc = 0;
     LatLng P = LatLng(wpt.lat!, wpt.lon!);
     if (gpxCoords.isNotEmpty) {
       LatLng prev = gpxCoords[gpxCoords.length - 1];
       inc = getDistanceFromLatLonInMeters(P, prev);
     }
-
+    debugPrint('                       $length');
     gpxCoords.add(P);
     wpts.add(wpt);
     length += inc;

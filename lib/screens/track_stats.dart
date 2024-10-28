@@ -53,6 +53,7 @@ class _TrackStatsState extends State<TrackStats> {
 
     trackLength = UserPreferences.getTrackLength();
     trackTime = UserPreferences.getTrackTime();
+    print('Track time                $trackTime');
     trackAltitude = UserPreferences.getTrackAltitude();
     double kmh = 3.6 *
         (_track.getLength() /
