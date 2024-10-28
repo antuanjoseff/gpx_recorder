@@ -4,6 +4,7 @@ import '../classes/vars.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:accordion/accordion.dart';
 import 'gpxSettings.dart';
+import 'GpsSettings.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool numSatelites;
@@ -95,13 +96,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       leftIcon:
                           const Icon(Icons.satellite_alt, color: Colors.white),
                       header: const Text('GPS properties', style: headerStyle),
-                      content: GpxSettings(
-                        speed: widget.speed,
-                        heading: widget.heading,
-                        numSatelites: widget.numSatelites,
-                        accuracy: widget.accuracy,
-                        provider: widget.provider,
-                      ),
+                      content: Gpssettings(),
                     ),
                     AccordionSection(
                       isOpen: false,
