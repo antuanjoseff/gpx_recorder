@@ -5,6 +5,7 @@ import './screens/map.dart';
 import './classes/trackSettings.dart';
 import './classes/user_preferences.dart';
 import './classes/vars.dart';
+import './classes/gps.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -16,22 +17,16 @@ void main() async {
   runApp(const MyApp());
 }
 
-// Future<void> _checkPermission() async {
-//   bool? hasPermission = false;
-//   final gps = Gps();
+Future<void> _checkPermission() async {
+  bool? hasPermission = false;
+  final gps = Gps();
 
-//   bool enabled = await gps.checkService();
-//   if (enabled) {
-//     hasPermission = await gps.checkPermission();
-
-//     if (hasPermission!) {
-//       gps.listenOnBackground((loc) {
-//         debugPrint('${loc.accuracy}');
-//       });
-//     }
-//   }
-//   return;
-// }
+  bool enabled = await gps.checkService();
+  if (enabled) {
+    await gps.checkPermission();
+  }
+  return;
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

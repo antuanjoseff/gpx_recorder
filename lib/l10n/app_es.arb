@@ -9,9 +9,11 @@
     "notificationTitle": "Gpx recorder",
     "notificationContent": "Grabando en segundo plano",
     "trackData": "Datos",
+    "centerMap": "Centrar mapa",
     "distance": "Distancia",
     "altitude": "Altitud",
-    "elapsedTime": "Tiempo transcurrido",
+    "elevationGain": "Desnivel +",
+    "elapsedTime": "Tiempo total",
     "stoppedTime": "Tiempo parado",
     "trackSpeedAverage": "Velocidad media"
 }

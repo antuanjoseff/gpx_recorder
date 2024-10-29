@@ -16,11 +16,21 @@ class TrackStats extends StatefulWidget {
 class _TrackStatsState extends State<TrackStats> {
   late Track _track;
   Timer? _timer;
-  late String trackLength;
-  late String trackTime;
+  late double trackLength;
+  DateTime? trackStartedAt;
+  String trackTimeDuration = '00:00:00';
   late String notMovingTime;
-  late String trackAltitude;
+  late String trackElevationString;
+  late String trackElevationGainString;
+
   late String avgSpeed;
+  late double? currentSpeed;
+  String currentSpeedString = '';
+
+  late double? trackAccuracy;
+  String trackAccuracyString = '';
+
+  String distanceUnits = '';
 
   String _formatDuration(Duration duration) {
     String negativeSign = duration.isNegative ? '-' : '';
@@ -38,10 +48,13 @@ class _TrackStatsState extends State<TrackStats> {
 
     String format = '';
     if (kms > 0) {
-      format = '${kms.toString()}Km$plural';
+      format = '${kms.toString()}';
+      distanceUnits = 'Km$plural';
+    } else {
+      distanceUnits = 'm';
     }
 
-    format += '${mts}m';
+    format += '${mts}';
     return format;
   }
 
@@ -51,34 +64,68 @@ class _TrackStatsState extends State<TrackStats> {
     super.initState();
     _track = widget.track;
 
-    trackLength = UserPreferences.getTrackLength();
-    trackTime = UserPreferences.getTrackTime();
-    trackAltitude = UserPreferences.getTrackAltitude();
+    trackLength = _track.getLength();
+
+    trackStartedAt = _track.getStartTime();
+
+    trackElevationString = _track.getCurrentElevation() != null
+        ? _track.getCurrentElevation()!.toStringAsFixed(0)
+        : '--';
+
+    trackElevationGainString = _track.getElevationGain() != null
+        ? _track.getElevationGain()!.toStringAsFixed(0)
+        : '--';
+
+    trackAccuracy = _track.getAccuracy();
+
+    trackAccuracyString =
+        trackAccuracy != null ? trackAccuracy!.toStringAsFixed(2) : '-';
+
     double kmh = 3.6 *
         (_track.getLength() /
-            DateTime.now().difference(_track.getStartTime()).inSeconds);
+            DateTime.now().difference(_track.getStartTime()!).inSeconds);
 
-    // avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
-    avgSpeed = _track.getCurrentSpeed().toString() + ' Km/h';
+    avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
+
+    currentSpeed = _track.getCurrentSpeed();
+    currentSpeedString =
+        currentSpeed != null ? currentSpeed!.toStringAsFixed(2) : '-';
+
     notMovingTime = _formatDuration(_track.getNotMovingTime());
+
     // defines a timer
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
       setState(() {
-        trackLength = formatDistance(_track.getLength());
-        trackTime =
-            _formatDuration(DateTime.now().difference(_track.getStartTime()));
-        trackAltitude = _track.getCurrentElevation() != null
-            ? _track.getCurrentElevation().toString() + 'm'
-            : '--';
-        // double kmh = 3.6 *
-        //     (_track.getLength() /
-        //         DateTime.now().difference(_track.getStartTime()).inSeconds);
-        double kmh = 3.6 * _track.getCurrentSpeed()!;
-        notMovingTime = _formatDuration(_track.getNotMovingTime());
+        trackTimeDuration = _track.getStartTime() != null
+            ? _formatDuration(DateTime.now().difference(_track.getStartTime()!))
+            : '00:00:00';
 
-        avgSpeed = kmh.toStringAsFixed(2) + ' Km/h';
-        // debugPrint(
-        //     '${_track.getLength()}       -------------      ${DateTime.now().difference(_track.getStartTime()).inSeconds}');
+        trackElevationString = _track.getCurrentElevation() != null
+            ? _track.getCurrentElevation()!.toStringAsFixed(0)
+            : '--';
+
+        trackElevationGainString = _track.getElevationGain() != null
+            ? _track.getElevationGain()!.toStringAsFixed(0)
+            : '--';
+
+        double avgKmh = 3.6 *
+            (_track.getLength() /
+                DateTime.now().difference(_track.getStartTime()!).inSeconds);
+        avgSpeed = avgKmh.toStringAsFixed(2);
+
+        double currentKmh = 3.6 * _track.getCurrentSpeed()!;
+        currentSpeed = _track.getCurrentSpeed();
+        currentSpeedString = currentSpeed != null
+            ? (3.6 * currentSpeed!).toStringAsFixed(2)
+            : '-';
+
+        notMovingTime = _track.getStartTime() != null
+            ? _formatDuration(_track.getNotMovingTime())
+            : '00:00:00';
+
+        trackAccuracy = _track.getAccuracy();
+        trackAccuracyString =
+            trackAccuracy != null ? trackAccuracy!.toStringAsFixed(2) : '-';
       });
     });
   }
@@ -88,62 +135,188 @@ class _TrackStatsState extends State<TrackStats> {
     // TODO: implement dispose
     _timer?.cancel();
     super.dispose();
-    await UserPreferences.setTrackLength(trackLength);
-    await UserPreferences.setTrackTime(trackTime);
-    await UserPreferences.setTrackAltitude(trackAltitude);
   }
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
+    /*24 is for notification bar on Android*/
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
+    final double itemWidth = size.width / 2;
+    TextStyle titleStyle = TextStyle(fontSize: 18);
+    TextStyle contentStyle = TextStyle(fontSize: 30);
+    TextStyle unitsStyle = TextStyle(fontSize: 20);
+
     return Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.trackData),
           backgroundColor: mainColor,
           foregroundColor: Colors.white,
         ),
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: GridView.count(
+              crossAxisCount: 2,
+              childAspectRatio: (itemWidth / itemHeight),
+              shrinkWrap: true,
               children: [
-                Text(AppLocalizations.of(context)!.distance,
-                    style: TextStyle(fontSize: 20)),
-                Text(
-                  trackLength,
-                  style: const TextStyle(fontSize: 40),
+                // DISTANCIA
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.distance,
+                        style: titleStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          formatDistance(_track.getLength()),
+                          style: contentStyle,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          distanceUnits,
+                          style: unitsStyle,
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text(AppLocalizations.of(context)!.trackSpeedAverage,
-                    style: TextStyle(fontSize: 20)),
-                Text(
-                  avgSpeed,
-                  style: const TextStyle(fontSize: 40),
+                // ACCURACY
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.accuracy,
+                        style: titleStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          trackAccuracyString,
+                          style: contentStyle,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'm',
+                          style: unitsStyle,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-                Text(AppLocalizations.of(context)!.altitude,
-                    style: TextStyle(fontSize: 20)),
-                Text(
-                  trackAltitude,
-                  style: const TextStyle(fontSize: 40),
+                // ELEVATION
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.altitude,
+                        style: titleStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          trackElevationString,
+                          style: contentStyle,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          distanceUnits,
+                          style: unitsStyle,
+                        )
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text(AppLocalizations.of(context)!.stoppedTime,
-                    style: TextStyle(fontSize: 20)),
-                Text(
-                  notMovingTime,
-                  style: const TextStyle(fontSize: 40),
+                // ELEVATION GAIN
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.elevationGain,
+                        style: titleStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          trackElevationGainString,
+                          style: contentStyle,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          distanceUnits,
+                          style: unitsStyle,
+                        )
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text(AppLocalizations.of(context)!.elapsedTime,
-                    style: TextStyle(fontSize: 20)),
-                Text(
-                  trackTime,
-                  style: const TextStyle(fontSize: 40),
-                )
+                // VELOCITAT ACTUAL
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.speed,
+                        style: titleStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          currentSpeedString,
+                          style: contentStyle,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'Km/h',
+                          style: unitsStyle,
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+                // VELOCITAT MITJANA
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.trackSpeedAverage,
+                        style: titleStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          avgSpeed,
+                          style: contentStyle,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'Km/h',
+                          style: unitsStyle,
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.stoppedTime,
+                        style: titleStyle),
+                    Text(
+                      notMovingTime,
+                      style: contentStyle,
+                    )
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)!.elapsedTime,
+                        style: titleStyle),
+                    Text(trackTimeDuration, style: contentStyle)
+                  ],
+                ),
               ],
             ),
-          ],
+          ),
         ));
   }
 }

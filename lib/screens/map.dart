@@ -33,6 +33,8 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _provider;
   late Gps gps;
   late Track track;
+  bool _myLocationEnabled = false;
+  bool hasLocationPermission = false;
   bool recording = false;
   bool stop = false;
   bool isMoving = false;
@@ -41,10 +43,20 @@ class _MapWidgetState extends State<MapWidget> {
 
   late MapLibreMapController mapController;
   Location location = new Location();
-  MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.compass;
-  MyLocationTrackingMode _myLocationTrackingMode =
-      MyLocationTrackingMode.trackingGps;
 
+  MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.none;
+  MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.normal;
+
+// Vars to detect pan on map
+  final stopwatch = Stopwatch();
+  double bearing = 0;
+  bool _isMoving = false;
+  bool justStop = false;
+  bool justMoved = false;
+  int panTime = 0;
+  bool trackCameroMove = true;
+  bool mapCentered = true;
+  LocationData? currentLoc = null;
   _MapWidgetState(TrackSettings trackSettings) {
     trackSettings.setTrackPreferences = setTrackPreferences;
     trackSettings.startRecording = startRecording;
@@ -68,7 +80,23 @@ class _MapWidgetState extends State<MapWidget> {
     track = Track([]);
 
     getUserPreferences();
+    gps.checkService().then((enabled) {
+      if (enabled) {
+        gps.checkPermission().then((value) {
+          hasLocationPermission = value;
+          if (value) {
+            _myLocationEnabled = true;
+            callSetState();
+          }
+        });
+      }
+    });
     super.initState();
+  }
+
+  void callSetState() {
+    _myLocationRenderMode = MyLocationRenderMode.compass;
+    setState(() {});
   }
 
   void getUserPreferences() {
@@ -81,17 +109,19 @@ class _MapWidgetState extends State<MapWidget> {
 
   void startRecording() async {
     print('start recording!!!!');
-    bool enabled = await gps.checkService();
-    if (enabled) {
-      bool hasPermission = await gps.checkPermission();
-      if (hasPermission!) {
-        recording = true;
-        track.init();
-        notMovingStartedAt = DateTime.now();
-        gps.enableBackground('Geolocation', 'Geolocation detection');
-        gps.changeIntervalByTime(1000);
-        gps.listenOnBackground(handleNewPosition);
+
+    if (hasLocationPermission) {
+      recording = true;
+      track.init();
+      LocationData? loc = await gps.getLocation();
+      if (loc != null) {
+        firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
       }
+      notMovingStartedAt = DateTime.now();
+      gps.enableBackground('Geolocation', 'Geolocation detection');
+      gps.changeIntervalByTime(1000);
+      gps.listenOnBackground(handleNewPosition);
+      setState(() {});
     }
   }
 
@@ -132,6 +162,31 @@ class _MapWidgetState extends State<MapWidget> {
 
   void _onMapCreated(MapLibreMapController controller) async {
     mapController = controller;
+    controller!.addListener(_onMapChanged);
+  }
+
+  void _onMapChanged() {
+    final position = mapController!.cameraPosition;
+    bearing = position!.bearing;
+
+    _isMoving = mapController!.isCameraMoving;
+    if (_isMoving) {
+      if (!justMoved) {
+        justMoved = true;
+        stopwatch.start();
+      }
+    } else {
+      justMoved = false;
+      justStop = true;
+      panTime = stopwatch.elapsedMilliseconds;
+      stopwatch.stop();
+      stopwatch.reset();
+
+      if (trackCameroMove && panTime > 200) {
+        mapCentered = false;
+      }
+    }
+    setState(() {});
   }
 
   Wpt createWptFromLocation(LocationData location) {
@@ -176,6 +231,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   void handleNewPosition(LocationData loc) {
     debugPrint('INSIDE HANDLE NEW POSITION FUNCTION');
+    currentLoc = loc;
     if (userIsNotMoving(loc)) {
       // USER IS NOT MOVING
       debugPrint('NOOOOOT MOVING');
@@ -205,6 +261,10 @@ class _MapWidgetState extends State<MapWidget> {
       debugPrint('${loc.accuracy}');
       Wpt wpt = createWptFromLocation(loc);
       track.push(wpt);
+      if (loc.accuracy != null) {
+        track.setAccuracy(loc.accuracy!);
+      }
+
       track.setCurrentSpeed(double.parse(loc.speed!.toStringAsFixed(2)));
       track.setCurrentElevation(loc.altitude?.floor());
       debugPrint('................................${track.wpts.length}');
@@ -219,12 +279,19 @@ class _MapWidgetState extends State<MapWidget> {
     );
   }
 
+  void firstCamaraView(LatLng location, double zoomLevel) {
+    mapController!.animateCamera(
+      CameraUpdate.newLatLngZoom(location, zoomLevel),
+      duration: const Duration(milliseconds: 100),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         MapLibreMap(
-          myLocationEnabled: true,
+          myLocationEnabled: _myLocationEnabled,
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
@@ -235,23 +302,53 @@ class _MapWidgetState extends State<MapWidget> {
           trackCameraPosition: true,
         ),
         Positioned(
-            left: 10,
-            top: 20,
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size.zero,
-                  backgroundColor: Colors.amber[900],
-                  padding: const EdgeInsets.only(
-                      bottom: 6, top: 6, left: 15, right: 15), // and this
-                ),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TrackStats(track: track!)));
-                },
-                child: Text(AppLocalizations.of(context)!.trackData,
-                    style: TextStyle(color: Colors.white, fontSize: 18))))
+          top: 15,
+          left: 10,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              track.startAt != null
+                  ? ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size.zero,
+                        backgroundColor: Colors.amber[900],
+                        padding: const EdgeInsets.only(
+                            bottom: 6, top: 6, left: 15, right: 15), // and this
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    TrackStats(track: track!)));
+                      },
+                      child: Text(AppLocalizations.of(context)!.trackData,
+                          style: TextStyle(color: Colors.white, fontSize: 18)))
+                  : Container(),
+              SizedBox(
+                width: 10,
+              ),
+              if (!mapCentered && currentLoc != null)
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size.zero,
+                      backgroundColor: Colors.amber[900],
+                      padding: const EdgeInsets.only(
+                          bottom: 6, top: 6, left: 15, right: 15), // and this
+                    ),
+                    onPressed: () {
+                      mapCentered = true;
+                      if (currentLoc != null) {
+                        centerMap(LatLng(
+                            currentLoc!.latitude!, currentLoc!.longitude!));
+                      }
+                      setState(() {});
+                    },
+                    child: Text(AppLocalizations.of(context)!.centerMap,
+                        style: TextStyle(color: Colors.white, fontSize: 18))),
+            ],
+          ),
+        )
       ],
     );
   }

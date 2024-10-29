@@ -8,9 +8,11 @@
   "provider": "Provider",
   "notificationTitle": "Gpx recorder",
   "notificationContent": "Background recording",
-  "trackData": "Data" ,
+  "trackData": "Data",
+  "centerMap": "Center map",
   "distance": "Distance",
   "altitude": "Altitude",
+  "elevationGain": "Elevation gain",
   "elapsedTime": "Elapsed time",
   "stoppedTime": "Stopped time",
   "trackSpeedAverage": "Average speed"

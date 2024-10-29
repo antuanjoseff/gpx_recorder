@@ -11,7 +11,7 @@ class Track {
   List<LatLng> gpxCoords = [];
 
   // Start recording time
-  DateTime startAt = DateTime.now();
+  DateTime? startAt;
 
   //Time not moving
   Duration notMovingTime = Duration(seconds: 0);
@@ -22,8 +22,20 @@ class Track {
   // Track last / current speedlength
   double? currentSpeed = 0;
 
-  // Current altitud
-  int? currentAltitude = null;
+  // Track last / current accuracy
+  double? accuracy;
+
+  // Current elevation
+  int? currentElevation = null;
+
+  // Elevation Gain
+  int elevationGain = 0;
+
+  // Calculate elevation gain every X seconds
+  int elevationGainInterval = 0;
+
+  // Last DateTime when elevation gain was calculated
+  DateTime? lastElevatonGainTime = null;
 
   // Constructor
   Track(this.wpts);
@@ -70,11 +82,19 @@ class Track {
   }
 
   int? getCurrentElevation() {
-    return currentAltitude;
+    return currentElevation;
   }
 
-  DateTime getStartTime() {
+  int? getElevationGain() {
+    return elevationGain;
+  }
+
+  DateTime? getStartTime() {
     return startAt;
+  }
+
+  double? getAccuracy() {
+    return accuracy;
   }
 
   Duration getNotMovingTime() {
@@ -86,11 +106,15 @@ class Track {
   }
 
   void setCurrentElevation(int? elevation) {
-    currentAltitude = elevation;
+    currentElevation = elevation;
   }
 
   void setNotMovingTime(Duration time) {
     notMovingTime = time;
+  }
+
+  void setAccuracy(double lastAccuracy) {
+    accuracy = double.parse(lastAccuracy.toStringAsFixed(2));
   }
 
   void reset() {
@@ -106,6 +130,14 @@ class Track {
       inc = getDistanceFromLatLonInMeters(P, prev);
     }
 
+    if (lastElevatonGainTime == null) {
+      lastElevatonGainTime = DateTime.now();
+    } else {
+      if (lastElevatonGainTime!.difference(DateTime.now()).inSeconds >
+          elevationGainInterval) {
+        elevationGain += wpt.ele != null ? wpt.ele!.toInt() : 0;
+      }
+    }
     gpxCoords.add(P);
     wpts.add(wpt);
     length += inc;
