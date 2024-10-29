@@ -15,5 +15,6 @@
     "elevationGain": "Desnivell +",
     "elapsedTime": "Temps total",
     "stoppedTime": "Temps aturat",
-    "trackSpeedAverage": "Velocitat mitjana"
+    "trackSpeedAverage": "Velocitat mitjana",
+    "showTrackOnMap": "Mostrar track en el mapa"
 }

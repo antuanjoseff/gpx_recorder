@@ -15,5 +15,6 @@
   "elevationGain": "Elevation gain",
   "elapsedTime": "Elapsed time",
   "stoppedTime": "Stopped time",
-  "trackSpeedAverage": "Average speed"
+  "trackSpeedAverage": "Average speed",
+  "showTrackOnMap": "Show track on map"
 }

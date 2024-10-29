@@ -15,5 +15,6 @@
     "elevationGain": "Desnivel +",
     "elapsedTime": "Tiempo total",
     "stoppedTime": "Tiempo parado",
-    "trackSpeedAverage": "Velocidad media"
+    "trackSpeedAverage": "Velocidad media",
+    "showTrackOnMap": "Mostrar track en el mapa"
 }
