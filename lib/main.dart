@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 // import 'utils/user_simple_preferences.dart';
 import './screens/settingsPage.dart';
 import './screens/map.dart';
+import './screens/tabSettings.dart';
 import 'classes/appSettings.dart';
 import './classes/user_preferences.dart';
 import './classes/vars.dart';
@@ -125,14 +126,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         var result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SettingsPage(
-                                speed: speed,
-                                heading: heading,
-                                numSatelites: numSatelites,
-                                accuracy: accuracy,
-                                provider: provider,
-                              ),
-                            ));
+                                builder: (context) => TabSettings()
+                                // SettingsPage(
+                                //   speed: speed,
+                                //   heading: heading,
+                                //   numSatelites: numSatelites,
+                                //   accuracy: accuracy,
+                                //   provider: provider,
+                                // ),
+                                ));
                         if (result != null) {
                           var (
                             bool numSat,
