@@ -3,7 +3,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:location/location.dart';
 import '../classes/gps.dart';
 import '../classes/track.dart';
-import '../classes/trackSettings.dart';
+import '../classes/appSettings.dart';
 import '../classes/user_preferences.dart';
 import '../screens/track_stats.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -12,17 +12,17 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:convert' show utf8;
 
 class MapWidget extends StatefulWidget {
-  final TrackSettings trackSettings;
+  final AppSettings appSettings;
   final Function onlongpress;
 
   const MapWidget({
     super.key,
-    required this.trackSettings,
+    required this.appSettings,
     required this.onlongpress,
   });
 
   @override
-  State<MapWidget> createState() => _MapWidgetState(trackSettings);
+  State<MapWidget> createState() => _MapWidgetState(appSettings);
 }
 
 class _MapWidgetState extends State<MapWidget> {
@@ -57,12 +57,12 @@ class _MapWidgetState extends State<MapWidget> {
   bool trackCameroMove = true;
   bool mapCentered = true;
   LocationData? currentLoc = null;
-  _MapWidgetState(TrackSettings trackSettings) {
-    trackSettings.setTrackPreferences = setTrackPreferences;
-    trackSettings.startRecording = startRecording;
-    trackSettings.resumeRecording = resumeRecording;
-    trackSettings.stopRecording = stopRecording;
-    trackSettings.finishRecording = finishRecording;
+  _MapWidgetState(AppSettings appSettings) {
+    appSettings.setTrackPreferences = setTrackPreferences;
+    appSettings.startRecording = startRecording;
+    appSettings.resumeRecording = resumeRecording;
+    appSettings.stopRecording = stopRecording;
+    appSettings.finishRecording = finishRecording;
   }
 
   void setTrackPreferences(bool numSatelites, bool accuracy, bool speed,

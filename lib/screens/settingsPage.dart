@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:accordion/accordion.dart';
 import 'gpxSettings.dart';
 import 'gpsSettings.dart';
+import 'trackSettings.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool numSatelites;
@@ -34,6 +35,11 @@ class _SettingsPageState extends State<SettingsPage> {
       color: Color(0xff999999), fontSize: 14, fontWeight: FontWeight.normal);
   static const loremIpsum =
       '''Lorem ipsum is typically a corrupted version of 'De finibus bonorum et malorum', a 1st century BC text by the Roman statesman and philosopher Cicero, with words altered, added, and removed to make it nonsensical and improper Latin.''';
+
+  void colorChanged(Color color) {
+    debugPrint(color.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,13 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           const Icon(Icons.remove_red_eye, color: Colors.white),
                       header:
                           const Text('Track properties', style: headerStyle),
-                      content: GpxSettings(
-                        speed: widget.speed,
-                        heading: widget.heading,
-                        numSatelites: widget.numSatelites,
-                        accuracy: widget.accuracy,
-                        provider: widget.provider,
-                      ),
+                      content: TrackSettings(),
                     ),
                   ])
             ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 // import 'utils/user_simple_preferences.dart';
 import './screens/settingsPage.dart';
 import './screens/map.dart';
-import './classes/trackSettings.dart';
+import 'classes/appSettings.dart';
 import './classes/user_preferences.dart';
 import './classes/vars.dart';
 import './classes/gps.dart';
@@ -65,7 +65,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TrackSettings _trackSettings = TrackSettings();
+  AppSettings _appSettings = AppSettings();
   bool recording = false;
   bool showPauseButton = false;
   bool showResumeOrStopButtons = false;
@@ -157,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Stack(
           children: [
-            MapWidget(trackSettings: _trackSettings, onlongpress: toggleAppBar),
+            MapWidget(appSettings: _appSettings, onlongpress: toggleAppBar),
             AnimatedPositioned(
               duration: Duration(milliseconds: milliseconds),
               onEnd: () {
@@ -174,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       style: customStyleButton,
                       onPressed: () {
-                        _trackSettings.startRecording!();
+                        _appSettings.startRecording!();
                         setState(() {
                           recording = true;
                         });
@@ -208,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         style: customStyleButton,
                         onPressed: () {
-                          _trackSettings.stopRecording!();
+                          _appSettings.stopRecording!();
                           setState(() {
                             showPauseButton = false;
                             isPaused = true;
@@ -244,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         style: customStyleButton,
                         onPressed: () {
-                          _trackSettings.resumeRecording!();
+                          _appSettings.resumeRecording!();
                           setState(() {
                             showResumeOrStopButtons = false;
                             isResumed = true;
@@ -261,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          _trackSettings.finishRecording!();
+                          _appSettings.finishRecording!();
                           setState(() {
                             isStopped = true;
                           });

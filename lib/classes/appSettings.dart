@@ -1,4 +1,4 @@
-class TrackSettings {
+class AppSettings {
   // Future<Line?> Function(List<Wpt> lineSegment)? loadTrack;
   // Future<void> Function()? removeTrackLine;
   // Future<List<Symbol>> Function()? addMapSymbols;
