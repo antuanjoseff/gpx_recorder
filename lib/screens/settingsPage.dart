@@ -6,6 +6,8 @@ import 'package:accordion/accordion.dart';
 import 'gpxSettings.dart';
 import 'gpsSettings.dart';
 import 'trackSettings.dart';
+import '../controllers/gpx.dart';
+import '../controllers/track.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool numSatelites;
@@ -36,6 +38,9 @@ class _SettingsPageState extends State<SettingsPage> {
   static const loremIpsum =
       '''Lorem ipsum is typically a corrupted version of 'De finibus bonorum et malorum', a 1st century BC text by the Roman statesman and philosopher Cicero, with words altered, added, and removed to make it nonsensical and improper Latin.''';
 
+  final GpxController gpxController = GpxController();
+  final TrackController trackController = TrackController();
+
   void colorChanged(Color color) {
     debugPrint(color.toString());
   }
@@ -50,11 +55,11 @@ class _SettingsPageState extends State<SettingsPage> {
             leading: BackButton(
               onPressed: () {
                 Navigator.of(context).pop((
-                  UserPreferences.getSpeed(),
-                  UserPreferences.getHeading(),
-                  UserPreferences.getNumSatelites(),
-                  UserPreferences.getAccuracy(),
-                  UserPreferences.getProvider(),
+                  gpxController.speed,
+                  gpxController.heading,
+                  gpxController.numSatelites,
+                  gpxController.accuracy,
+                  gpxController.provider
                 ));
               },
             )),
@@ -86,13 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       leftIcon: const Icon(Icons.insert_drive_file_outlined,
                           color: Colors.white),
                       header: const Text('GPX properties', style: headerStyle),
-                      content: GpxSettings(
-                        speed: widget.speed,
-                        heading: widget.heading,
-                        numSatelites: widget.numSatelites,
-                        accuracy: widget.accuracy,
-                        provider: widget.provider,
-                      ),
+                      content: GpxSettings(controller: gpxController),
                     ),
                     AccordionSection(
                       isOpen: false,
@@ -113,7 +112,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           const Icon(Icons.remove_red_eye, color: Colors.white),
                       header:
                           const Text('Track properties', style: headerStyle),
-                      content: TrackSettings(),
+                      content: TrackSettings(
+                        controller: trackController,
+                      ),
                     ),
                   ])
             ],

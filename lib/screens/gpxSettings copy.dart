@@ -3,12 +3,21 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:io' show Platform;
 import '../classes/vars.dart';
 import '../classes/user_preferences.dart';
-import '../controllers/gpx.dart';
 
 class GpxSettings extends StatefulWidget {
-  final GpxController controller;
+  final bool numSatelites;
+  final bool accuracy;
+  final bool speed;
+  final bool heading;
+  final bool provider;
 
-  GpxSettings({super.key, required this.controller});
+  GpxSettings(
+      {super.key,
+      required this.numSatelites,
+      required this.accuracy,
+      required this.speed,
+      required this.heading,
+      required this.provider});
 
   @override
   State<GpxSettings> createState() => _GpxSettingsState();
@@ -23,11 +32,11 @@ class _GpxSettingsState extends State<GpxSettings> {
   double switchScale = 1;
   @override
   void initState() {
-    numSatelitesIsSwitched = widget.controller.numSatelites ?? false;
-    accuracyIsSwitched = widget.controller.accuracy ?? false;
-    speedIsSwitched = widget.controller.speed ?? false;
-    headingIsSwitched = widget.controller.heading ?? false;
-    providerIsSwitched = widget.controller.provider ?? false;
+    numSatelitesIsSwitched = widget.numSatelites;
+    accuracyIsSwitched = widget.accuracy;
+    speedIsSwitched = widget.speed;
+    headingIsSwitched = widget.heading;
+    providerIsSwitched = widget.provider;
     super.initState();
   }
 
@@ -35,11 +44,10 @@ class _GpxSettingsState extends State<GpxSettings> {
   Widget build(BuildContext context) {
     return DefaultTextStyle(
       style: TextStyle(color: Colors.black, fontSize: 20),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 60, top: 40),
+      child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -52,8 +60,7 @@ class _GpxSettingsState extends State<GpxSettings> {
                       onChanged: (value) {
                         setState(() {
                           speedIsSwitched = value;
-                          widget.controller.speed = value;
-                          // UserPreferences.setSpeed(value);
+                          UserPreferences.setSpeed(value);
                         });
                       }),
                 ),
@@ -72,8 +79,7 @@ class _GpxSettingsState extends State<GpxSettings> {
                       onChanged: (value) {
                         setState(() {
                           headingIsSwitched = value;
-                          widget.controller.heading = value;
-                          // UserPreferences.setHeading(value);
+                          UserPreferences.setHeading(value);
                         });
                       }),
                 ),
@@ -93,8 +99,7 @@ class _GpxSettingsState extends State<GpxSettings> {
                             onChanged: (value) {
                               setState(() {
                                 numSatelitesIsSwitched = value;
-                                widget.controller.numSatelites = value;
-                                // UserPreferences.setNumSatelites(value);
+                                UserPreferences.setNumSatelites(value);
                               });
                             }),
                       ),
@@ -114,8 +119,7 @@ class _GpxSettingsState extends State<GpxSettings> {
                       onChanged: (value) {
                         setState(() {
                           accuracyIsSwitched = value;
-                          widget.controller.accuracy = value;
-                          // UserPreferences.setAccuracy(value);
+                          UserPreferences.setAccuracy(value);
                         });
                       }),
                 ),
@@ -134,8 +138,7 @@ class _GpxSettingsState extends State<GpxSettings> {
                       onChanged: (value) {
                         setState(() {
                           providerIsSwitched = value;
-                          widget.controller.provider = value;
-                          // UserPreferences.setProvider(value);
+                          UserPreferences.setProvider(value);
                         });
                       }),
                 ),

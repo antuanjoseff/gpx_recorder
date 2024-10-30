@@ -42,7 +42,7 @@ class _MapWidgetState extends State<MapWidget> {
   Duration timeNotMoving = Duration(seconds: 0);
 
   late MapLibreMapController mapController;
-  Location location = new Location();
+  Location location = Location();
 
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.none;
   MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.normal;

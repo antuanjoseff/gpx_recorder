@@ -82,6 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool speed;
   late bool heading;
   late bool provider;
+  bool visible = true;
+  Color color = Colors.pink;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
       minimumSize: Size.zero, // Set this
@@ -126,28 +128,34 @@ class _MyHomePageState extends State<MyHomePage> {
                         var result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TabSettings()
-                                // SettingsPage(
-                                //   speed: speed,
-                                //   heading: heading,
-                                //   numSatelites: numSatelites,
-                                //   accuracy: accuracy,
-                                //   provider: provider,
-                                // ),
-                                ));
+                              builder: (context) => TabSettings(
+                                speed: speed,
+                                heading: heading,
+                                numSatelites: numSatelites,
+                                accuracy: accuracy,
+                                provider: provider,
+                              ),
+                            ));
                         if (result != null) {
                           var (
                             bool numSat,
                             bool Ac,
                             bool Sp,
                             bool He,
-                            bool Pro
+                            bool Pro,
+                            bool vis,
+                            Color col
                           ) = result;
                           numSatelites = numSat;
                           accuracy = Ac;
                           speed = Sp;
                           heading = He;
                           provider = Pro;
+                          visible = vis;
+                          color = col;
+
+                          debugPrint(
+                              '$speed  $heading    $numSatelites   $accuracy   $provider   $visible  $color');
                         }
                       },
                     )

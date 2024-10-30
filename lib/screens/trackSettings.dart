@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../classes/vars.dart';
+import '../controllers/track.dart';
 
 class TrackSettings extends StatefulWidget {
-  const TrackSettings({super.key});
+  final TrackController controller;
+  TrackSettings({super.key, required this.controller});
 
   @override
   State<TrackSettings> createState() => _TrackSettingsState();
@@ -18,11 +20,14 @@ class _TrackSettingsState extends State<TrackSettings> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Switch(
               value: visible,
+              activeTrackColor: mainColor,
               onChanged: (value) {
+                widget.controller.visible = value;
                 visible = value;
                 setState(() {});
               },
@@ -43,7 +48,8 @@ class _TrackSettingsState extends State<TrackSettings> {
                           content: SingleChildScrollView(
                             child: BlockPicker(
                               pickerColor: Colors.pink,
-                              onColorChanged: (value) => {},
+                              onColorChanged: (value) =>
+                                  widget.controller.color = value,
                               availableColors: colors,
                               // layoutBuilder: pickerLayoutBuilder,
                               // itemBuilder: pickerItemBuilder,
@@ -52,11 +58,9 @@ class _TrackSettingsState extends State<TrackSettings> {
                         );
                       });
                 },
-                child: const Text(
+                child: Text(
                   'Change color',
-                  style: TextStyle(
-                    color: Colors.amber,
-                  ),
+                  style: TextStyle(color: mainColor),
                 ))
           ],
         )
