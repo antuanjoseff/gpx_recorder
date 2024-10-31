@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         appBar: AppBar(
           // toolbarHeight: !fullScreen ? 40 : 0,
-          backgroundColor: mainColor,
+          backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           title: Text(AppLocalizations.of(context)!.appTitle),
           actions: [
@@ -123,7 +123,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.settings),
+                      icon: Icon(
+                        Icons.settings,
+                        color: thirthColor,
+                      ),
                       onPressed: () async {
                         var result = await Navigator.push(
                             context,

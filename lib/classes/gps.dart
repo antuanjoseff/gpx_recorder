@@ -7,7 +7,7 @@ class Gps {
 
   late bool _serviceEnabled;
   late PermissionStatus _permissionGranted;
-  Location location = new Location();
+  Location location = Location();
 
   Future<bool> checkService() async {
     _serviceEnabled = await location.serviceEnabled();

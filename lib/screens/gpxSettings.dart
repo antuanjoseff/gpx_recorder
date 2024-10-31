@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import '../classes/vars.dart';
 import '../classes/user_preferences.dart';
 import '../controllers/gpx.dart';
+import 'package:flutter_grid_button/flutter_grid_button.dart';
 
 class GpxSettings extends StatefulWidget {
   final GpxController controller;
@@ -34,116 +35,67 @@ class _GpxSettingsState extends State<GpxSettings> {
   @override
   Widget build(BuildContext context) {
     return DefaultTextStyle(
-      style: TextStyle(color: Colors.black, fontSize: 20),
+      style: TextStyle(color: primaryColor, fontSize: 20),
       child: Padding(
-        padding: const EdgeInsets.only(left: 60, top: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: speedIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          speedIsSwitched = value;
-                          widget.controller.speed = value;
-                          // UserPreferences.setSpeed(value);
-                        });
-                      }),
-                ),
-                SizedBox(width: 10),
-                Text(AppLocalizations.of(context)!.speed)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: headingIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          headingIsSwitched = value;
-                          widget.controller.heading = value;
-                          // UserPreferences.setHeading(value);
-                        });
-                      }),
-                ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.heading)
-              ],
-            ),
-            (Platform.isAndroid)
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+        padding: const EdgeInsets.all(8),
+        child: Center(
+          child: GridView.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            shrinkWrap: true,
+            padding: EdgeInsets.all(10),
+            children: [
+              Container(
+                color: fourthColor,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: fourthColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Transform.scale(
-                        scale: switchScale,
-                        child: Switch(
-                            value: numSatelitesIsSwitched,
-                            activeTrackColor: mainColor,
-                            onChanged: (value) {
-                              setState(() {
-                                numSatelitesIsSwitched = value;
-                                widget.controller.numSatelites = value;
-                                // UserPreferences.setNumSatelites(value);
-                              });
-                            }),
+                      Text(
+                        AppLocalizations.of(context)!.speed,
                       ),
-                      SizedBox(width: 20),
-                      Text(AppLocalizations.of(context)!.numSatelites)
                     ],
-                  )
-                : Container(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: accuracyIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          accuracyIsSwitched = value;
-                          widget.controller.accuracy = value;
-                          // UserPreferences.setAccuracy(value);
-                        });
-                      }),
+                  ),
                 ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.accuracy)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: providerIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          providerIsSwitched = value;
-                          widget.controller.provider = value;
-                          // UserPreferences.setProvider(value);
-                        });
-                      }),
-                ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.provider)
-              ],
-            )
-          ],
+              ),
+              Container(
+                  color: fourthColor,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(AppLocalizations.of(context)!.heading),
+                    ],
+                  )),
+              Container(
+                  color: fourthColor,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(AppLocalizations.of(context)!.accuracy),
+                    ],
+                  )),
+              Container(
+                  color: fourthColor,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(AppLocalizations.of(context)!.provider),
+                    ],
+                  )),
+            ],
+          ),
         ),
       ),
     );

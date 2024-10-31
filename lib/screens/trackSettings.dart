@@ -25,7 +25,7 @@ class _TrackSettingsState extends State<TrackSettings> {
           children: [
             Switch(
               value: visible,
-              activeTrackColor: mainColor,
+              activeTrackColor: primaryColor,
               onChanged: (value) {
                 widget.controller.visible = value;
                 visible = value;
@@ -60,7 +60,7 @@ class _TrackSettingsState extends State<TrackSettings> {
                 },
                 child: Text(
                   'Change color',
-                  style: TextStyle(color: mainColor),
+                  style: TextStyle(color: primaryColor),
                 ))
           ],
         )

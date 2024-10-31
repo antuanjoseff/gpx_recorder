@@ -39,7 +39,7 @@ class _TabSettingsState extends State<TabSettings> {
       child: Scaffold(
           appBar: AppBar(
             title: Text(AppLocalizations.of(context)!.settings),
-            backgroundColor: mainColor,
+            backgroundColor: primaryColor,
             foregroundColor: Colors.white,
             leading: BackButton(
               onPressed: () {
@@ -54,9 +54,11 @@ class _TabSettingsState extends State<TabSettings> {
                 ));
               },
             ),
-            bottom: const TabBar(
-              indicatorColor: Colors.white,
-              tabs: [
+            bottom: TabBar(
+              indicatorColor: fourthColor,
+              indicatorWeight: 5,
+              indicatorSize: TabBarIndicatorSize.tab,
+              tabs: const [
                 Tab(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -92,7 +94,7 @@ class _TabSettingsState extends State<TabSettings> {
             ),
           ),
           body: Container(
-            color: Colors.orange[300],
+            color: thirthColor,
             child: TabBarView(
               children: [
                 GpxSettings(controller: gpxController),

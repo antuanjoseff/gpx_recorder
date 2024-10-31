@@ -3,21 +3,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:io' show Platform;
 import '../classes/vars.dart';
 import '../classes/user_preferences.dart';
+import '../controllers/gpx.dart';
 
 class GpxSettings extends StatefulWidget {
-  final bool numSatelites;
-  final bool accuracy;
-  final bool speed;
-  final bool heading;
-  final bool provider;
+  final GpxController controller;
 
-  GpxSettings(
-      {super.key,
-      required this.numSatelites,
-      required this.accuracy,
-      required this.speed,
-      required this.heading,
-      required this.provider});
+  GpxSettings({super.key, required this.controller});
 
   @override
   State<GpxSettings> createState() => _GpxSettingsState();
@@ -32,121 +23,113 @@ class _GpxSettingsState extends State<GpxSettings> {
   double switchScale = 1;
   @override
   void initState() {
-    numSatelitesIsSwitched = widget.numSatelites;
-    accuracyIsSwitched = widget.accuracy;
-    speedIsSwitched = widget.speed;
-    headingIsSwitched = widget.heading;
-    providerIsSwitched = widget.provider;
+    numSatelitesIsSwitched = widget.controller.numSatelites ?? false;
+    accuracyIsSwitched = widget.controller.accuracy ?? false;
+    speedIsSwitched = widget.controller.speed ?? false;
+    headingIsSwitched = widget.controller.heading ?? false;
+    providerIsSwitched = widget.controller.provider ?? false;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTextStyle(
-      style: TextStyle(color: Colors.black, fontSize: 20),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
+    return SingleChildScrollView(
+      child: DefaultTextStyle(
+        style: TextStyle(color: Colors.black, fontSize: 10),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 0, top: 0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Switch(
                       value: speedIsSwitched,
-                      activeTrackColor: mainColor,
+                      inactiveTrackColor: thirthColor,
+                      activeTrackColor: primaryColor,
                       onChanged: (value) {
                         setState(() {
                           speedIsSwitched = value;
-                          UserPreferences.setSpeed(value);
+                          widget.controller.speed = value;
+                          // UserPreferences.setSpeed(value);s
                         });
                       }),
-                ),
-                SizedBox(width: 10),
-                Text(AppLocalizations.of(context)!.speed)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
+                  Text(AppLocalizations.of(context)!.speed)
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Switch(
                       value: headingIsSwitched,
-                      activeTrackColor: mainColor,
+                      inactiveTrackColor: thirthColor,
+                      activeTrackColor: primaryColor,
                       onChanged: (value) {
                         setState(() {
                           headingIsSwitched = value;
-                          UserPreferences.setHeading(value);
+                          widget.controller.heading = value;
+                          // UserPreferences.setHeading(value);
                         });
                       }),
-                ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.heading)
-              ],
-            ),
-            (Platform.isAndroid)
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Transform.scale(
-                        scale: switchScale,
-                        child: Switch(
+                  Text(AppLocalizations.of(context)!.heading)
+                ],
+              ),
+              (Platform.isAndroid)
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Switch(
                             value: numSatelitesIsSwitched,
-                            activeTrackColor: mainColor,
+                            activeTrackColor: primaryColor,
+                            inactiveTrackColor: thirthColor,
                             onChanged: (value) {
                               setState(() {
                                 numSatelitesIsSwitched = value;
-                                UserPreferences.setNumSatelites(value);
+                                widget.controller.numSatelites = value;
+                                // UserPreferences.setNumSatelites(value);
                               });
                             }),
-                      ),
-                      SizedBox(width: 20),
-                      Text(AppLocalizations.of(context)!.numSatelites)
-                    ],
-                  )
-                : Container(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
+                        Text(AppLocalizations.of(context)!.numSatelites)
+                      ],
+                    )
+                  : Container(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Switch(
                       value: accuracyIsSwitched,
-                      activeTrackColor: mainColor,
+                      activeTrackColor: primaryColor,
+                      inactiveTrackColor: thirthColor,
                       onChanged: (value) {
                         setState(() {
                           accuracyIsSwitched = value;
-                          UserPreferences.setAccuracy(value);
+                          widget.controller.accuracy = value;
+                          // UserPreferences.setAccuracy(value);
                         });
                       }),
-                ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.accuracy)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
+                  Text(AppLocalizations.of(context)!.accuracy)
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Switch(
                       value: providerIsSwitched,
-                      activeTrackColor: mainColor,
+                      activeTrackColor: primaryColor,
+                      inactiveTrackColor: thirthColor,
                       onChanged: (value) {
                         setState(() {
                           providerIsSwitched = value;
-                          UserPreferences.setProvider(value);
+                          widget.controller.provider = value;
+                          // UserPreferences.setProvider(value);
                         });
                       }),
-                ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.provider)
-              ],
-            )
-          ],
+                  Text(AppLocalizations.of(context)!.provider)
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

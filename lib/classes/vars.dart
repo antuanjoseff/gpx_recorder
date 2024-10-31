@@ -4,6 +4,13 @@ Color mainColor = Colors.orange[400]!;
 Color secondColor = Colors.amberAccent;
 Color lightColor = Colors.grey[300]!;
 
+Color primaryColor = Color(0xff00712D);
+Color secondaryColor = Color(0xffD5ED9F);
+Color thirthColor = Color(0xffFFFBE6);
+Color fourthColor = Color(0xffFF9100);
+
+Color buttonBackgroundColor = primaryColor;
+
 const List<Color> colors = [
   Colors.red,
   Colors.pink,

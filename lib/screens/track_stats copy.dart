@@ -102,7 +102,7 @@ class _TrackStatsState extends State<TrackStats> {
     return Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.trackData),
-          backgroundColor: mainColor,
+          backgroundColor: primaryColor,
           foregroundColor: Colors.white,
         ),
         body: Row(

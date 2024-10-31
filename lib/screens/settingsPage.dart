@@ -49,7 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: mainColor,
+            backgroundColor: primaryColor,
             foregroundColor: Colors.white,
             title: Text(AppLocalizations.of(context)!.settings),
             leading: BackButton(

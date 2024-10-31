@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpx_recorder/classes/vars.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:location/location.dart';
 import '../classes/gps.dart';
@@ -311,7 +312,7 @@ class _MapWidgetState extends State<MapWidget> {
                   ? ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size.zero,
-                        backgroundColor: Colors.amber[900],
+                        backgroundColor: buttonBackgroundColor,
                         padding: const EdgeInsets.only(
                             bottom: 6, top: 6, left: 15, right: 15), // and this
                       ),
@@ -332,7 +333,7 @@ class _MapWidgetState extends State<MapWidget> {
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size.zero,
-                      backgroundColor: Colors.amber[900],
+                      backgroundColor: buttonBackgroundColor,
                       padding: const EdgeInsets.only(
                           bottom: 6, top: 6, left: 15, right: 15), // and this
                     ),

@@ -43,7 +43,7 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: mainColor,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         title: Text(AppLocalizations.of(context)!.settings),
         leading: BackButton(
@@ -71,7 +71,7 @@ class _SettingsState extends State<Settings> {
                   scale: switchScale,
                   child: Switch(
                       value: speedIsSwitched,
-                      activeTrackColor: mainColor,
+                      activeTrackColor: primaryColor,
                       onChanged: (value) {
                         setState(() {
                           speedIsSwitched = value;
@@ -90,7 +90,7 @@ class _SettingsState extends State<Settings> {
                   scale: switchScale,
                   child: Switch(
                       value: headingIsSwitched,
-                      activeTrackColor: mainColor,
+                      activeTrackColor: primaryColor,
                       onChanged: (value) {
                         setState(() {
                           headingIsSwitched = value;
@@ -110,7 +110,7 @@ class _SettingsState extends State<Settings> {
                         scale: switchScale,
                         child: Switch(
                             value: numSatelitesIsSwitched,
-                            activeTrackColor: mainColor,
+                            activeTrackColor: primaryColor,
                             onChanged: (value) {
                               setState(() {
                                 numSatelitesIsSwitched = value;
@@ -130,7 +130,7 @@ class _SettingsState extends State<Settings> {
                   scale: switchScale,
                   child: Switch(
                       value: accuracyIsSwitched,
-                      activeTrackColor: mainColor,
+                      activeTrackColor: primaryColor,
                       onChanged: (value) {
                         setState(() {
                           accuracyIsSwitched = value;
@@ -149,7 +149,7 @@ class _SettingsState extends State<Settings> {
                   scale: switchScale,
                   child: Switch(
                       value: providerIsSwitched,
-                      activeTrackColor: mainColor,
+                      activeTrackColor: primaryColor,
                       onChanged: (value) {
                         setState(() {
                           providerIsSwitched = value;
