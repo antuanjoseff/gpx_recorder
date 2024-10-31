@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gpx_recorder/classes/user_preferences.dart';
 import '../classes/vars.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:accordion/accordion.dart';
 import 'gpxSettings.dart';
-import 'gpsSettings.dart';
 import 'trackSettings.dart';
 import '../controllers/gpx.dart';
 import '../controllers/track.dart';
@@ -15,14 +13,19 @@ class TabSettings extends StatefulWidget {
   final bool speed;
   final bool heading;
   final bool provider;
+  final bool visible;
+  final Color color;
 
-  TabSettings(
-      {super.key,
-      required this.speed,
-      required this.heading,
-      required this.numSatelites,
-      required this.accuracy,
-      required this.provider});
+  TabSettings({
+    super.key,
+    required this.speed,
+    required this.heading,
+    required this.numSatelites,
+    required this.accuracy,
+    required this.provider,
+    required this.visible,
+    required this.color,
+  });
 
   @override
   State<TabSettings> createState() => _TabSettingsState();
@@ -31,6 +34,19 @@ class TabSettings extends StatefulWidget {
 class _TabSettingsState extends State<TabSettings> {
   GpxController gpxController = GpxController();
   TrackController trackController = TrackController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    gpxController.speed = widget.speed;
+    gpxController.heading = widget.heading;
+    gpxController.numSatelites = widget.numSatelites;
+    gpxController.accuracy = widget.accuracy;
+    gpxController.provider = widget.provider;
+    trackController.visible = widget.visible;
+    trackController.color = widget.color;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +59,7 @@ class _TabSettingsState extends State<TabSettings> {
             foregroundColor: Colors.white,
             leading: BackButton(
               onPressed: () {
+                debugPrint('${gpxController.speed}  ${gpxController.heading}');
                 Navigator.of(context).pop((
                   gpxController.speed,
                   gpxController.heading,
@@ -82,7 +99,7 @@ class _TabSettingsState extends State<TabSettings> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.remove_red_eye,
+                        Icons.show_chart_outlined,
                         color: Colors.white,
                       ),
                       SizedBox(width: 10),

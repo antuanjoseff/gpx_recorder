@@ -132,19 +132,20 @@ class _MyHomePageState extends State<MyHomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => TabSettings(
-                                speed: speed,
-                                heading: heading,
-                                numSatelites: numSatelites,
-                                accuracy: accuracy,
-                                provider: provider,
-                              ),
+                                  speed: speed,
+                                  heading: heading,
+                                  numSatelites: numSatelites,
+                                  accuracy: accuracy,
+                                  provider: provider,
+                                  visible: visible,
+                                  color: color),
                             ));
                         if (result != null) {
                           var (
-                            bool numSat,
-                            bool Ac,
                             bool Sp,
                             bool He,
+                            bool numSat,
+                            bool Ac,
                             bool Pro,
                             bool vis,
                             Color col
@@ -156,9 +157,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           provider = Pro;
                           visible = vis;
                           color = col;
-
-                          debugPrint(
-                              '$speed  $heading    $numSatelites   $accuracy   $provider   $visible  $color');
+                          _appSettings.setTrackPreferences!(
+                              numSatelites, accuracy, speed, heading, provider);
                         }
                       },
                     )

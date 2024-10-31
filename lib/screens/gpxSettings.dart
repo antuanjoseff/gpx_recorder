@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 import '../classes/vars.dart';
 import '../classes/user_preferences.dart';
 import '../controllers/gpx.dart';
-import 'package:flutter_grid_button/flutter_grid_button.dart';
 
 class GpxSettings extends StatefulWidget {
   final GpxController controller;
@@ -24,11 +23,7 @@ class _GpxSettingsState extends State<GpxSettings> {
   double switchScale = 1;
   @override
   void initState() {
-    numSatelitesIsSwitched = widget.controller.numSatelites ?? false;
-    accuracyIsSwitched = widget.controller.accuracy ?? false;
-    speedIsSwitched = widget.controller.speed ?? false;
-    headingIsSwitched = widget.controller.heading ?? false;
-    providerIsSwitched = widget.controller.provider ?? false;
+    debugPrint('kkkkk    ${widget.controller.speed}');
     super.initState();
   }
 
@@ -47,11 +42,16 @@ class _GpxSettingsState extends State<GpxSettings> {
             padding: EdgeInsets.all(10),
             children: [
               Container(
-                color: fourthColor,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    widget.controller.speed = !widget.controller.speed;
+                    setState(() {});
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: fourthColor,
+                    backgroundColor:
+                        widget.controller.speed ? fourthColor : fifthColor,
+                    foregroundColor:
+                        widget.controller.speed ? Colors.white : primaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
@@ -60,40 +60,112 @@ class _GpxSettingsState extends State<GpxSettings> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      Icon(Icons.speed,
+                          size: 40,
+                          color: widget.controller.speed
+                              ? Colors.white
+                              : primaryColor),
                       Text(
                         AppLocalizations.of(context)!.speed,
+                        style: TextStyle(fontSize: 20),
                       ),
                     ],
                   ),
                 ),
               ),
               Container(
-                  color: fourthColor,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(AppLocalizations.of(context)!.heading),
-                    ],
-                  )),
+                  child: ElevatedButton(
+                onPressed: () {
+                  widget.controller.heading = !widget.controller.heading;
+                  setState(() {});
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.controller.heading ? fourthColor : fifthColor,
+                  foregroundColor:
+                      widget.controller.heading ? Colors.white : primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.compass_calibration_sharp,
+                        size: 40,
+                        color: widget.controller.heading
+                            ? Colors.white
+                            : primaryColor),
+                    Text(
+                      AppLocalizations.of(context)!.heading,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              )),
               Container(
-                  color: fourthColor,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(AppLocalizations.of(context)!.accuracy),
-                    ],
-                  )),
+                  child: ElevatedButton(
+                onPressed: () {
+                  widget.controller.accuracy = !widget.controller.accuracy;
+                  setState(() {});
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.controller.accuracy ? fourthColor : fifthColor,
+                  foregroundColor:
+                      widget.controller.accuracy ? Colors.white : primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.gps_fixed,
+                        size: 40,
+                        color: widget.controller.accuracy
+                            ? Colors.white
+                            : primaryColor),
+                    Text(
+                      AppLocalizations.of(context)!.accuracy,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              )),
               Container(
-                  color: fourthColor,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(AppLocalizations.of(context)!.provider),
-                    ],
-                  )),
+                  child: ElevatedButton(
+                onPressed: () {
+                  widget.controller.provider = !widget.controller.provider;
+                  setState(() {});
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.controller.provider ? fourthColor : fifthColor,
+                  foregroundColor:
+                      widget.controller.provider ? Colors.white : primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.account_box_sharp,
+                        size: 40,
+                        color: widget.controller.provider
+                            ? Colors.white
+                            : primaryColor),
+                    Text(
+                      AppLocalizations.of(context)!.provider,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              )),
             ],
           ),
         ),

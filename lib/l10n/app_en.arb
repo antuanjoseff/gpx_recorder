@@ -16,5 +16,8 @@
   "elapsedTime": "Elapsed time",
   "stoppedTime": "Stopped time",
   "trackSpeedAverage": "Average speed",
-  "showTrackOnMap": "Show track on map"
+  "showTrackOnMap": "Show",
+  "hideTrackOnMap": "Hide",
+  "changeTrackColor": "Color",
+  "close": "Close"
 }

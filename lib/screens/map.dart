@@ -68,6 +68,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   void setTrackPreferences(bool numSatelites, bool accuracy, bool speed,
       bool heading, bool provider) {
+    debugPrint(' nova speed $speed');
     _numSatelites = numSatelites;
     _accuracy = accuracy;
     _speed = speed;

@@ -8,6 +8,7 @@ Color primaryColor = Color(0xff00712D);
 Color secondaryColor = Color(0xffD5ED9F);
 Color thirthColor = Color(0xffFFFBE6);
 Color fourthColor = Color(0xffFF9100);
+Color fifthColor = Color(0xffdfdfdf);
 
 Color buttonBackgroundColor = primaryColor;
 
