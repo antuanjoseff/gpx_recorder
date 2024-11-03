@@ -64,6 +64,19 @@ class _MapWidgetState extends State<MapWidget> {
   bool userMovedMap = false;
   LocationData? currentLoc = null;
 
+  int milliseconds = 300;
+  bool showPauseButton = false;
+
+  ButtonStyle customStyleButton = ElevatedButton.styleFrom(
+      minimumSize: Size.zero, // Set this
+      padding: EdgeInsets.all(15), // and this
+      backgroundColor: lightColor);
+
+  bool showResumeOrStopButtons = false;
+  bool isPaused = false;
+  bool isStopped = false;
+  bool isResumed = false;
+
   _MapWidgetState(MainController mainController) {
     mainController.setTrackPreferences = setTrackPreferences;
     mainController.startRecording = startRecording;
@@ -105,20 +118,35 @@ class _MapWidgetState extends State<MapWidget> {
   void initState() {
     gps = Gps();
     locationSubscription = null;
-
     getUserPreferences();
-    gps.checkService().then((enabled) {
-      if (enabled) {
-        gps.checkPermission().then((value) {
-          hasLocationPermission = value;
-          if (value) {
+    checkUserLocation();
+    super.initState();
+  }
+
+  void checkUserLocation() {
+    gps.checkService().then((serviceEnabled) {
+      if (serviceEnabled) {
+        gps.checkPermission().then((hasPermission) {
+          if (hasPermission) {
             _myLocationEnabled = true;
             callSetState();
           }
         });
       }
     });
-    super.initState();
+  }
+
+  Future<bool> checkGpsService() async {
+    bool hasPermission = false;
+    bool enabled = await gps.checkService();
+    if (enabled) {
+      hasPermission = await gps.checkPermission();
+      if (hasPermission) {
+        _myLocationEnabled = true;
+        callSetState();
+      }
+    }
+    return hasPermission;
   }
 
   void callSetState() {
@@ -137,22 +165,23 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void startRecording() async {
-    print('start recording!!!!');
+    print('..........................................................');
+    print(
+        '..........................................................start recording!!!!');
+    print('..........................................................');
 
-    if (hasLocationPermission) {
-      recording = true;
-      pause = false;
-      track!.init();
-      LocationData? loc = await gps.getLocation();
-      if (loc != null) {
-        firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
-      }
-      notMovingStartedAt = DateTime.now();
-      gps.enableBackground('Geolocation', 'Geolocation detection');
-      locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 0);
-      locationSubscription = await gps.listenOnBackground(handleNewPosition);
-      setState(() {});
+    recording = true;
+    pause = false;
+    track!.init();
+    LocationData? loc = await gps.getLocation();
+    if (loc != null) {
+      firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
     }
+    notMovingStartedAt = DateTime.now();
+    gps.enableBackground('Geolocation', 'Geolocation detection');
+    locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 0);
+    locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    setState(() {});
   }
 
   void resumeRecording() {
@@ -385,7 +414,138 @@ class _MapWidgetState extends State<MapWidget> {
                         style: TextStyle(color: Colors.white, fontSize: 18))),
             ],
           ),
-        )
+        ),
+        AnimatedPositioned(
+          duration: Duration(milliseconds: milliseconds),
+          onEnd: () {
+            setState(() {
+              showPauseButton = true;
+            });
+          },
+          left: (!recording && !showPauseButton) ? 10 : -75,
+          bottom: 30,
+          child: SizedBox(
+            width: 75,
+            child: Row(
+              children: [
+                ElevatedButton(
+                  style: customStyleButton,
+                  onPressed: () async {
+                    if (!hasLocationPermission) {
+                      print(
+                          '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
+                      hasLocationPermission = await checkGpsService();
+                    }
+
+                    if (!mapIsCreated() || !hasLocationPermission) {
+                      return;
+                    }
+                    print(
+                        '_______________________________________________________________________');
+                    startRecording();
+                    setState(() {
+                      recording = true;
+                    });
+                  },
+                  child: const Icon(
+                    Icons.circle,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedPositioned(
+          duration: Duration(milliseconds: milliseconds),
+          left: (showPauseButton) ? 10 : -80,
+          onEnd: () {
+            setState(() {
+              if (!showPauseButton) {
+                showResumeOrStopButtons = true;
+              }
+            });
+          },
+          bottom: 30,
+          child: Container(
+            color: Colors.transparent,
+            child: SizedBox(
+              width: 80,
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    style: customStyleButton,
+                    onPressed: () {
+                      pauseRecording!();
+                      setState(() {
+                        showPauseButton = false;
+                        isPaused = true;
+                      });
+                    },
+                    child: const Icon(
+                      Icons.pause,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        AnimatedPositioned(
+          duration: Duration(milliseconds: milliseconds),
+          left: showResumeOrStopButtons ? 10 : -160,
+          onEnd: () {
+            setState(() {
+              if (isResumed && !isPaused) {
+                showPauseButton = true;
+              }
+            });
+          },
+          bottom: 30,
+          child: Container(
+            color: Colors.transparent,
+            child: SizedBox(
+              width: 160,
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    style: customStyleButton,
+                    onPressed: () {
+                      resumeRecording!();
+                      setState(() {
+                        showResumeOrStopButtons = false;
+                        isResumed = true;
+                        isPaused = false;
+                      });
+                    },
+                    child: const Icon(
+                      Icons.circle,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      finishRecording!();
+                      setState(() {
+                        isStopped = true;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      minimumSize: Size.zero, // Set this
+                      padding: EdgeInsets.all(15), // and this
+                    ),
+                    child: const Icon(Icons.stop, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

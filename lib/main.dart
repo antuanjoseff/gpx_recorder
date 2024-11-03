@@ -68,13 +68,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   MainController _mainController = MainController();
   bool recording = false;
+  int milliseconds = 300;
   bool showPauseButton = false;
   bool showResumeOrStopButtons = false;
   bool isPaused = false;
   bool isStopped = false;
   bool isResumed = false;
   bool mapCentered = true;
-  int milliseconds = 300;
 
   bool fullScreen = false;
   late bool numSatelites;
@@ -174,134 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ],
         ),
-        body: Stack(
-          children: [
-            MapWidget(
-                mainController: _mainController, onlongpress: toggleAppBar),
-            AnimatedPositioned(
-              duration: Duration(milliseconds: milliseconds),
-              onEnd: () {
-                setState(() {
-                  showPauseButton = true;
-                });
-              },
-              left: (!recording && !showPauseButton) ? 10 : -75,
-              bottom: 30,
-              child: SizedBox(
-                width: 75,
-                child: Row(
-                  children: [
-                    ElevatedButton(
-                      style: customStyleButton,
-                      onPressed: () {
-                        if (!_mainController.mapIsCreated!()) {
-                          return;
-                        }
-                        _mainController.startRecording!();
-                        setState(() {
-                          recording = true;
-                        });
-                      },
-                      child: const Icon(
-                        Icons.circle,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            AnimatedPositioned(
-              duration: Duration(milliseconds: milliseconds),
-              left: (showPauseButton) ? 10 : -80,
-              onEnd: () {
-                setState(() {
-                  if (!showPauseButton) {
-                    showResumeOrStopButtons = true;
-                  }
-                });
-              },
-              bottom: 30,
-              child: Container(
-                color: Colors.transparent,
-                child: SizedBox(
-                  width: 80,
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                        style: customStyleButton,
-                        onPressed: () {
-                          _mainController.pauseRecording!();
-                          setState(() {
-                            showPauseButton = false;
-                            isPaused = true;
-                          });
-                        },
-                        child: const Icon(
-                          Icons.pause,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            AnimatedPositioned(
-              duration: Duration(milliseconds: milliseconds),
-              left: showResumeOrStopButtons ? 10 : -160,
-              onEnd: () {
-                setState(() {
-                  if (isResumed && !isPaused) {
-                    showPauseButton = true;
-                  }
-                });
-              },
-              bottom: 30,
-              child: Container(
-                color: Colors.transparent,
-                child: SizedBox(
-                  width: 160,
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                        style: customStyleButton,
-                        onPressed: () {
-                          _mainController.resumeRecording!();
-                          setState(() {
-                            showResumeOrStopButtons = false;
-                            isResumed = true;
-                            isPaused = false;
-                          });
-                        },
-                        child: const Icon(
-                          Icons.circle,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _mainController.finishRecording!();
-                          setState(() {
-                            isStopped = true;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: Size.zero, // Set this
-                          padding: EdgeInsets.all(15), // and this
-                        ),
-                        child: const Icon(Icons.stop, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ));
+        body: MapWidget(
+            mainController: _mainController, onlongpress: toggleAppBar));
   }
 }
