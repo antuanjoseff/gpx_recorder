@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 
 class UserPreferences {
   static late SharedPreferences _preferences;
@@ -11,6 +12,8 @@ class UserPreferences {
   static const _trackLength = 'trackLength';
   static const _trackTime = 'trackTime';
   static const _trackAltitude = 'trackAltitude';
+  static const _trackVisible = 'trackVisible';
+  static const _trackColor = 'trackColor';
 
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
@@ -58,6 +61,16 @@ class UserPreferences {
     return trackAltitude == null ? '' : trackAltitude;
   }
 
+  static bool getTrackVisible() {
+    final visible = _preferences.getBool(_trackVisible);
+    return visible == null ? false : visible;
+  }
+
+  static Color? getTrackColor() {
+    final trackColor = _preferences.getInt(_trackColor);
+    return trackColor == null ? Colors.pink : Color(trackColor);
+  }
+
   // SETTERS
 
   static Future setNumSatelites(bool numSatelites) async =>
@@ -83,4 +96,10 @@ class UserPreferences {
 
   static Future setTrackAltitude(String altitude) async =>
       await _preferences.setString(_trackAltitude, altitude);
+
+  static Future setTrackVisible(bool visible) async =>
+      await _preferences.setBool(_trackVisible, visible);
+
+  static Future setTrackColor(Color color) async =>
+      await _preferences.setInt(_trackColor, color.value);
 }

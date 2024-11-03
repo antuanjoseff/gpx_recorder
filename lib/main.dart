@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import './screens/settingsPage.dart';
 import './screens/map.dart';
 import './screens/tabSettings.dart';
-import 'classes/appSettings.dart';
+import 'controllers/main.dart';
 import './classes/user_preferences.dart';
 import './classes/vars.dart';
 import './classes/gps.dart';
@@ -66,7 +66,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  AppSettings _appSettings = AppSettings();
+  MainController _mainController = MainController();
   bool recording = false;
   bool showPauseButton = false;
   bool showResumeOrStopButtons = false;
@@ -157,8 +157,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           provider = Pro;
                           visible = vis;
                           color = col;
-                          _appSettings.setTrackPreferences!(
-                              numSatelites, accuracy, speed, heading, provider);
+                          _mainController.setTrackPreferences!(
+                              numSatelites,
+                              accuracy,
+                              speed,
+                              heading,
+                              provider,
+                              visible,
+                              color);
                         }
                       },
                     )
@@ -170,7 +176,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Stack(
           children: [
-            MapWidget(appSettings: _appSettings, onlongpress: toggleAppBar),
+            MapWidget(
+                mainController: _mainController, onlongpress: toggleAppBar),
             AnimatedPositioned(
               duration: Duration(milliseconds: milliseconds),
               onEnd: () {
@@ -187,7 +194,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton(
                       style: customStyleButton,
                       onPressed: () {
-                        _appSettings.startRecording!();
+                        if (!_mainController.mapIsCreated!()) {
+                          return;
+                        }
+                        _mainController.startRecording!();
                         setState(() {
                           recording = true;
                         });
@@ -221,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         style: customStyleButton,
                         onPressed: () {
-                          _appSettings.stopRecording!();
+                          _mainController.pauseRecording!();
                           setState(() {
                             showPauseButton = false;
                             isPaused = true;
@@ -257,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         style: customStyleButton,
                         onPressed: () {
-                          _appSettings.resumeRecording!();
+                          _mainController.resumeRecording!();
                           setState(() {
                             showResumeOrStopButtons = false;
                             isResumed = true;
@@ -274,7 +284,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          _appSettings.finishRecording!();
+                          _mainController.finishRecording!();
                           setState(() {
                             isStopped = true;
                           });

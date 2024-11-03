@@ -1,4 +1,6 @@
-class AppSettings {
+import 'package:flutter/material.dart';
+
+class MainController {
   // Future<Line?> Function(List<Wpt> lineSegment)? loadTrack;
   // Future<void> Function()? removeTrackLine;
   // Future<List<Symbol>> Function()? addMapSymbols;
@@ -11,9 +13,12 @@ class AppSettings {
     bool speed,
     bool heading,
     bool provider,
+    bool visible,
+    Color color,
   )? setTrackPreferences;
   void Function()? startRecording;
-  void Function()? stopRecording;
+  void Function()? pauseRecording;
   void Function()? resumeRecording;
   void Function()? finishRecording;
+  bool Function()? mapIsCreated;
 }

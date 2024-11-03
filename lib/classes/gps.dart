@@ -51,15 +51,19 @@ class Gps {
     });
   }
 
-  changeIntervalByTime(int interval) {
+  changeSettings(
+      LocationAccuracy accuracy, int? interval, double? distanceFilter) {
     location.changeSettings(
-      interval: interval,
-      distanceFilter: 0,
-      accuracy: LocationAccuracy.high,
+      interval: interval ?? 1000,
+      distanceFilter: distanceFilter ?? 0,
+      accuracy: accuracy,
     );
   }
 
   changeIntervalByDistance(double distance) {
-    location.changeSettings(distanceFilter: distance);
+    location.changeSettings(
+      distanceFilter: distance,
+      accuracy: LocationAccuracy.high,
+    );
   }
 }

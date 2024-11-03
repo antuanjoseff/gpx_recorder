@@ -31,6 +31,7 @@ class _TrackStatsState extends State<TrackStats> {
   String trackAccuracyString = '';
 
   String distanceUnits = '';
+  String elevationUnits = 'm';
 
   String _formatDuration(Duration duration) {
     String negativeSign = duration.isNegative ? '-' : '';
@@ -145,8 +146,8 @@ class _TrackStatsState extends State<TrackStats> {
     final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
     final double itemWidth = size.width / 2;
     TextStyle titleStyle = TextStyle(fontSize: 18);
-    TextStyle contentStyle = TextStyle(fontSize: 30);
-    TextStyle unitsStyle = TextStyle(fontSize: 20);
+    TextStyle contentStyle = TextStyle(fontSize: 25);
+    TextStyle unitsStyle = TextStyle(fontSize: 17);
 
     return Scaffold(
         appBar: AppBar(
@@ -160,7 +161,7 @@ class _TrackStatsState extends State<TrackStats> {
             style: TextStyle(color: primaryColor),
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(10.0),
                 child: GridView.count(
                   crossAxisCount: 2,
                   childAspectRatio: (itemWidth / itemHeight),
@@ -248,7 +249,7 @@ class _TrackStatsState extends State<TrackStats> {
                             ),
                             SizedBox(width: 5),
                             Text(
-                              distanceUnits,
+                              elevationUnits,
                               style: unitsStyle,
                             )
                           ],

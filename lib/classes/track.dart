@@ -1,14 +1,22 @@
 import 'package:geoxml/geoxml.dart';
+import 'package:location/location.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'bounds.dart' as my;
 import '../utils/util.dart';
+import 'package:flutter/material.dart';
 
 class Track {
+  // Map controller
+  MapLibreMapController map;
+
   // Original track
   List<Wpt> wpts = [];
 
   // Array of coordinates to draw a linestring on map
   List<LatLng> gpxCoords = [];
+
+  // Track Line (on map)
+  Line? trackLine;
 
   // Start recording time
   DateTime? startAt;
@@ -32,19 +40,32 @@ class Track {
   int elevationGain = 0;
 
   // Calculate elevation gain every X seconds
-  int elevationGainInterval = 0;
+  int elevationGainInterval = 60;
 
   // Last DateTime when elevation gain was calculated
   DateTime? lastElevatonGainTime = null;
 
+  // Last elevation checked for elevation gain calc
+  int? lastElevationChecked;
+
+  // Track visibility
+  bool visible = true;
+
+  // Track width
+  int trackWidth = 4;
+
+  // Track color
+  Color trackColor = Colors.pink;
+
   // Constructor
-  Track(this.wpts);
+  Track(this.wpts, this.map);
 
   // Bbox del track
   my.Bounds? bounds;
 
   Future<void> init() async {
     startAt = DateTime.now();
+    if (visible) addLine();
     notMovingTime = Duration(seconds: 0);
   }
 
@@ -122,25 +143,36 @@ class Track {
     wpts = [];
   }
 
-  void push(Wpt wpt) {
+  void push(Wpt wpt, LocationData loc) {
     double inc = 0;
     LatLng P = LatLng(wpt.lat!, wpt.lon!);
-    if (gpxCoords.isNotEmpty) {
-      LatLng prev = gpxCoords[gpxCoords.length - 1];
-      inc = getDistanceFromLatLonInMeters(P, prev);
-    }
+    if (loc.speed?.round() == 0) {
+      if (gpxCoords.isNotEmpty) {
+        LatLng prev = gpxCoords[gpxCoords.length - 1];
+        inc = getDistanceFromLatLonInMeters(P, prev);
+      }
 
-    if (lastElevatonGainTime == null) {
-      lastElevatonGainTime = DateTime.now();
-    } else {
-      if (lastElevatonGainTime!.difference(DateTime.now()).inSeconds >
-          elevationGainInterval) {
-        elevationGain += wpt.ele != null ? wpt.ele!.toInt() : 0;
+      if (lastElevatonGainTime == null) {
+        lastElevatonGainTime = DateTime.now();
+        lastElevationChecked = wpt.ele == null ? null : wpt.ele!.toInt();
+      } else {
+        if (DateTime.now().difference(lastElevatonGainTime!).inSeconds >
+            elevationGainInterval) {
+          int? newElevation = wpt.ele != null ? wpt.ele!.toInt() : null;
+          if (newElevation != null && lastElevationChecked != null) {
+            elevationGain += newElevation - lastElevationChecked!;
+            lastElevationChecked = newElevation;
+          }
+        }
+      }
+
+      gpxCoords.add(P);
+      wpts.add(wpt);
+      length += inc;
+      if (visible) {
+        updateLine();
       }
     }
-    gpxCoords.add(P);
-    wpts.add(wpt);
-    length += inc;
   }
 
   void insert(int position, Wpt wpt) {
@@ -218,5 +250,30 @@ class Track {
 
   void setWptAt(int idx, Wpt wpt) {
     wpts[idx] = wpt;
+  }
+
+  Future<Line?> addLine() async {
+    trackLine = await map!.addLine(
+      LineOptions(
+        geometry: gpxCoords,
+        lineColor: trackColor.toHexStringRGB(),
+        lineWidth: 3,
+        lineOpacity: 0.9,
+      ),
+    );
+    return trackLine;
+  }
+
+  void updateLine() async {
+    if (visible) {
+      await map.updateLine(trackLine!, LineOptions(geometry: gpxCoords));
+    }
+  }
+
+  Future<void> removeLine() async {
+    if (trackLine != null) {
+      print('remove TRACKLINE');
+      map.removeLine(trackLine!);
+    }
   }
 }
