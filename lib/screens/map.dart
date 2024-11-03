@@ -11,6 +11,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geoxml/geoxml.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:convert' show utf8;
+import 'dart:async';
 
 class MapWidget extends StatefulWidget {
   final MainController mainController;
@@ -44,6 +45,7 @@ class _MapWidgetState extends State<MapWidget> {
   bool isMoving = false;
   late DateTime notMovingStartedAt;
   Duration timeNotMoving = Duration(seconds: 0);
+  StreamSubscription? locationSubscription;
 
   MapLibreMapController? mapController;
   Location location = Location();
@@ -90,8 +92,19 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   @override
+  void dispose() {
+    if (locationSubscription != null) {
+      locationSubscription!.cancel();
+    }
+
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   void initState() {
     gps = Gps();
+    locationSubscription = null;
 
     getUserPreferences();
     gps.checkService().then((enabled) {
@@ -136,8 +149,8 @@ class _MapWidgetState extends State<MapWidget> {
       }
       notMovingStartedAt = DateTime.now();
       gps.enableBackground('Geolocation', 'Geolocation detection');
-      gps.changeSettings(LocationAccuracy.high, 1000, 0);
-      gps.listenOnBackground(handleNewPosition);
+      locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 0);
+      locationSubscription = await gps.listenOnBackground(handleNewPosition);
       setState(() {});
     }
   }

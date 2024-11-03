@@ -1,4 +1,5 @@
 import 'package:location/location.dart';
+import 'dart:async';
 
 // Request a location
 
@@ -44,9 +45,8 @@ class Gps {
     );
   }
 
-  listenOnBackground(Function managePosition) async {
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      print('IN GPS CLASS ${DateTime.now()}       ${currentLocation.accuracy}');
+  Future<StreamSubscription> listenOnBackground(Function managePosition) async {
+    return location.onLocationChanged.listen((LocationData currentLocation) {
       managePosition(currentLocation);
     });
   }
