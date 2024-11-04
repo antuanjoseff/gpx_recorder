@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gpx_recorder/classes/vars.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
-import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart' as loc;
 import '../classes/gps.dart';
 import '../classes/track.dart';
 import '../controllers/main.dart';
@@ -12,6 +13,8 @@ import 'package:geoxml/geoxml.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:convert' show utf8;
 import 'dart:async';
+
+import 'package:background_location/background_location.dart';
 
 class MapWidget extends StatefulWidget {
   final MainController mainController;
@@ -37,7 +40,7 @@ class _MapWidgetState extends State<MapWidget> {
   late Color _trackColor;
   late Gps gps;
   Track? track;
-  bool _myLocationEnabled = false;
+  bool _myLocationEnabled = true;
   bool hasLocationPermission = false;
   bool recording = false;
   bool pause = false;
@@ -48,7 +51,6 @@ class _MapWidgetState extends State<MapWidget> {
   StreamSubscription? locationSubscription;
 
   MapLibreMapController? mapController;
-  Location location = Location();
 
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.none;
   MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.normal;
@@ -62,7 +64,6 @@ class _MapWidgetState extends State<MapWidget> {
   int panTime = 0;
   bool trackCameroMove = true;
   bool userMovedMap = false;
-  LocationData? currentLoc = null;
 
   int milliseconds = 300;
   bool showPauseButton = false;
@@ -76,6 +77,12 @@ class _MapWidgetState extends State<MapWidget> {
   bool isPaused = false;
   bool isStopped = false;
   bool isResumed = false;
+  bool gpsEnabled = false;
+
+  loc.Location location =
+      loc.Location(); //explicit reference to the Location class
+
+  Location? currentLoc = null;
 
   _MapWidgetState(MainController mainController) {
     mainController.setTrackPreferences = setTrackPreferences;
@@ -88,7 +95,6 @@ class _MapWidgetState extends State<MapWidget> {
 
   void setTrackPreferences(bool numSatelites, bool accuracy, bool speed,
       bool heading, bool provider, bool visible, Color color) {
-    debugPrint(' nova speed $speed');
     _numSatelites = numSatelites;
     _accuracy = accuracy;
     _speed = speed;
@@ -105,10 +111,8 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   @override
-  void dispose() {
-    if (locationSubscription != null) {
-      locationSubscription!.cancel();
-    }
+  void dispose() async {
+    await BackgroundLocation.stopLocationService();
 
     // TODO: implement dispose
     super.dispose();
@@ -119,8 +123,59 @@ class _MapWidgetState extends State<MapWidget> {
     gps = Gps();
     locationSubscription = null;
     getUserPreferences();
-    checkUserLocation();
+    // checkUserLocation();
+    Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+      if (status == ServiceStatus.enabled) {
+        debugPrint('GPS enabled!!');
+      } else {
+        debugPrint('GPS disabled!!');
+      }
+    });
     super.initState();
+  }
+
+  Future<bool> checkGps() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = false;
+
+    if (!await location.serviceEnabled()) {
+      serviceEnabled = await location.requestService();
+    } else {
+      serviceEnabled = true;
+    }
+
+    if (!serviceEnabled) return false;
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.always) {
+      gpsEnabled = true;
+      return true;
+    } else {
+      permission = await Geolocator.requestPermission();
+      return (permission == LocationPermission.always);
+    }
+
+    // if (!await location.serviceEnabled()) {
+    //   await location.requestService();
+    // }
+
+    // gpsEnabled = await location.serviceEnabled();
+    // if (gpsEnabled) {
+    //   await BackgroundLocation
+    //       .stopLocationService(); //To ensure that previously started services have been stopped, if desired
+    //   await BackgroundLocation.startLocationService(distanceFilter: 1);
+    //   callSetState();
+    // }
+    // if (gpsEnabled) {
+    //   await BackgroundLocation.setAndroidNotification(
+    //     title: 'Background service is running',
+    //     message: 'Background location in progress',
+    //   );
+
+    // }
   }
 
   void checkUserLocation() {
@@ -128,7 +183,6 @@ class _MapWidgetState extends State<MapWidget> {
       if (serviceEnabled) {
         gps.checkPermission().then((hasPermission) {
           if (hasPermission) {
-            _myLocationEnabled = true;
             callSetState();
           }
         });
@@ -173,14 +227,14 @@ class _MapWidgetState extends State<MapWidget> {
     recording = true;
     pause = false;
     track!.init();
-    LocationData? loc = await gps.getLocation();
-    if (loc != null) {
-      firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
-    }
+
     notMovingStartedAt = DateTime.now();
-    gps.enableBackground('Geolocation', 'Geolocation detection');
-    locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 0);
-    locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    BackgroundLocation
+        .stopLocationService(); //To ensure that previously started services have been stopped, if desired
+    BackgroundLocation.startLocationService(distanceFilter: 5);
+    BackgroundLocation.getLocationUpdates((location) {
+      handleNewPosition(location);
+    });
     setState(() {});
   }
 
@@ -255,7 +309,7 @@ class _MapWidgetState extends State<MapWidget> {
     setState(() {});
   }
 
-  Wpt createWptFromLocation(LocationData location) {
+  Wpt createWptFromLocation(Location location) {
     Wpt wpt = Wpt();
 
     wpt.lat = location.latitude;
@@ -267,35 +321,34 @@ class _MapWidgetState extends State<MapWidget> {
       wpt.extensions = {};
     }
 
-    debugPrint('${wpt.extensions}');
     if (_accuracy) {
       wpt.extensions['accuracy'] = location.accuracy.toString();
     }
-    debugPrint('${wpt.extensions}');
-    if (_numSatelites) {
-      wpt.extensions['satelites'] = location.satelliteNumber.toString();
-    }
-    debugPrint('${wpt.extensions}');
+
+    // if (_numSatelites) {
+    //   wpt.extensions['satelites'] = location.satelliteNumber.toString();
+    // }
+
     if (_speed) {
       wpt.extensions['speed'] = location.speed.toString();
     }
-    debugPrint('${wpt.extensions}');
+
     if (_heading) {
-      wpt.extensions['heading'] = location.heading.toString();
+      wpt.extensions['heading'] = location.bearing.toString();
     }
-    debugPrint('${wpt.extensions}');
-    if (_provider) {
-      wpt.extensions['provider'] = location.provider.toString();
-    }
-    debugPrint('${wpt.extensions}');
+
+    // if (_provider) {
+    //   wpt.extensions['provider'] = location.provider.toString();
+    // }
+
     return wpt;
   }
 
-  bool userIsNotMoving(LocationData loc) {
+  bool userIsNotMoving(Location loc) {
     return (loc.speed?.round() == 0);
   }
 
-  void handleNewPosition(LocationData loc) {
+  void handleNewPosition(Location loc) {
     debugPrint('INSIDE HANDLE NEW POSITION FUNCTION');
     currentLoc = loc;
     if (userIsNotMoving(loc)) {
@@ -306,8 +359,7 @@ class _MapWidgetState extends State<MapWidget> {
       } else {
         debugPrint('user remains stopped');
         Duration timestopped = DateTime.now().difference(notMovingStartedAt);
-        debugPrint('STOPPED AT $notMovingStartedAt');
-        debugPrint('TIME STOPPED ${timestopped.toString}');
+
         track!.setNotMovingTime(timestopped);
       }
     } else {
@@ -323,16 +375,19 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     if (recording) {
-      debugPrint('${loc.accuracy}');
       Wpt wpt = createWptFromLocation(loc);
+
       track!.push(wpt, loc);
+
       if (loc.accuracy != null) {
         track!.setAccuracy(loc.accuracy!);
       }
 
       track!.setCurrentSpeed(double.parse(loc.speed!.toStringAsFixed(2)));
+
       track!.setCurrentElevation(loc.altitude?.floor());
     }
+
     if (!userMovedMap) {
       centerMap(LatLng(loc.latitude!, loc.longitude!));
     }
@@ -352,15 +407,20 @@ class _MapWidgetState extends State<MapWidget> {
     );
   }
 
+  _onStyleLoadedCallback() async {
+    gpsEnabled = await checkGps();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         MapLibreMap(
-          myLocationEnabled: _myLocationEnabled,
+          myLocationEnabled: true,
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
+          onStyleLoadedCallback: _onStyleLoadedCallback,
           onMapLongClick: widget.onlongpress(),
           styleString:
               'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
@@ -431,13 +491,11 @@ class _MapWidgetState extends State<MapWidget> {
                 ElevatedButton(
                   style: customStyleButton,
                   onPressed: () async {
-                    if (!hasLocationPermission) {
-                      print(
-                          '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
-                      hasLocationPermission = await checkGpsService();
+                    if (!gpsEnabled) {
+                      gpsEnabled = await checkGps();
                     }
 
-                    if (!mapIsCreated() || !hasLocationPermission) {
+                    if (!mapIsCreated() || !gpsEnabled) {
                       return;
                     }
                     print(

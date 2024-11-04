@@ -1,5 +1,5 @@
 import 'package:geoxml/geoxml.dart';
-import 'package:location/location.dart';
+import 'package:background_location/background_location.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'bounds.dart' as my;
 import '../utils/util.dart';
@@ -143,9 +143,10 @@ class Track {
     wpts = [];
   }
 
-  void push(Wpt wpt, LocationData loc) {
+  void push(Wpt wpt, Location loc) {
     double inc = 0;
     LatLng P = LatLng(wpt.lat!, wpt.lon!);
+    debugPrint('PUSH 0');
     if (loc.speed?.round() == 0) {
       if (gpxCoords.isNotEmpty) {
         LatLng prev = gpxCoords[gpxCoords.length - 1];
@@ -165,12 +166,17 @@ class Track {
           }
         }
       }
-
+      debugPrint('PUSH 1');
       gpxCoords.add(P);
+      debugPrint('PUSH 2');
       wpts.add(wpt);
+      debugPrint('PUSH 3');
       length += inc;
+      debugPrint('PUSH 4');
       if (visible) {
+        debugPrint('PUSH 5');
         updateLine();
+        debugPrint('PUSH 6');
       }
     }
   }
