@@ -35,7 +35,7 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _provider;
   late bool _trackVisible;
   late Color _trackColor;
-  late Gps gps;
+  Gps gps = Gps();
   Track? track;
   bool _myLocationEnabled = false;
   bool hasLocationPermission = false;
@@ -116,7 +116,6 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   void initState() {
-    gps = Gps();
     locationSubscription = null;
     getUserPreferences();
     checkUserLocation();
@@ -165,11 +164,6 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void startRecording() async {
-    print('..........................................................');
-    print(
-        '..........................................................start recording!!!!');
-    print('..........................................................');
-
     recording = true;
     pause = false;
     track!.init();
@@ -179,7 +173,7 @@ class _MapWidgetState extends State<MapWidget> {
     }
     notMovingStartedAt = DateTime.now();
     gps.enableBackground('Geolocation', 'Geolocation detection');
-    locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 0);
+    locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 1);
     locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
   }
@@ -328,6 +322,8 @@ class _MapWidgetState extends State<MapWidget> {
       track!.push(wpt, loc);
       if (loc.accuracy != null) {
         track!.setAccuracy(loc.accuracy!);
+        track!.setHeading(loc.heading!);
+        debugPrint(' H  E   A   D   I   N    G           ${loc.heading}');
       }
 
       track!.setCurrentSpeed(double.parse(loc.speed!.toStringAsFixed(2)));

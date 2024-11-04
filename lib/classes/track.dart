@@ -33,6 +33,9 @@ class Track {
   // Track last / current accuracy
   double? accuracy;
 
+  // Track last / current heading
+  double? heading;
+
   // Current elevation
   int? currentElevation = null;
 
@@ -118,6 +121,10 @@ class Track {
     return accuracy;
   }
 
+  double? getHeading() {
+    return heading;
+  }
+
   Duration getNotMovingTime() {
     return notMovingTime;
   }
@@ -136,6 +143,10 @@ class Track {
 
   void setAccuracy(double lastAccuracy) {
     accuracy = double.parse(lastAccuracy.toStringAsFixed(2));
+  }
+
+  void setHeading(double lastHeading) {
+    heading = double.parse(lastHeading.toStringAsFixed(2));
   }
 
   void reset() {
@@ -169,6 +180,7 @@ class Track {
       gpxCoords.add(P);
       wpts.add(wpt);
       length += inc;
+
       if (visible) {
         updateLine();
       }

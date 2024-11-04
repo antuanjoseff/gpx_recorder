@@ -21,6 +21,7 @@ class _TrackStatsState extends State<TrackStats> {
   String trackTimeDuration = '00:00:00';
   late String notMovingTime;
   late String trackElevationString;
+  late String trackHeadingString;
   late String trackElevationGainString;
 
   late String avgSpeed;
@@ -28,6 +29,7 @@ class _TrackStatsState extends State<TrackStats> {
   String currentSpeedString = '';
 
   late double? trackAccuracy;
+  late double? trackHeading;
   String trackAccuracyString = '';
 
   String distanceUnits = '';
@@ -78,9 +80,12 @@ class _TrackStatsState extends State<TrackStats> {
         : '--';
 
     trackAccuracy = _track.getAccuracy();
+    trackHeading = _track.getHeading();
 
     trackAccuracyString =
         trackAccuracy != null ? trackAccuracy!.toStringAsFixed(2) : '-';
+    trackHeadingString =
+        trackHeading != null ? trackHeading!.toStringAsFixed(2) : '-';
 
     double kmh = 3.6 *
         (_track.getLength() /
@@ -127,6 +132,10 @@ class _TrackStatsState extends State<TrackStats> {
         trackAccuracy = _track.getAccuracy();
         trackAccuracyString =
             trackAccuracy != null ? trackAccuracy!.toStringAsFixed(2) : '-';
+
+        trackHeading = _track.getHeading();
+        trackHeadingString =
+            trackHeading != null ? trackHeading!.toStringAsFixed(2) : '-';
       });
     });
   }
@@ -187,7 +196,8 @@ class _TrackStatsState extends State<TrackStats> {
                               style: unitsStyle,
                             ),
                           ],
-                        )
+                        ),
+                        Text(_track.gpxCoords.length.toStringAsFixed(2))
                       ],
                     ),
                     // ACCURACY
@@ -210,6 +220,7 @@ class _TrackStatsState extends State<TrackStats> {
                             ),
                           ],
                         ),
+                        Text(trackHeadingString)
                       ],
                     ),
                     // ELEVATION
