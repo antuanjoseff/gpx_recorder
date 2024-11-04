@@ -28,6 +28,7 @@ class MapWidget extends StatefulWidget {
 }
 
 class _MapWidgetState extends State<MapWidget> {
+  late Duration timestopped;
   late bool _numSatelites;
   late bool _accuracy;
   late bool _speed;
@@ -166,6 +167,7 @@ class _MapWidgetState extends State<MapWidget> {
   void startRecording() async {
     recording = true;
     pause = false;
+    timestopped = Duration(seconds: 0);
     track!.init();
     LocationData? loc = await gps.getLocation();
     if (loc != null) {
@@ -173,7 +175,7 @@ class _MapWidgetState extends State<MapWidget> {
     }
     notMovingStartedAt = DateTime.now();
     gps.enableBackground('Geolocation', 'Geolocation detection');
-    locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 1);
+    locationSubscription = gps.changeSettings(LocationAccuracy.high, 1000, 10);
     locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
   }
@@ -286,30 +288,29 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   bool userIsNotMoving(LocationData loc) {
-    return (loc.speed?.round() == 0);
+    return (loc.speed! < 0.7);
   }
 
   void handleNewPosition(LocationData loc) {
     debugPrint('INSIDE HANDLE NEW POSITION FUNCTION');
     currentLoc = loc;
     if (userIsNotMoving(loc)) {
-      // USER IS NOT MOVING
       if (isMoving) {
+        // USER JUST STOPPED
         isMoving = false;
         notMovingStartedAt = DateTime.now();
       } else {
-        debugPrint('user remains stopped');
-        Duration timestopped = DateTime.now().difference(notMovingStartedAt);
-        debugPrint('STOPPED AT $notMovingStartedAt');
-        debugPrint('TIME STOPPED ${timestopped.toString}');
-        track!.setNotMovingTime(timestopped);
+        // USER REMAINS STOPPED
+        timestopped = DateTime.now().difference(notMovingStartedAt);
+        notMovingStartedAt = DateTime.now();
+        track!.addNotMovingTime(timestopped);
       }
     } else {
       // USER IS MOVING
       if (!isMoving) {
         //user changes state
         timeNotMoving = DateTime.now().difference(notMovingStartedAt);
-        track!.setNotMovingTime(timeNotMoving);
+        track!.addNotMovingTime(timeNotMoving);
       } else {
         //user remains moving
       }

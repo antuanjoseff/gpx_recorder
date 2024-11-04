@@ -137,8 +137,8 @@ class Track {
     currentElevation = elevation;
   }
 
-  void setNotMovingTime(Duration time) {
-    notMovingTime = time;
+  void addNotMovingTime(Duration time) {
+    notMovingTime += time;
   }
 
   void setAccuracy(double lastAccuracy) {
