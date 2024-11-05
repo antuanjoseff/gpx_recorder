@@ -121,7 +121,7 @@ class _MapWidgetState extends State<MapWidget> {
   void initState() {
     locationSubscription = null;
     getUserPreferences();
-    checkUserLocation();
+    // checkUserLocation();
     super.initState();
   }
 
@@ -172,6 +172,7 @@ class _MapWidgetState extends State<MapWidget> {
     movingDuration = Duration(seconds: 0);
     track!.init();
     LocationData? loc = await gps.getLocation();
+    _myLocationRenderMode = MyLocationRenderMode.compass;
     if (loc != null) {
       firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
     }
@@ -362,8 +363,8 @@ class _MapWidgetState extends State<MapWidget> {
     return Stack(
       children: [
         MapLibreMap(
-          // minMaxZoomPreference: MinMaxZoomPreference(0, 19),
-          myLocationEnabled: _myLocationEnabled,
+          minMaxZoomPreference: MinMaxZoomPreference(0, 19),
+          myLocationEnabled: true,
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,

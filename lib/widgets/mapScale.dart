@@ -25,7 +25,10 @@ class _MapScaleState extends State<MapScale> {
     if (meters < 1000) {
       return '$scaleText m';
     } else {
-      return '${(meters / 1000).toStringAsFixed(1)} km';
+      if (meters > 10000) {
+        return '${(meters / 1000).toStringAsFixed(0)} km';
+      } else
+        return '${(meters / 1000).toStringAsFixed(1)} km';
     }
   }
 
@@ -57,8 +60,8 @@ class LinePainter extends CustomPainter {
       ..color = scaleForeground
       ..strokeWidth = 3;
 
-    canvas.drawLine(Offset(5, size.height - 5),
-        Offset(size.width - 5, size.height - 5), paint);
+    canvas.drawLine(
+        Offset(0, size.height - 5), Offset(size.width, size.height - 5), paint);
   }
 
   @override
