@@ -35,8 +35,8 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _provider;
   late bool _trackVisible;
   late Color _trackColor;
-  double mapScalePixels = 200;
-  double mapScaleWidth = 0;
+
+  double mapScaleWidth = 60;
   String? mapScaleText;
   Gps gps = Gps();
   Track? track;
@@ -177,6 +177,7 @@ class _MapWidgetState extends State<MapWidget> {
       firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
     }
     lastMovingTimeAt = DateTime.now();
+
     gps.enableBackground('Geolocation', 'Geolocation detection');
     locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
@@ -227,6 +228,11 @@ class _MapWidgetState extends State<MapWidget> {
     mapController = controller;
     controller!.addListener(_onMapChanged);
     track = Track([], mapController!);
+    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+        mapController!.cameraPosition!.target.latitude);
+
+    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
+    setState(() {});
   }
 
   void _onMapChanged() async {
@@ -250,12 +256,12 @@ class _MapWidgetState extends State<MapWidget> {
         userMovedMap = true;
       }
     }
-    double resolution = await mapController!
-        .getMetersPerPixelAtLatitude(position.target.latitude);
-    mapScaleWidth = mapScalePixels / MediaQuery.of(context).devicePixelRatio;
-    mapScaleText = (mapScalePixels * resolution).toStringAsFixed(0);
 
-    debugPrint('RESSOLUTION   $resolution    SCALE BAR WIDTH $mapScaleWidth');
+    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+        mapController!.cameraPosition!.target.latitude);
+
+    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
+
     setState(() {});
   }
 

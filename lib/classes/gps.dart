@@ -36,6 +36,12 @@ class Gps {
     return await location.getLocation();
   }
 
+  Future<StreamSubscription> listenOnBackground(Function managePosition) async {
+    return location.onLocationChanged.listen((LocationData currentLocation) {
+      managePosition(currentLocation);
+    });
+  }
+
   enableBackground(String notificationTitle, String notificationContent) {
     location.enableBackgroundMode(enable: true);
 
@@ -43,12 +49,6 @@ class Gps {
       title: notificationTitle,
       subtitle: notificationContent,
     );
-  }
-
-  Future<StreamSubscription> listenOnBackground(Function managePosition) async {
-    return location.onLocationChanged.listen((LocationData currentLocation) {
-      managePosition(currentLocation);
-    });
   }
 
   changeSettings(
