@@ -89,11 +89,6 @@ class _TabSettingsState extends State<TabSettings> {
                     ],
                   ),
                 ),
-
-                // Tab(
-                //   icon: Icon(Icons.satellite_alt),
-                //   text: 'GPS',
-                // ),
                 Tab(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

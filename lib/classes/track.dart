@@ -37,7 +37,7 @@ class Track {
   double? heading;
 
   // Current elevation
-  int? currentElevation = null;
+  int? currentElevation;
 
   // Elevation Gain
   int elevationGain = 0;
@@ -46,7 +46,7 @@ class Track {
   int elevationGainInterval = 60;
 
   // Last DateTime when elevation gain was calculated
-  DateTime? lastElevatonGainTime = null;
+  DateTime? lastElevatonGainTime;
 
   // Last elevation checked for elevation gain calc
   int? lastElevationChecked;
@@ -130,23 +130,35 @@ class Track {
   }
 
   void setCurrentSpeed(double? speed) {
-    currentSpeed = speed;
+    if (speed != null) {
+      currentSpeed = double.parse(speed.toStringAsFixed(2));
+    } else {
+      currentSpeed = null;
+    }
   }
 
   void setCurrentElevation(int? elevation) {
     currentElevation = elevation;
   }
 
-  void addNotMovingTime(Duration time) {
+  void addMovingTime(Duration time) {
     notMovingTime += time;
   }
 
-  void setAccuracy(double lastAccuracy) {
-    accuracy = double.parse(lastAccuracy.toStringAsFixed(2));
+  void setAccuracy(double? lastAccuracy) {
+    if (lastAccuracy != null) {
+      accuracy = double.parse(lastAccuracy.toStringAsFixed(2));
+    } else {
+      accuracy = null;
+    }
   }
 
-  void setHeading(double lastHeading) {
-    heading = double.parse(lastHeading.toStringAsFixed(2));
+  void setHeading(double? lastHeading) {
+    if (lastHeading != null) {
+      heading = double.parse(lastHeading.toStringAsFixed(2));
+    } else {
+      heading = null;
+    }
   }
 
   void reset() {
@@ -157,33 +169,32 @@ class Track {
   void push(Wpt wpt, LocationData loc) {
     double inc = 0;
     LatLng P = LatLng(wpt.lat!, wpt.lon!);
-    if (loc.speed?.round() == 0) {
-      if (gpxCoords.isNotEmpty) {
-        LatLng prev = gpxCoords[gpxCoords.length - 1];
-        inc = getDistanceFromLatLonInMeters(P, prev);
-      }
 
-      if (lastElevatonGainTime == null) {
-        lastElevatonGainTime = DateTime.now();
-        lastElevationChecked = wpt.ele == null ? null : wpt.ele!.toInt();
-      } else {
-        if (DateTime.now().difference(lastElevatonGainTime!).inSeconds >
-            elevationGainInterval) {
-          int? newElevation = wpt.ele != null ? wpt.ele!.toInt() : null;
-          if (newElevation != null && lastElevationChecked != null) {
-            elevationGain += newElevation - lastElevationChecked!;
-            lastElevationChecked = newElevation;
-          }
+    if (gpxCoords.isNotEmpty) {
+      LatLng prev = gpxCoords[gpxCoords.length - 1];
+      inc = getDistanceFromLatLonInMeters(P, prev);
+    }
+
+    if (lastElevatonGainTime == null) {
+      lastElevatonGainTime = DateTime.now();
+      lastElevationChecked = wpt.ele == null ? null : wpt.ele!.toInt();
+    } else {
+      if (DateTime.now().difference(lastElevatonGainTime!).inSeconds >
+          elevationGainInterval) {
+        int? newElevation = wpt.ele != null ? wpt.ele!.toInt() : null;
+        if (newElevation != null && lastElevationChecked != null) {
+          elevationGain += newElevation - lastElevationChecked!;
+          lastElevationChecked = newElevation;
         }
       }
+    }
 
-      gpxCoords.add(P);
-      wpts.add(wpt);
-      length += inc;
+    gpxCoords.add(P);
+    wpts.add(wpt);
+    length += inc;
 
-      if (visible) {
-        updateLine();
-      }
+    if (visible) {
+      updateLine();
     }
   }
 

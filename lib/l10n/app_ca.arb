@@ -14,7 +14,7 @@
     "altitude": "Altitud",
     "elevationGain": "Desnivell +",
     "elapsedTime": "Temps total",
-    "stoppedTime": "Temps aturat",
+    "movingTime": "Temps en moviment",
     "trackSpeedAverage": "Vel. mitjana",
     "showTrackOnMap": "Mostrar",
     "hideTrackOnMap": "Ocultar",

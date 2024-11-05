@@ -132,7 +132,7 @@ class _TrackStatsState extends State<TrackStats> {
                   style: const TextStyle(fontSize: 40),
                 ),
                 const SizedBox(height: 10),
-                Text(AppLocalizations.of(context)!.stoppedTime,
+                Text(AppLocalizations.of(context)!.movingTime,
                     style: TextStyle(fontSize: 20)),
                 Text(
                   notMovingTime,

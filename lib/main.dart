@@ -116,65 +116,53 @@ class _MyHomePageState extends State<MyHomePage> {
           foregroundColor: Colors.white,
           title: Text(AppLocalizations.of(context)!.appTitle),
           actions: [
-            Column(
+            Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.settings,
-                        color: thirthColor,
-                      ),
-                      onPressed: () async {
-                        var result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TabSettings(
-                                  speed: speed,
-                                  heading: heading,
-                                  numSatelites: numSatelites,
-                                  accuracy: accuracy,
-                                  provider: provider,
-                                  visible: visible,
-                                  color: color),
-                            ));
-                        if (result != null) {
-                          var (
-                            bool Sp,
-                            bool He,
-                            bool numSat,
-                            bool Ac,
-                            bool Pro,
-                            bool vis,
-                            Color col
-                          ) = result;
-                          numSatelites = numSat;
-                          accuracy = Ac;
-                          speed = Sp;
-                          heading = He;
-                          provider = Pro;
-                          visible = vis;
-                          color = col;
-                          _mainController.setTrackPreferences!(
-                              numSatelites,
-                              accuracy,
-                              speed,
-                              heading,
-                              provider,
-                              visible,
-                              color);
-                        }
-                      },
-                    )
-                  ],
-                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.settings,
+                    color: thirthColor,
+                  ),
+                  onPressed: () async {
+                    var result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TabSettings(
+                              speed: speed,
+                              heading: heading,
+                              numSatelites: numSatelites,
+                              accuracy: accuracy,
+                              provider: provider,
+                              visible: visible,
+                              color: color),
+                        ));
+                    if (result != null) {
+                      var (
+                        bool Sp,
+                        bool He,
+                        bool numSat,
+                        bool Ac,
+                        bool Pro,
+                        bool vis,
+                        Color col
+                      ) = result;
+                      numSatelites = numSat;
+                      accuracy = Ac;
+                      speed = Sp;
+                      heading = He;
+                      provider = Pro;
+                      visible = vis;
+                      color = col;
+                      _mainController.setTrackPreferences!(numSatelites,
+                          accuracy, speed, heading, provider, visible, color);
+                    }
+                  },
+                )
               ],
             )
           ],
         ),
-        body: MapWidget(
-            mainController: _mainController, onlongpress: toggleAppBar));
+        body: MapWidget(mainController: _mainController));
   }
 }

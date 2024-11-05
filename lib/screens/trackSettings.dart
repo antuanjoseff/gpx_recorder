@@ -77,7 +77,7 @@ class _TrackSettingsState extends State<TrackSettings> {
                                   child: Column(
                                     children: [
                                       BlockPicker(
-                                        pickerColor: Colors.pink,
+                                        pickerColor: widget.controller.color,
                                         onColorChanged: (value) {
                                           widget.controller.color = value;
                                           setState(() {});

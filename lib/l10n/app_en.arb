@@ -14,7 +14,7 @@
   "altitude": "Altitude",
   "elevationGain": "Elevation gain",
   "elapsedTime": "Elapsed time",
-  "stoppedTime": "Stopped time",
+  "movingTime": "Moving time",
   "trackSpeedAverage": "Average speed",
   "showTrackOnMap": "Show",
   "hideTrackOnMap": "Hide",

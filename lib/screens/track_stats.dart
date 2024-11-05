@@ -314,7 +314,7 @@ class _TrackStatsState extends State<TrackStats> {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(AppLocalizations.of(context)!.stoppedTime,
+                        Text(AppLocalizations.of(context)!.movingTime,
                             style: titleStyle),
                         Text(
                           notMovingTime,
