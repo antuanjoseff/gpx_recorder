@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gpx_recorder/classes/vars.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
-import 'package:location/location.dart';
 import '../classes/gps.dart';
 import '../classes/track.dart';
 import '../controllers/main.dart';
@@ -13,6 +12,8 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:convert' show utf8;
 import 'dart:async';
 import '../widgets/mapScale.dart';
+import 'package:location/location.dart' as loc;
+import 'package:background_location/background_location.dart';
 
 class MapWidget extends StatefulWidget {
   final MainController mainController;
@@ -35,8 +36,8 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _provider;
   late bool _trackVisible;
   late Color _trackColor;
-  double mapScalePixels = 200;
-  double mapScaleWidth = 0;
+
+  double mapScaleWidth = 60;
   String? mapScaleText;
   Gps gps = Gps();
   Track? track;
@@ -177,6 +178,7 @@ class _MapWidgetState extends State<MapWidget> {
       firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
     }
     lastMovingTimeAt = DateTime.now();
+
     gps.enableBackground('Geolocation', 'Geolocation detection');
     locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
@@ -227,6 +229,11 @@ class _MapWidgetState extends State<MapWidget> {
     mapController = controller;
     controller!.addListener(_onMapChanged);
     track = Track([], mapController!);
+    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+        mapController!.cameraPosition!.target.latitude);
+
+    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
+    setState(() {});
   }
 
   void _onMapChanged() async {
@@ -250,16 +257,16 @@ class _MapWidgetState extends State<MapWidget> {
         userMovedMap = true;
       }
     }
-    double resolution = await mapController!
-        .getMetersPerPixelAtLatitude(position.target.latitude);
-    mapScaleWidth = mapScalePixels / MediaQuery.of(context).devicePixelRatio;
-    mapScaleText = (mapScalePixels * resolution).toStringAsFixed(0);
 
-    debugPrint('RESSOLUTION   $resolution    SCALE BAR WIDTH $mapScaleWidth');
+    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+        mapController!.cameraPosition!.target.latitude);
+
+    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
+
     setState(() {});
   }
 
-  Wpt createWptFromLocation(LocationData location) {
+  Wpt createWptFromLocation(Location location) {
     Wpt wpt = Wpt();
 
     wpt.lat = location.latitude;
@@ -276,21 +283,22 @@ class _MapWidgetState extends State<MapWidget> {
       wpt.extensions['accuracy'] = location.accuracy.toString();
     }
     debugPrint('${wpt.extensions}');
-    if (_numSatelites) {
-      wpt.extensions['satelites'] = location.satelliteNumber.toString();
-    }
     debugPrint('${wpt.extensions}');
     if (_speed) {
       wpt.extensions['speed'] = location.speed.toString();
     }
     debugPrint('${wpt.extensions}');
     if (_heading) {
-      wpt.extensions['heading'] = location.heading.toString();
+      wpt.extensions['heading'] = location.bearing.toString();
     }
-    debugPrint('${wpt.extensions}');
-    if (_provider) {
-      wpt.extensions['provider'] = location.provider.toString();
-    }
+    // if (_numSatelites) {
+    //   wpt.extensions['satelites'] = location.satelliteNumber.toString();
+    // }
+
+    // debugPrint('${wpt.extensions}');
+    // if (_provider) {
+    //   wpt.extensions['provider'] = location.provider.toString();
+    // }
     debugPrint('${wpt.extensions}');
     return wpt;
   }

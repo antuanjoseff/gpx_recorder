@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gpx_recorder/main.dart';
 import '../classes/vars.dart';
+import 'package:intl/intl.dart';
 
-Color scaleBackground = primaryColor;
-Color scaleForeground = thirthColor;
+Color scaleBackground = Colors.white.withOpacity(0.85);
+Color scaleForeground = primaryColor;
 
 class MapScale extends StatefulWidget {
   double barWidth;
@@ -20,15 +21,18 @@ class MapScale extends StatefulWidget {
 
 class _MapScaleState extends State<MapScale> {
   String formatScale(scaleText) {
+    var formatter = NumberFormat('###');
     if (scaleText == null) return '';
     double meters = double.parse(scaleText);
     if (meters < 1000) {
       return '$scaleText m';
     } else {
-      if (meters > 10000) {
-        return '${(meters / 1000).toStringAsFixed(0)} km';
-      } else
-        return '${(meters / 1000).toStringAsFixed(1)} km';
+      late double formatted;
+      if (meters > 1000) {
+        formatted = double.parse(((meters / 1000).floor()).toString());
+      }
+      String m = formatter.format(formatted);
+      return '${m}km';
     }
   }
 
@@ -55,13 +59,18 @@ class _MapScaleState extends State<MapScale> {
 
 class LinePainter extends CustomPainter {
   @override
+  double padding = 3;
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = scaleForeground
-      ..strokeWidth = 3;
+      ..strokeWidth = 1;
 
-    canvas.drawLine(
-        Offset(0, size.height - 5), Offset(size.width, size.height - 5), paint);
+    canvas.drawLine(Offset(padding, size.height - padding),
+        Offset(size.width - padding, size.height - padding), paint);
+    canvas.drawLine(Offset(padding, size.height - padding),
+        Offset(padding, size.height / 2), paint);
+    canvas.drawLine(Offset(size.width - padding, size.height - padding),
+        Offset(size.width - padding, size.height / 2), paint);
   }
 
   @override
