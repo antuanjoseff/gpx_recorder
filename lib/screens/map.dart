@@ -171,10 +171,14 @@ class _MapWidgetState extends State<MapWidget> {
     pause = false;
     movingDuration = Duration(seconds: 0);
     track!.init();
+
     LocationData? loc = await gps.getLocation();
     _myLocationRenderMode = MyLocationRenderMode.compass;
+
     if (loc != null) {
+      handleNewPosition(loc);
       firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
+      callSetState();
     }
     lastMovingTimeAt = DateTime.now();
 
@@ -370,7 +374,7 @@ class _MapWidgetState extends State<MapWidget> {
       children: [
         MapLibreMap(
           minMaxZoomPreference: MinMaxZoomPreference(0, 19),
-          myLocationEnabled: true,
+          myLocationEnabled: _myLocationEnabled,
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
