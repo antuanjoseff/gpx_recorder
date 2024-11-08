@@ -11,6 +11,7 @@ Color fourthColor = Color(0xffFF9100);
 Color fifthColor = Color(0xffdfdfdf);
 
 Color buttonBackgroundColor = primaryColor;
+Color buttonForegroundColor = Colors.white;
 
 const List<Color> colors = [
   Colors.red,

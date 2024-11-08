@@ -6,8 +6,8 @@
     "speed": "Velocidad",
     "heading": "Orientación",
     "provider": "Proveedor",
-    "notificationTitle": "Gpx recorder",
-    "notificationContent": "Grabando en segundo plano",
+    "notificationTitle": "Gpx Recorder",
+    "notificationContent": "Grabando track",
     "trackData": "Datos",
     "centerMap": "Centrar mapa",
     "distance": "Distancia",
@@ -19,5 +19,8 @@
     "showTrackOnMap": "Mostrar",
     "hideTrackOnMap": "Ocultar",
     "changeTrackColor": "Color",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "trackName": "Nombre",
+    "accept": "Acceptar",
+    "cancel": "Cancelar"
 }

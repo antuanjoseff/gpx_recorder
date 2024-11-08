@@ -6,8 +6,8 @@
     "speed": "Velocitat",
     "heading": "Orientació",
     "provider": "Proveïdor",
-    "notificationTitle": "Gpx recorder",
-    "notificationContent": "Gravant en segon plà",
+    "notificationTitle": "Gpx Recorder",
+    "notificationContent": "Gravant track",
     "trackData": "Dades",
     "centerMap": "Centrar mapa",
     "distance": "Distància",
@@ -19,5 +19,8 @@
     "showTrackOnMap": "Mostrar",
     "hideTrackOnMap": "Ocultar",
     "changeTrackColor": "Color",
-    "close": "Tancar"
+    "close": "Tancar",
+    "trackName": "Nom",
+    "accept": "Acceptar",
+    "cancel": "Cancel·lar"
 }
