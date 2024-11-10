@@ -3,21 +3,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:io' show Platform;
 import '../classes/vars.dart';
 import '../classes/user_preferences.dart';
+import '../controllers/gpx.dart';
 
 class GpxSettings extends StatefulWidget {
-  final bool numSatelites;
-  final bool accuracy;
-  final bool speed;
-  final bool heading;
-  final bool provider;
+  final GpxController controller;
 
-  GpxSettings(
-      {super.key,
-      required this.numSatelites,
-      required this.accuracy,
-      required this.speed,
-      required this.heading,
-      required this.provider});
+  GpxSettings({super.key, required this.controller});
 
   @override
   State<GpxSettings> createState() => _GpxSettingsState();
@@ -32,121 +23,151 @@ class _GpxSettingsState extends State<GpxSettings> {
   double switchScale = 1;
   @override
   void initState() {
-    numSatelitesIsSwitched = widget.numSatelites;
-    accuracyIsSwitched = widget.accuracy;
-    speedIsSwitched = widget.speed;
-    headingIsSwitched = widget.heading;
-    providerIsSwitched = widget.provider;
+    debugPrint('kkkkk    ${widget.controller.speed}');
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTextStyle(
-      style: TextStyle(color: Colors.black, fontSize: 20),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: speedIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          speedIsSwitched = value;
-                          UserPreferences.setSpeed(value);
-                        });
-                      }),
-                ),
-                SizedBox(width: 10),
-                Text(AppLocalizations.of(context)!.speed)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: headingIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          headingIsSwitched = value;
-                          UserPreferences.setHeading(value);
-                        });
-                      }),
-                ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.heading)
-              ],
-            ),
-            (Platform.isAndroid)
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+      style: TextStyle(color: primaryColor, fontSize: 20),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Center(
+          child: GridView.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            shrinkWrap: true,
+            padding: EdgeInsets.all(10),
+            children: [
+              Container(
+                child: ElevatedButton(
+                  onPressed: () {
+                    widget.controller.speed = !widget.controller.speed;
+                    setState(() {});
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        widget.controller.speed ? fourthColor : fifthColor,
+                    foregroundColor:
+                        widget.controller.speed ? Colors.white : primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Transform.scale(
-                        scale: switchScale,
-                        child: Switch(
-                            value: numSatelitesIsSwitched,
-                            activeTrackColor: mainColor,
-                            onChanged: (value) {
-                              setState(() {
-                                numSatelitesIsSwitched = value;
-                                UserPreferences.setNumSatelites(value);
-                              });
-                            }),
+                      Icon(Icons.speed,
+                          size: 40,
+                          color: widget.controller.speed
+                              ? Colors.white
+                              : primaryColor),
+                      Text(
+                        AppLocalizations.of(context)!.speed,
+                        style: TextStyle(fontSize: 20),
                       ),
-                      SizedBox(width: 20),
-                      Text(AppLocalizations.of(context)!.numSatelites)
                     ],
-                  )
-                : Container(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: accuracyIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          accuracyIsSwitched = value;
-                          UserPreferences.setAccuracy(value);
-                        });
-                      }),
+                  ),
                 ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.accuracy)
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Transform.scale(
-                  scale: switchScale,
-                  child: Switch(
-                      value: providerIsSwitched,
-                      activeTrackColor: mainColor,
-                      onChanged: (value) {
-                        setState(() {
-                          providerIsSwitched = value;
-                          UserPreferences.setProvider(value);
-                        });
-                      }),
+              ),
+              Container(
+                  child: ElevatedButton(
+                onPressed: () {
+                  widget.controller.heading = !widget.controller.heading;
+                  setState(() {});
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.controller.heading ? fourthColor : fifthColor,
+                  foregroundColor:
+                      widget.controller.heading ? Colors.white : primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
                 ),
-                SizedBox(width: 20),
-                Text(AppLocalizations.of(context)!.provider)
-              ],
-            )
-          ],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.compass_calibration_sharp,
+                        size: 40,
+                        color: widget.controller.heading
+                            ? Colors.white
+                            : primaryColor),
+                    Text(
+                      AppLocalizations.of(context)!.heading,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              )),
+              Container(
+                  child: ElevatedButton(
+                onPressed: () {
+                  widget.controller.accuracy = !widget.controller.accuracy;
+                  setState(() {});
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.controller.accuracy ? fourthColor : fifthColor,
+                  foregroundColor:
+                      widget.controller.accuracy ? Colors.white : primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.gps_fixed,
+                        size: 40,
+                        color: widget.controller.accuracy
+                            ? Colors.white
+                            : primaryColor),
+                    Text(
+                      AppLocalizations.of(context)!.accuracy,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              )),
+              Container(
+                  child: ElevatedButton(
+                onPressed: () {
+                  widget.controller.provider = !widget.controller.provider;
+                  setState(() {});
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.controller.provider ? fourthColor : fifthColor,
+                  foregroundColor:
+                      widget.controller.provider ? Colors.white : primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.account_box_sharp,
+                        size: 40,
+                        color: widget.controller.provider
+                            ? Colors.white
+                            : primaryColor),
+                    Text(
+                      AppLocalizations.of(context)!.provider,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              )),
+            ],
+          ),
         ),
       ),
     );

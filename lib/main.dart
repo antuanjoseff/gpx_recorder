@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 // import 'utils/user_simple_preferences.dart';
 import './screens/settingsPage.dart';
 import './screens/map.dart';
-import 'classes/appSettings.dart';
+import './screens/tabSettings.dart';
+import 'controllers/main.dart';
 import './classes/user_preferences.dart';
 import './classes/vars.dart';
 import './classes/gps.dart';
@@ -65,15 +66,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  AppSettings _appSettings = AppSettings();
+  MainController _mainController = MainController();
   bool recording = false;
+  int milliseconds = 300;
   bool showPauseButton = false;
   bool showResumeOrStopButtons = false;
   bool isPaused = false;
   bool isStopped = false;
   bool isResumed = false;
   bool mapCentered = true;
-  int milliseconds = 300;
 
   bool fullScreen = false;
   late bool numSatelites;
@@ -81,6 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool speed;
   late bool heading;
   late bool provider;
+  bool visible = true;
+  Color color = Colors.pink;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
       minimumSize: Size.zero, // Set this
@@ -109,176 +112,57 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         appBar: AppBar(
           // toolbarHeight: !fullScreen ? 40 : 0,
-          backgroundColor: mainColor,
+          backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           title: Text(AppLocalizations.of(context)!.appTitle),
           actions: [
-            Column(
+            Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.settings),
-                      onPressed: () async {
-                        var result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SettingsPage(
-                                speed: speed,
-                                heading: heading,
-                                numSatelites: numSatelites,
-                                accuracy: accuracy,
-                                provider: provider,
-                              ),
-                            ));
-                        if (result != null) {
-                          var (
-                            bool numSat,
-                            bool Ac,
-                            bool Sp,
-                            bool He,
-                            bool Pro
-                          ) = result;
-                          numSatelites = numSat;
-                          accuracy = Ac;
-                          speed = Sp;
-                          heading = He;
-                          provider = Pro;
-                        }
-                      },
-                    )
-                  ],
-                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.settings,
+                    color: thirthColor,
+                  ),
+                  onPressed: () async {
+                    var result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TabSettings(
+                              speed: speed,
+                              heading: heading,
+                              numSatelites: numSatelites,
+                              accuracy: accuracy,
+                              provider: provider,
+                              visible: visible,
+                              color: color),
+                        ));
+                    if (result != null) {
+                      var (
+                        bool Sp,
+                        bool He,
+                        bool numSat,
+                        bool Ac,
+                        bool Pro,
+                        bool vis,
+                        Color col
+                      ) = result;
+                      numSatelites = numSat;
+                      accuracy = Ac;
+                      speed = Sp;
+                      heading = He;
+                      provider = Pro;
+                      visible = vis;
+                      color = col;
+                      _mainController.setTrackPreferences!(numSatelites,
+                          accuracy, speed, heading, provider, visible, color);
+                    }
+                  },
+                )
               ],
             )
           ],
         ),
-        body: Stack(
-          children: [
-            MapWidget(appSettings: _appSettings, onlongpress: toggleAppBar),
-            AnimatedPositioned(
-              duration: Duration(milliseconds: milliseconds),
-              onEnd: () {
-                setState(() {
-                  showPauseButton = true;
-                });
-              },
-              left: (!recording && !showPauseButton) ? 10 : -75,
-              bottom: 30,
-              child: SizedBox(
-                width: 75,
-                child: Row(
-                  children: [
-                    ElevatedButton(
-                      style: customStyleButton,
-                      onPressed: () {
-                        _appSettings.startRecording!();
-                        setState(() {
-                          recording = true;
-                        });
-                      },
-                      child: const Icon(
-                        Icons.circle,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            AnimatedPositioned(
-              duration: Duration(milliseconds: milliseconds),
-              left: (showPauseButton) ? 10 : -80,
-              onEnd: () {
-                setState(() {
-                  if (!showPauseButton) {
-                    showResumeOrStopButtons = true;
-                  }
-                });
-              },
-              bottom: 30,
-              child: Container(
-                color: Colors.transparent,
-                child: SizedBox(
-                  width: 80,
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                        style: customStyleButton,
-                        onPressed: () {
-                          _appSettings.stopRecording!();
-                          setState(() {
-                            showPauseButton = false;
-                            isPaused = true;
-                          });
-                        },
-                        child: const Icon(
-                          Icons.pause,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            AnimatedPositioned(
-              duration: Duration(milliseconds: milliseconds),
-              left: showResumeOrStopButtons ? 10 : -160,
-              onEnd: () {
-                setState(() {
-                  if (isResumed && !isPaused) {
-                    showPauseButton = true;
-                  }
-                });
-              },
-              bottom: 30,
-              child: Container(
-                color: Colors.transparent,
-                child: SizedBox(
-                  width: 160,
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                        style: customStyleButton,
-                        onPressed: () {
-                          _appSettings.resumeRecording!();
-                          setState(() {
-                            showResumeOrStopButtons = false;
-                            isResumed = true;
-                            isPaused = false;
-                          });
-                        },
-                        child: const Icon(
-                          Icons.circle,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _appSettings.finishRecording!();
-                          setState(() {
-                            isStopped = true;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: Size.zero, // Set this
-                          padding: EdgeInsets.all(15), // and this
-                        ),
-                        child: const Icon(Icons.stop, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ));
+        body: MapWidget(mainController: _mainController));
   }
 }

@@ -1,4 +1,5 @@
 import 'package:location/location.dart';
+import 'dart:async';
 
 // Request a location
 
@@ -7,7 +8,7 @@ class Gps {
 
   late bool _serviceEnabled;
   late PermissionStatus _permissionGranted;
-  Location location = new Location();
+  Location location = Location();
 
   Future<bool> checkService() async {
     _serviceEnabled = await location.serviceEnabled();
@@ -35,6 +36,12 @@ class Gps {
     return await location.getLocation();
   }
 
+  Future<StreamSubscription> listenOnBackground(Function managePosition) async {
+    return location.onLocationChanged.listen((LocationData currentLocation) {
+      managePosition(currentLocation);
+    });
+  }
+
   enableBackground(String notificationTitle, String notificationContent) {
     location.enableBackgroundMode(enable: true);
 
@@ -44,22 +51,19 @@ class Gps {
     );
   }
 
-  listenOnBackground(Function managePosition) async {
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      print('IN GPS CLASS ${DateTime.now()}       ${currentLocation.accuracy}');
-      managePosition(currentLocation);
-    });
-  }
-
-  changeIntervalByTime(int interval) {
+  changeSettings(
+      LocationAccuracy accuracy, int? interval, double? distanceFilter) {
     location.changeSettings(
-      interval: interval,
-      distanceFilter: 0,
-      accuracy: LocationAccuracy.high,
+      interval: interval ?? 1000,
+      distanceFilter: distanceFilter ?? 0,
+      accuracy: accuracy,
     );
   }
 
   changeIntervalByDistance(double distance) {
-    location.changeSettings(distanceFilter: distance);
+    location.changeSettings(
+      distanceFilter: distance,
+      accuracy: LocationAccuracy.high,
+    );
   }
 }

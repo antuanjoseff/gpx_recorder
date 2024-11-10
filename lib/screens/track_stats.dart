@@ -21,6 +21,7 @@ class _TrackStatsState extends State<TrackStats> {
   String trackTimeDuration = '00:00:00';
   late String notMovingTime;
   late String trackElevationString;
+  late String trackHeadingString;
   late String trackElevationGainString;
 
   late String avgSpeed;
@@ -28,9 +29,11 @@ class _TrackStatsState extends State<TrackStats> {
   String currentSpeedString = '';
 
   late double? trackAccuracy;
+  late double? trackHeading;
   String trackAccuracyString = '';
 
   String distanceUnits = '';
+  String elevationUnits = 'm';
 
   String _formatDuration(Duration duration) {
     String negativeSign = duration.isNegative ? '-' : '';
@@ -77,9 +80,12 @@ class _TrackStatsState extends State<TrackStats> {
         : '--';
 
     trackAccuracy = _track.getAccuracy();
+    trackHeading = _track.getHeading();
 
     trackAccuracyString =
         trackAccuracy != null ? trackAccuracy!.toStringAsFixed(2) : '-';
+    trackHeadingString =
+        trackHeading != null ? trackHeading!.toStringAsFixed(2) : '-';
 
     double kmh = 3.6 *
         (_track.getLength() /
@@ -126,6 +132,10 @@ class _TrackStatsState extends State<TrackStats> {
         trackAccuracy = _track.getAccuracy();
         trackAccuracyString =
             trackAccuracy != null ? trackAccuracy!.toStringAsFixed(2) : '-';
+
+        trackHeading = _track.getHeading();
+        trackHeadingString =
+            trackHeading != null ? trackHeading!.toStringAsFixed(2) : '-';
       });
     });
   }
@@ -145,176 +155,184 @@ class _TrackStatsState extends State<TrackStats> {
     final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
     final double itemWidth = size.width / 2;
     TextStyle titleStyle = TextStyle(fontSize: 18);
-    TextStyle contentStyle = TextStyle(fontSize: 30);
-    TextStyle unitsStyle = TextStyle(fontSize: 20);
+    TextStyle contentStyle = TextStyle(fontSize: 25);
+    TextStyle unitsStyle = TextStyle(fontSize: 17);
 
     return Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.trackData),
-          backgroundColor: mainColor,
+          backgroundColor: primaryColor,
           foregroundColor: Colors.white,
         ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: GridView.count(
-              crossAxisCount: 2,
-              childAspectRatio: (itemWidth / itemHeight),
-              shrinkWrap: true,
-              children: [
-                // DISTANCIA
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        body: Container(
+          color: thirthColor,
+          child: DefaultTextStyle(
+            style: TextStyle(color: primaryColor),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  childAspectRatio: (itemWidth / itemHeight),
+                  shrinkWrap: true,
                   children: [
-                    Text(AppLocalizations.of(context)!.distance,
-                        style: titleStyle),
-                    Row(
+                    // DISTANCIA
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          formatDistance(_track.getLength()),
-                          style: contentStyle,
+                        Text(AppLocalizations.of(context)!.distance,
+                            style: titleStyle),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              formatDistance(_track.getLength()),
+                              style: contentStyle,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              distanceUnits,
+                              style: unitsStyle,
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 5),
-                        Text(
-                          distanceUnits,
-                          style: unitsStyle,
-                        ),
+                        Text(_track.gpxCoords.length.toStringAsFixed(2))
                       ],
-                    )
-                  ],
-                ),
-                // ACCURACY
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalizations.of(context)!.accuracy,
-                        style: titleStyle),
-                    Row(
+                    ),
+                    // ACCURACY
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          trackAccuracyString,
-                          style: contentStyle,
+                        Text(AppLocalizations.of(context)!.accuracy,
+                            style: titleStyle),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              trackAccuracyString,
+                              style: contentStyle,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              'm',
+                              style: unitsStyle,
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 5),
-                        Text(
-                          'm',
-                          style: unitsStyle,
+                        Text(trackHeadingString)
+                      ],
+                    ),
+                    // ELEVATION
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(AppLocalizations.of(context)!.altitude,
+                            style: titleStyle),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              trackElevationString,
+                              style: contentStyle,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              distanceUnits,
+                              style: unitsStyle,
+                            )
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-                // ELEVATION
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalizations.of(context)!.altitude,
-                        style: titleStyle),
-                    Row(
+                    // ELEVATION GAIN
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          trackElevationString,
-                          style: contentStyle,
+                        Text(AppLocalizations.of(context)!.elevationGain,
+                            style: titleStyle),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              trackElevationGainString,
+                              style: contentStyle,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              elevationUnits,
+                              style: unitsStyle,
+                            )
+                          ],
                         ),
-                        SizedBox(width: 5),
-                        Text(
-                          distanceUnits,
-                          style: unitsStyle,
+                      ],
+                    ),
+                    // VELOCITAT ACTUAL
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(AppLocalizations.of(context)!.speed,
+                            style: titleStyle),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              currentSpeedString,
+                              style: contentStyle,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              'Km/h',
+                              style: unitsStyle,
+                            ),
+                          ],
                         )
                       ],
                     ),
-                  ],
-                ),
-                // ELEVATION GAIN
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalizations.of(context)!.elevationGain,
-                        style: titleStyle),
-                    Row(
+                    // VELOCITAT MITJANA
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          trackElevationGainString,
-                          style: contentStyle,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          distanceUnits,
-                          style: unitsStyle,
+                        Text(AppLocalizations.of(context)!.trackSpeedAverage,
+                            style: titleStyle),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              avgSpeed,
+                              style: contentStyle,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              'Km/h',
+                              style: unitsStyle,
+                            ),
+                          ],
                         )
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(AppLocalizations.of(context)!.movingTime,
+                            style: titleStyle),
+                        Text(
+                          notMovingTime,
+                          style: contentStyle,
+                        )
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(AppLocalizations.of(context)!.elapsedTime,
+                            style: titleStyle),
+                        Text(trackTimeDuration, style: contentStyle)
                       ],
                     ),
                   ],
                 ),
-                // VELOCITAT ACTUAL
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalizations.of(context)!.speed,
-                        style: titleStyle),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          currentSpeedString,
-                          style: contentStyle,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          'Km/h',
-                          style: unitsStyle,
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                // VELOCITAT MITJANA
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalizations.of(context)!.trackSpeedAverage,
-                        style: titleStyle),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          avgSpeed,
-                          style: contentStyle,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          'Km/h',
-                          style: unitsStyle,
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalizations.of(context)!.stoppedTime,
-                        style: titleStyle),
-                    Text(
-                      notMovingTime,
-                      style: contentStyle,
-                    )
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalizations.of(context)!.elapsedTime,
-                        style: titleStyle),
-                    Text(trackTimeDuration, style: contentStyle)
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ));
