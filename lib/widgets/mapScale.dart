@@ -3,16 +3,17 @@ import 'package:gpx_recorder/main.dart';
 import '../classes/vars.dart';
 import 'package:intl/intl.dart';
 
-Color scaleBackground = Colors.white.withOpacity(0.85);
-Color scaleForeground = primaryColor;
+final Color scaleBackground = Colors.white.withOpacity(0.85);
+final Color scaleForeground = primaryColor;
 
 class MapScale extends StatefulWidget {
-  double barWidth;
-  String? text;
+  String? mapscale;
+  double? resolution;
+
   MapScale({
     super.key,
-    required this.barWidth,
-    required this.text,
+    required this.mapscale,
+    required this.resolution,
   });
 
   @override
@@ -20,12 +21,38 @@ class MapScale extends StatefulWidget {
 }
 
 class _MapScaleState extends State<MapScale> {
-  String formatScale(scaleText) {
+  double? barWidth;
+
+  List<double> scales = [
+    10000 * 1000,
+    5000 * 1000,
+    2000 * 1000,
+    1000 * 1000,
+    500 * 1000,
+    200 * 1000,
+    100 * 1000,
+    50 * 1000,
+    20 * 1000,
+    10 * 1000,
+    5000,
+    2000,
+    1000,
+    500,
+    200,
+    100,
+    50,
+    20,
+    10
+  ];
+
+  double? currentScale;
+
+  String formatScale(meters) {
     var formatter = NumberFormat('###');
-    if (scaleText == null) return '';
-    double meters = double.parse(scaleText);
+    if (meters == null) return '';
+
     if (meters < 1000) {
-      return '$scaleText m';
+      return '$meters m';
     } else {
       late double formatted;
       if (meters > 1000) {
@@ -37,10 +64,41 @@ class _MapScaleState extends State<MapScale> {
   }
 
   @override
+  void initState() {
+    debugPrint('initstate MAPSCALE INSIDE RESOLUTION ${widget.resolution}');
+    currentScale = 0;
+    if (widget.mapscale != null && widget.resolution != null) {
+      double scale = double.parse(widget.mapscale!);
+      int idx = 0;
+      while (idx < scales.length) {
+        if (scale < scales[idx]) {
+          idx += 1;
+          break;
+        }
+      }
+
+      currentScale = scales[idx];
+      debugPrint('MAP SHOW SCALE ${currentScale}');
+
+      if (widget.resolution == 0) {
+        barWidth = 100;
+      } else {
+        barWidth = currentScale! / widget.resolution!;
+      }
+
+      debugPrint('MAP SHOW SCALE ${barWidth}');
+      debugPrint('SCALE RESSOLUTION ${widget.resolution}');
+    }
+
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       color: scaleBackground,
-      width: widget.barWidth,
+      width: barWidth,
       height: 30,
       child: CustomPaint(
           foregroundPainter: LinePainter(),
@@ -48,7 +106,7 @@ class _MapScaleState extends State<MapScale> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                formatScale(widget.text),
+                formatScale(currentScale),
                 style: TextStyle(color: scaleForeground),
               ),
             ],

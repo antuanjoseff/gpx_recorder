@@ -39,6 +39,7 @@ class _MapWidgetState extends State<MapWidget> {
   late TextEditingController controller;
 
   double mapScaleWidth = 60;
+  double? resolution;
   String? mapScaleText;
   Gps gps = Gps();
   Track? track;
@@ -295,10 +296,12 @@ class _MapWidgetState extends State<MapWidget> {
     mapController = controller;
     controller!.addListener(_onMapChanged);
     track = Track([], mapController!);
-    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+    resolution = await mapController!.getMetersPerPixelAtLatitude(
         mapController!.cameraPosition!.target.latitude);
 
-    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
+    mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
+    debugPrint('SCALE TEXT $mapScaleText');
+    debugPrint('SCALE RESOLUTION $resolution');
     setState(() {});
   }
 
@@ -324,11 +327,12 @@ class _MapWidgetState extends State<MapWidget> {
       }
     }
 
-    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+    resolution = await mapController!.getMetersPerPixelAtLatitude(
         mapController!.cameraPosition!.target.latitude);
 
-    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
-
+    mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
+    debugPrint('SCALE TEXT $mapScaleText');
+    debugPrint('SCALE RESOLUTION $resolution');
     setState(() {});
   }
 
@@ -484,10 +488,15 @@ class _MapWidgetState extends State<MapWidget> {
             ],
           ),
         ),
-        Positioned(
-            bottom: 30,
-            right: 10,
-            child: MapScale(barWidth: mapScaleWidth, text: mapScaleText)),
+        resolution != null
+            ? Positioned(
+                bottom: 30,
+                right: 10,
+                child: MapScale(
+                  mapscale: mapScaleText!,
+                  resolution: resolution!,
+                ))
+            : Container(),
         AnimatedPositioned(
           duration: Duration(milliseconds: milliseconds),
           onEnd: () {
