@@ -21,8 +21,6 @@ class MapScale extends StatefulWidget {
 }
 
 class _MapScaleState extends State<MapScale> {
-  double? barWidth;
-
   List<double> scales = [
     10000 * 1000,
     5000 * 1000,
@@ -45,57 +43,57 @@ class _MapScaleState extends State<MapScale> {
     10
   ];
 
-  double? currentScale;
+  double? barWidth;
+  double showScale = 0;
 
   String formatScale(meters) {
-    var formatter = NumberFormat('###');
+    // var formatter = NumberFormat('###');
     if (meters == null) return '';
 
     if (meters < 1000) {
-      return '$meters m';
-    } else {
-      late double formatted;
-      if (meters > 1000) {
-        formatted = double.parse(((meters / 1000).floor()).toString());
-      }
-      String m = formatter.format(formatted);
-      return '${m}km';
+      return '${meters.floor()} m';
     }
+
+    return '${((meters / 1000).floor()).toStringAsFixed(0)} km';
   }
 
-  @override
-  void initState() {
-    debugPrint('initstate MAPSCALE INSIDE RESOLUTION ${widget.resolution}');
-    currentScale = 0;
+  void getData() {
     if (widget.mapscale != null && widget.resolution != null) {
       double scale = double.parse(widget.mapscale!);
+
       int idx = 0;
       while (idx < scales.length) {
-        if (scale < scales[idx]) {
-          idx += 1;
+        if (scale > scales[idx]) {
           break;
+        } else {
+          idx += 1;
         }
       }
 
-      currentScale = scales[idx];
-      debugPrint('MAP SHOW SCALE ${currentScale}');
-
-      if (widget.resolution == 0) {
-        barWidth = 100;
+      if (idx == scales.length) {
+        showScale = scales[idx - 1];
       } else {
-        barWidth = currentScale! / widget.resolution!;
+        showScale = scales[idx];
       }
 
-      debugPrint('MAP SHOW SCALE ${barWidth}');
+      if (widget.resolution == 0) {
+        barWidth = 0;
+      } else {
+        barWidth = (showScale / widget.resolution!);
+        if (barWidth! < 60) {
+          showScale = scales[idx - 1];
+          barWidth = (showScale / widget.resolution!);
+        }
+      }
+
+      debugPrint('BARWIDTH ${barWidth}');
       debugPrint('SCALE RESSOLUTION ${widget.resolution}');
     }
-
-    // TODO: implement initState
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    getData();
     return Container(
       color: scaleBackground,
       width: barWidth,
@@ -106,7 +104,7 @@ class _MapScaleState extends State<MapScale> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                formatScale(currentScale),
+                formatScale(showScale),
                 style: TextStyle(color: scaleForeground),
               ),
             ],
