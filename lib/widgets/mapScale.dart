@@ -3,13 +3,8 @@ import 'package:gpx_recorder/main.dart';
 import '../classes/vars.dart';
 import 'package:intl/intl.dart';
 
-<<<<<<< HEAD
-Color scaleBackground = Colors.white.withOpacity(0.85);
-Color scaleForeground = primaryColor;
-=======
 final Color scaleBackground = Colors.white.withOpacity(0.85);
 final Color scaleForeground = primaryColor;
->>>>>>> 0b10fc4e9da37be27ac438d28fae81d5cde6ca7e
 
 class MapScale extends StatefulWidget {
   String? mapscale;
@@ -26,21 +21,6 @@ class MapScale extends StatefulWidget {
 }
 
 class _MapScaleState extends State<MapScale> {
-<<<<<<< HEAD
-  String formatScale(scaleText) {
-    var formatter = NumberFormat('###');
-    if (scaleText == null) return '';
-    double meters = double.parse(scaleText);
-    if (meters < 1000) {
-      return '$scaleText m';
-    } else {
-      late double formatted;
-      if (meters > 1000) {
-        formatted = double.parse(((meters / 1000).floor()).toString());
-      }
-      String m = formatter.format(formatted);
-      return '${m}km';
-=======
   List<double> scales = [
     10000 * 1000,
     5000 * 1000,
@@ -108,7 +88,6 @@ class _MapScaleState extends State<MapScale> {
 
       debugPrint('BARWIDTH ${barWidth}');
       debugPrint('SCALE RESSOLUTION ${widget.resolution}');
->>>>>>> 0b10fc4e9da37be27ac438d28fae81d5cde6ca7e
     }
   }
 

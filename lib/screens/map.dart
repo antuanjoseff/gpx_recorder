@@ -12,7 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:convert' show utf8;
 import 'dart:async';
 import '../widgets/mapScale.dart';
-import 'package:location/location.dart' as loc;
+import 'package:geolocator/geolocator.dart';
 import 'package:background_location/background_location.dart';
 import 'package:intl/intl.dart';
 
@@ -44,7 +44,7 @@ class _MapWidgetState extends State<MapWidget> {
   String? mapScaleText;
   Gps gps = Gps();
   Track? track;
-  bool _myLocationEnabled = false;
+  bool _myLocationEnabled = true;
   bool hasLocationPermission = false;
   bool recording = false;
   bool pause = false;
@@ -55,7 +55,7 @@ class _MapWidgetState extends State<MapWidget> {
   StreamSubscription? locationSubscription;
 
   MapLibreMapController? mapController;
-  Location location = Location();
+  Position? initialLocation;
 
   MyLocationTrackingMode _myLocationTrackingMode =
       MyLocationTrackingMode.tracking;
@@ -70,7 +70,7 @@ class _MapWidgetState extends State<MapWidget> {
   int panTime = 0;
   bool trackCameroMove = true;
   bool userMovedMap = false;
-  LocationData? lastLocation = null;
+  Position? lastLocation;
 
   int milliseconds = 300;
   bool showPauseButton = false;
@@ -134,35 +134,58 @@ class _MapWidgetState extends State<MapWidget> {
   void initState() {
     getUserPreferences();
     controller = TextEditingController();
-    // checkUserLocation();
+    Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+      if (status == ServiceStatus.enabled) {
+        debugPrint('GPS enabled!!');
+      } else {
+        debugPrint('GPS disabled!!');
+      }
+    });
     super.initState();
   }
 
-  void checkUserLocation() {
-    gps.checkService().then((serviceEnabled) {
-      if (serviceEnabled) {
-        gps.checkPermission().then((hasPermission) {
-          if (hasPermission) {
-            _myLocationEnabled = true;
-            callSetState();
-          }
-        });
-      }
-    });
-  }
+  /// are denied the `Future` will return an error.
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
 
-  Future<bool> checkGpsService() async {
-    bool hasPermission = false;
-    bool enabled = await gps.checkService();
-    if (enabled) {
-      hasPermission = await gps.checkPermission();
-      if (hasPermission) {
-        _myLocationEnabled = true;
-        gps.changeSettings(LocationAccuracy.high, 1000, 10);
-        callSetState();
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
       }
     }
-    return hasPermission;
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    hasLocationPermission = true;
+    debugPrint('hasLocationPermission    ${hasLocationPermission}');
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void _onStyleLoadedCallback() async {
+    initialLocation = await _determinePosition();
   }
 
   void callSetState() {
@@ -186,12 +209,12 @@ class _MapWidgetState extends State<MapWidget> {
     movingDuration = Duration(seconds: 0);
     track!.init();
 
-    LocationData? loc = await gps.getLocation();
     _myLocationRenderMode = MyLocationRenderMode.compass;
 
-    if (loc != null) {
-      handleNewPosition(loc);
-      firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
+    if (initialLocation != null) {
+      handleNewPosition(initialLocation!);
+      firstCamaraView(
+          LatLng(initialLocation!.latitude, initialLocation!.longitude), 14);
       _myLocationRenderMode = MyLocationRenderMode.compass;
     }
     lastMovingTimeAt = DateTime.now();
@@ -290,6 +313,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   bool mapIsCreated() {
+    debugPrint('MAPISCREATED  ${mapController != null}');
     return mapController != null;
   }
 
@@ -374,11 +398,12 @@ class _MapWidgetState extends State<MapWidget> {
     return wpt;
   }
 
-  bool userIsMoving(LocationData loc) {
+  bool userIsMoving(Position loc) {
     return (loc.speed! > 0.7);
   }
 
-  void handleNewPosition(LocationData loc) async {
+  void handleNewPosition(Position loc) async {
+    debugPrint('HANDLE NEW POSITION');
     lastLocation = loc;
     if (userIsMoving(loc)) {
       // USER IS MOVING
@@ -447,6 +472,7 @@ class _MapWidgetState extends State<MapWidget> {
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
+          onStyleLoadedCallback: _onStyleLoadedCallback,
           styleString:
               'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
@@ -515,9 +541,12 @@ class _MapWidgetState extends State<MapWidget> {
                 ElevatedButton(
                   style: styleRecordingButtons,
                   onPressed: () async {
-                    if (!hasLocationPermission) {
-                      hasLocationPermission = await checkGpsService();
-                    }
+                    // if (!hasLocationPermission) {
+                    //   hasLocationPermission = await checkGpsService();
+                    // }
+
+                    debugPrint('${mapIsCreated()}');
+                    debugPrint('${hasLocationPermission}');
 
                     if (!mapIsCreated() || !hasLocationPermission) {
                       return;
