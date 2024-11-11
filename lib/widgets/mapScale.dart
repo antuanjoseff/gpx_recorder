@@ -86,8 +86,8 @@ class _MapScaleState extends State<MapScale> {
         }
       }
 
-      debugPrint('BARWIDTH ${barWidth}');
-      debugPrint('SCALE RESSOLUTION ${widget.resolution}');
+      // debugPrint('BARWIDTH ${barWidth}');
+      // debugPrint('SCALE RESSOLUTION ${widget.resolution}');
     }
   }
 

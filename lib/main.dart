@@ -18,17 +18,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-Future<void> _checkPermission() async {
-  bool? hasPermission = false;
-  final gps = Gps();
-
-  bool enabled = await gps.checkService();
-  if (enabled) {
-    await gps.checkPermission();
-  }
-  return;
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

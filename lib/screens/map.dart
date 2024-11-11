@@ -44,7 +44,7 @@ class _MapWidgetState extends State<MapWidget> {
   String? mapScaleText;
   Gps gps = Gps();
   Track? track;
-  bool _myLocationEnabled = true;
+  bool _myLocationEnabled = false;
   bool hasLocationPermission = false;
   bool recording = false;
   bool pause = false;
@@ -70,7 +70,7 @@ class _MapWidgetState extends State<MapWidget> {
   int panTime = 0;
   bool trackCameroMove = true;
   bool userMovedMap = false;
-  Position? lastLocation;
+  Location? lastLocation;
 
   int milliseconds = 300;
   bool showPauseButton = false;
@@ -126,8 +126,26 @@ class _MapWidgetState extends State<MapWidget> {
       locationSubscription!.cancel();
     }
     controller.dispose();
+    BackgroundLocation.stopLocationService();
     // TODO: implement dispose
     super.dispose();
+  }
+
+  void showSnackbar(context, type, myText) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(type == 'success' ? Icons.thumb_up : Icons.warning_rounded,
+                color: Colors.white),
+            const SizedBox(width: 20),
+            Expanded(child: Text(myText))
+          ],
+        ),
+        backgroundColor: type == 'success' ? Colors.green : Colors.red,
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -136,8 +154,10 @@ class _MapWidgetState extends State<MapWidget> {
     controller = TextEditingController();
     Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
       if (status == ServiceStatus.enabled) {
+        showSnackbar(context, 'success', 'GPS enabled!!');
         debugPrint('GPS enabled!!');
       } else {
+        showSnackbar(context, 'error', 'GPS disabled!!');
         debugPrint('GPS disabled!!');
       }
     });
@@ -185,7 +205,16 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void _onStyleLoadedCallback() async {
-    initialLocation = await _determinePosition();
+    // initialLocation = await _determinePosition();
+    bool serviceEnabled = await gps.checkService();
+    if (serviceEnabled) {
+      hasLocationPermission = await gps.requestPermission();
+    }
+    if (hasLocationPermission && initialLocation == null) {
+      _myLocationEnabled = true;
+      initialLocation = await Geolocator.getCurrentPosition();
+      setState(() {});
+    }
   }
 
   void callSetState() {
@@ -210,19 +239,25 @@ class _MapWidgetState extends State<MapWidget> {
     track!.init();
 
     _myLocationRenderMode = MyLocationRenderMode.compass;
-
+    debugPrint('INITIAL LOCATION ${initialLocation != null}');
     if (initialLocation != null) {
-      handleNewPosition(initialLocation!);
+      // handleNewPosition(initialLocation!);
       firstCamaraView(
-          LatLng(initialLocation!.latitude, initialLocation!.longitude), 14);
+          LatLng(initialLocation!.latitude!, initialLocation!.longitude!), 14);
       _myLocationRenderMode = MyLocationRenderMode.compass;
     }
     lastMovingTimeAt = DateTime.now();
 
-    await locationSubscription?.cancel();
-    gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
-        AppLocalizations.of(context)!.notificationContent);
-    locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    // await locationSubscription?.cancel();
+    // gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
+    //     AppLocalizations.of(context)!.notificationContent);
+    // locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    BackgroundLocation
+        .stopLocationService(); //To ensure that previously started services have been stopped, if desired
+    BackgroundLocation.startLocationService(distanceFilter: 5);
+    BackgroundLocation.getLocationUpdates((location) {
+      handleNewPosition(location);
+    });
     setState(() {});
   }
 
@@ -325,8 +360,8 @@ class _MapWidgetState extends State<MapWidget> {
         mapController!.cameraPosition!.target.latitude);
 
     mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
-    debugPrint('SCALE TEXT $mapScaleText');
-    debugPrint('SCALE RESOLUTION $resolution');
+    // debugPrint('SCALE TEXT $mapScaleText');
+    // debugPrint('SCALE RESOLUTION $resolution');
     setState(() {});
   }
 
@@ -356,8 +391,8 @@ class _MapWidgetState extends State<MapWidget> {
         mapController!.cameraPosition!.target.latitude);
 
     mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
-    debugPrint('SCALE TEXT $mapScaleText');
-    debugPrint('SCALE RESOLUTION $resolution');
+    debugPrint('MAP CHANGED');
+
     setState(() {});
   }
 
@@ -398,12 +433,12 @@ class _MapWidgetState extends State<MapWidget> {
     return wpt;
   }
 
-  bool userIsMoving(Position loc) {
+  bool userIsMoving(Location loc) {
     return (loc.speed! > 0.7);
   }
 
-  void handleNewPosition(Position loc) async {
-    debugPrint('HANDLE NEW POSITION');
+  void handleNewPosition(Location loc) async {
+    debugPrint('HANDLE NEW POSITION USER MOVING ${userIsMoving(loc)}');
     lastLocation = loc;
     if (userIsMoving(loc)) {
       // USER IS MOVING
@@ -434,7 +469,7 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     if (!userMovedMap) {
-      centerMap(LatLng(loc.latitude!, loc.longitude!));
+      // centerMap(LatLng(loc.latitude!, loc.longitude!));
     }
   }
 
@@ -475,7 +510,11 @@ class _MapWidgetState extends State<MapWidget> {
           onStyleLoadedCallback: _onStyleLoadedCallback,
           styleString:
               'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
-          initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
+          initialCameraPosition: CameraPosition(
+              target: (initialLocation != null)
+                  ? LatLng(
+                      initialLocation!.latitude, initialLocation!.longitude)
+                  : LatLng(0, 0)),
           trackCameraPosition: true,
         ),
         Positioned(
@@ -542,7 +581,7 @@ class _MapWidgetState extends State<MapWidget> {
                   style: styleRecordingButtons,
                   onPressed: () async {
                     // if (!hasLocationPermission) {
-                    //   hasLocationPermission = await checkGpsService();
+                    //   hasLocationPermission = await checkLocationService();
                     // }
 
                     debugPrint('${mapIsCreated()}');
