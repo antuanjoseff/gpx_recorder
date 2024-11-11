@@ -14,6 +14,7 @@ import 'dart:async';
 import '../widgets/mapScale.dart';
 import 'package:location/location.dart' as loc;
 import 'package:background_location/background_location.dart';
+import 'package:intl/intl.dart';
 
 class MapWidget extends StatefulWidget {
   final MainController mainController;
@@ -36,8 +37,10 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _provider;
   late bool _trackVisible;
   late Color _trackColor;
+  late TextEditingController controller;
 
   double mapScaleWidth = 60;
+  double? resolution;
   String? mapScaleText;
   Gps gps = Gps();
   Track? track;
@@ -54,7 +57,8 @@ class _MapWidgetState extends State<MapWidget> {
   MapLibreMapController? mapController;
   Location location = Location();
 
-  MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.none;
+  MyLocationTrackingMode _myLocationTrackingMode =
+      MyLocationTrackingMode.tracking;
   MyLocationRenderMode _myLocationRenderMode = MyLocationRenderMode.normal;
 
 // Vars to detect pan on map
@@ -71,10 +75,18 @@ class _MapWidgetState extends State<MapWidget> {
   int milliseconds = 300;
   bool showPauseButton = false;
 
-  ButtonStyle customStyleButton = ElevatedButton.styleFrom(
+  ButtonStyle styleRecordingButtons = ElevatedButton.styleFrom(
       minimumSize: Size.zero, // Set this
       padding: EdgeInsets.all(15), // and this
       backgroundColor: lightColor);
+
+  ButtonStyle styleElevatedButtons = ElevatedButton.styleFrom(
+    minimumSize: Size.zero, // Set this
+    padding:
+        EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5), // and this
+    backgroundColor: buttonBackgroundColor,
+    foregroundColor: buttonForegroundColor,
+  );
 
   bool showResumeOrStopButtons = false;
   bool isPaused = false;
@@ -113,15 +125,15 @@ class _MapWidgetState extends State<MapWidget> {
     if (locationSubscription != null) {
       locationSubscription!.cancel();
     }
-
+    controller.dispose();
     // TODO: implement dispose
     super.dispose();
   }
 
   @override
   void initState() {
-    locationSubscription = null;
     getUserPreferences();
+    controller = TextEditingController();
     // checkUserLocation();
     super.initState();
   }
@@ -146,6 +158,7 @@ class _MapWidgetState extends State<MapWidget> {
       hasPermission = await gps.checkPermission();
       if (hasPermission) {
         _myLocationEnabled = true;
+        gps.changeSettings(LocationAccuracy.high, 1000, 10);
         callSetState();
       }
     }
@@ -172,14 +185,20 @@ class _MapWidgetState extends State<MapWidget> {
     pause = false;
     movingDuration = Duration(seconds: 0);
     track!.init();
+
     LocationData? loc = await gps.getLocation();
     _myLocationRenderMode = MyLocationRenderMode.compass;
+
     if (loc != null) {
+      handleNewPosition(loc);
       firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
+      _myLocationRenderMode = MyLocationRenderMode.compass;
     }
     lastMovingTimeAt = DateTime.now();
 
-    gps.enableBackground('Geolocation', 'Geolocation detection');
+    await locationSubscription?.cancel();
+    gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
+        AppLocalizations.of(context)!.notificationContent);
     locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
   }
@@ -196,9 +215,54 @@ class _MapWidgetState extends State<MapWidget> {
     print('stop recording!!!!');
   }
 
+  Future<String?> opentDialog() async {
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MMM-dd-hh:mm').format(now);
+
+    controller.text = formattedDate;
+
+    return await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: Text(AppLocalizations.of(context)!.trackName),
+                content: TextField(
+                  onTap: () => controller.selection = TextSelection(
+                      baseOffset: 0,
+                      extentOffset: controller.value.text.length),
+                  autofocus: true,
+                  // decoration: InputDecoration(hintText: 'Nom del track'),
+                  controller: controller,
+                  onSubmitted: (_) => submit(),
+                ),
+                actions: [
+                  ElevatedButton(
+                      style: styleElevatedButtons,
+                      onPressed: submit,
+                      child: Text(AppLocalizations.of(context)!.accept)),
+                  ElevatedButton(
+                      style: styleElevatedButtons,
+                      onPressed: cancel,
+                      child: Text(AppLocalizations.of(context)!.cancel)),
+                ]));
+  }
+
+  void submit() {
+    Navigator.of(context).pop(controller.text);
+    controller.clear();
+  }
+
+  void cancel() {
+    recording = true;
+    Navigator.of(context).pop();
+  }
+
   void finishRecording() async {
     recording = false;
     stop = true;
+    String? name = await opentDialog();
+    debugPrint('...................................DIAGLOG BOX $name');
+    if (name == null || name.isEmpty) return;
+
     final gpx = GeoXml();
     gpx.version = '1.1';
     gpx.creator = 'dart-gpx library';
@@ -206,7 +270,11 @@ class _MapWidgetState extends State<MapWidget> {
     gpx.metadata?.name = 'world cities';
     gpx.metadata?.desc = 'location of some of world cities';
     gpx.metadata?.time = DateTime.utc(2010, 1, 2, 3, 4, 5);
-    gpx.wpts = track!.wpts;
+    gpx.trks = [
+      Trk(trksegs: [Trkseg(trkpts: track!.wpts)])
+    ];
+
+    // gpx.wpts = track!.wpts;
 
     // get GPX string
     // final gpxString = GpxWriter().asString(gpx, pretty: true);
@@ -216,7 +284,7 @@ class _MapWidgetState extends State<MapWidget> {
       dialogTitle: 'Please select an output file:',
       bytes: utf8.encode(gpxString),
       // bytes: convertStringToUint8List(gpxString),
-      fileName: 'track_name.gpx',
+      fileName: '$name.gpx',
       allowedExtensions: ['gpx'],
     );
   }
@@ -229,10 +297,12 @@ class _MapWidgetState extends State<MapWidget> {
     mapController = controller;
     controller!.addListener(_onMapChanged);
     track = Track([], mapController!);
-    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+    resolution = await mapController!.getMetersPerPixelAtLatitude(
         mapController!.cameraPosition!.target.latitude);
 
-    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
+    mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
+    debugPrint('SCALE TEXT $mapScaleText');
+    debugPrint('SCALE RESOLUTION $resolution');
     setState(() {});
   }
 
@@ -258,11 +328,12 @@ class _MapWidgetState extends State<MapWidget> {
       }
     }
 
-    double resolution = await mapController!.getMetersPerPixelAtLatitude(
+    resolution = await mapController!.getMetersPerPixelAtLatitude(
         mapController!.cameraPosition!.target.latitude);
 
-    mapScaleText = (mapScaleWidth * resolution).toStringAsFixed(0);
-
+    mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
+    debugPrint('SCALE TEXT $mapScaleText');
+    debugPrint('SCALE RESOLUTION $resolution');
     setState(() {});
   }
 
@@ -372,7 +443,7 @@ class _MapWidgetState extends State<MapWidget> {
       children: [
         MapLibreMap(
           minMaxZoomPreference: MinMaxZoomPreference(0, 19),
-          myLocationEnabled: true,
+          myLocationEnabled: _myLocationEnabled,
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
@@ -389,12 +460,7 @@ class _MapWidgetState extends State<MapWidget> {
             children: [
               (recording)
                   ? ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size.zero,
-                        backgroundColor: buttonBackgroundColor,
-                        padding: const EdgeInsets.only(
-                            bottom: 6, top: 6, left: 15, right: 15), // and this
-                      ),
+                      style: styleElevatedButtons,
                       onPressed: () {
                         Navigator.push(
                             context,
@@ -410,12 +476,7 @@ class _MapWidgetState extends State<MapWidget> {
               ),
               if (userMovedMap && lastLocation != null)
                 ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size.zero,
-                      backgroundColor: buttonBackgroundColor,
-                      padding: const EdgeInsets.only(
-                          bottom: 6, top: 6, left: 15, right: 15), // and this
-                    ),
+                    style: styleElevatedButtons,
                     onPressed: () {
                       userMovedMap = false;
                       if (lastLocation != null) {
@@ -429,10 +490,15 @@ class _MapWidgetState extends State<MapWidget> {
             ],
           ),
         ),
-        Positioned(
-            bottom: 30,
-            right: 10,
-            child: MapScale(barWidth: mapScaleWidth, text: mapScaleText)),
+        resolution != null
+            ? Positioned(
+                bottom: 30,
+                right: 10,
+                child: MapScale(
+                  mapscale: mapScaleText!,
+                  resolution: resolution!,
+                ))
+            : Container(),
         AnimatedPositioned(
           duration: Duration(milliseconds: milliseconds),
           onEnd: () {
@@ -447,19 +513,15 @@ class _MapWidgetState extends State<MapWidget> {
             child: Row(
               children: [
                 ElevatedButton(
-                  style: customStyleButton,
+                  style: styleRecordingButtons,
                   onPressed: () async {
                     if (!hasLocationPermission) {
-                      print(
-                          '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
                       hasLocationPermission = await checkGpsService();
                     }
 
                     if (!mapIsCreated() || !hasLocationPermission) {
                       return;
                     }
-                    print(
-                        '_______________________________________________________________________');
                     startRecording();
                     setState(() {
                       recording = true;
@@ -492,7 +554,7 @@ class _MapWidgetState extends State<MapWidget> {
               child: Row(
                 children: [
                   ElevatedButton(
-                    style: customStyleButton,
+                    style: styleRecordingButtons,
                     onPressed: () {
                       pauseRecording!();
                       setState(() {
@@ -528,7 +590,7 @@ class _MapWidgetState extends State<MapWidget> {
               child: Row(
                 children: [
                   ElevatedButton(
-                    style: customStyleButton,
+                    style: styleRecordingButtons,
                     onPressed: () {
                       resumeRecording!();
                       setState(() {
