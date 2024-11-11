@@ -1,9 +1,10 @@
 import 'package:geoxml/geoxml.dart';
-import 'package:location/location.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'bounds.dart' as my;
 import '../utils/util.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:background_location/background_location.dart';
 
 class Track {
   // Map controller
@@ -166,7 +167,7 @@ class Track {
     wpts = [];
   }
 
-  void push(Wpt wpt, LocationData loc) {
+  void push(Wpt wpt, Location loc) {
     double inc = 0;
     LatLng P = LatLng(wpt.lat!, wpt.lon!);
 

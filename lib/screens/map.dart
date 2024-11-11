@@ -241,7 +241,7 @@ class _MapWidgetState extends State<MapWidget> {
     _myLocationRenderMode = MyLocationRenderMode.compass;
     debugPrint('INITIAL LOCATION ${initialLocation != null}');
     if (initialLocation != null) {
-      // handleNewPosition(initialLocation!);
+      // handleNewLocation(initialLocation!);
       firstCamaraView(
           LatLng(initialLocation!.latitude!, initialLocation!.longitude!), 14);
       _myLocationRenderMode = MyLocationRenderMode.compass;
@@ -251,12 +251,18 @@ class _MapWidgetState extends State<MapWidget> {
     // await locationSubscription?.cancel();
     // gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
     //     AppLocalizations.of(context)!.notificationContent);
-    // locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    // locationSubscription = await gps.listenOnBackground(handleNewLocation);
+
+    BackgroundLocation.setAndroidNotification(
+      title: AppLocalizations.of(context)!.notificationTitle,
+      message: AppLocalizations.of(context)!.notificationContent,
+    );
+
     BackgroundLocation
         .stopLocationService(); //To ensure that previously started services have been stopped, if desired
     BackgroundLocation.startLocationService(distanceFilter: 5);
     BackgroundLocation.getLocationUpdates((location) {
-      handleNewPosition(location);
+      handleNewLocation(location);
     });
     setState(() {});
   }
@@ -354,7 +360,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   void _onMapCreated(MapLibreMapController controller) async {
     mapController = controller;
-    controller!.addListener(_onMapChanged);
+    controller.addListener(_onMapChanged);
     track = Track([], mapController!);
     resolution = await mapController!.getMetersPerPixelAtLatitude(
         mapController!.cameraPosition!.target.latitude);
@@ -437,11 +443,16 @@ class _MapWidgetState extends State<MapWidget> {
     return (loc.speed! > 0.7);
   }
 
-  void handleNewPosition(Location loc) async {
+  void handleNewLocation(Location loc) async {
     debugPrint('HANDLE NEW POSITION USER MOVING ${userIsMoving(loc)}');
+
     lastLocation = loc;
     if (userIsMoving(loc)) {
       // USER IS MOVING
+      BackgroundLocation.setAndroidNotification(
+        title: AppLocalizations.of(context)!.notificationTitle,
+        message: 'Accuracy ${loc.accuracy}',
+      );
       if (!lastLocationMoving) {
         // USER JUST STARTED MOVING
         lastMovingTimeAt = DateTime.now();
@@ -473,12 +484,12 @@ class _MapWidgetState extends State<MapWidget> {
     }
   }
 
-  void addNewLocationToTrack(loc) {
+  void addNewLocationToTrack(Location loc) {
     Wpt wpt = createWptFromLocation(loc);
     track!.push(wpt, loc);
 
     track!.setAccuracy(loc.accuracy);
-    track!.setHeading(loc.heading!);
+    track!.setHeading(loc.bearing);
     track!.setCurrentSpeed(loc.speed);
     track!.setCurrentElevation(loc.altitude?.floor());
   }
