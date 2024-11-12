@@ -46,17 +46,19 @@ class _TrackStatsState extends State<TrackStats> {
     int kms = (length / 1000).floor().toInt();
     int mts = (length - (kms * 1000)).toInt();
 
-    String plural = kms > 1 ? 's ' : ' ';
+    String checkPlural = kms > 1 ? 's ' : '';
 
     String format = '';
     if (kms > 0) {
-      format = '${kms.toString()}';
-      distanceUnits = 'Km$plural';
+      distanceUnits = 'Km$checkPlural';
+      format = '${kms.toString()} ${distanceUnits}';
+      if (mts > 0) {
+        format += ' ${mts} m';
+      }
     } else {
-      distanceUnits = 'm';
+      format = '$mts m';
     }
 
-    format += '${mts}';
     return format;
   }
 

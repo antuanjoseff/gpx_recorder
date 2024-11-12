@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gpx_recorder/main.dart';
 import '../classes/vars.dart';
-import 'package:intl/intl.dart';
 
 final Color scaleBackground = Colors.white.withOpacity(0.85);
 final Color scaleForeground = primaryColor;
