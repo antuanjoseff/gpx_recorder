@@ -13,6 +13,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:convert' show utf8;
 import 'dart:async';
 import '../widgets/mapScale.dart';
+import '../utils/util.dart';
 import 'package:intl/intl.dart';
 
 class MapWidget extends StatefulWidget {
@@ -42,12 +43,12 @@ class _MapWidgetState extends State<MapWidget> {
   double? resolution;
   String? mapScaleText;
   Gps gps = Gps();
+  List<Wpt> wpts = [];
   Track? track;
   bool _myLocationEnabled = false;
   bool hasLocationPermission = false;
   bool recording = false;
-  bool pause = false;
-  bool stop = false;
+
   bool lastLocationMoving = false;
   late DateTime lastMovingTimeAt;
   Duration timeNotMoving = Duration(seconds: 0);
@@ -99,6 +100,15 @@ class _MapWidgetState extends State<MapWidget> {
     mainController.pauseRecording = pauseRecording;
     mainController.finishRecording = finishRecording;
     mainController.mapIsCreated = mapIsCreated;
+    mainController.centerMap = centerMap;
+    mainController.getLastLocation = getLastLocation;
+  }
+
+  LatLng? getLastLocation() {
+    if (lastLocation != null) {
+      return LatLng(lastLocation!.latitude!, lastLocation!.longitude!);
+    }
+    return null;
   }
 
   void setTrackPreferences(bool numSatelites, bool accuracy, bool speed,
@@ -181,7 +191,6 @@ class _MapWidgetState extends State<MapWidget> {
 
   void startRecording() async {
     recording = true;
-    pause = false;
     movingDuration = Duration(seconds: 0);
     track!.init();
 
@@ -204,21 +213,24 @@ class _MapWidgetState extends State<MapWidget> {
 
   void resumeRecording() {
     recording = true;
-    pause = false;
     print('resume recording!!!!');
   }
 
   void pauseRecording() {
     // recording = false;
-    pause = true;
     print('stop recording!!!!');
   }
 
-  Future<String?> opentDialog() async {
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('yyyy-MMM-dd-hh:mm').format(now);
+  Future<String?> openDialog(String type) async {
+    String name = '';
+    if (type == 'track') {
+      DateTime now = DateTime.now();
+      name = DateFormat('yyyy-MMM-dd-hh:mm').format(now);
+    } else {
+      name = 'Wpt ${wpts.length + 1}';
+    }
 
-    controller.text = formattedDate;
+    controller.text = name;
 
     return await showDialog(
         context: context,
@@ -255,11 +267,24 @@ class _MapWidgetState extends State<MapWidget> {
     Navigator.of(context).pop();
   }
 
+  void addWpt() async {
+    // LocationData? location = await gps.getLocation();
+
+    if (lastLocation != null) {
+      Wpt newWpt = createWptFromLocation(lastLocation!);
+      String? name = await openDialog('wpt');
+      if (name == null || name.isEmpty) return;
+      newWpt.name = name;
+      wpts.add(newWpt);
+      Symbol wptSymbol = await mapController!.addSymbol(SymbolOptions(
+          draggable: false,
+          iconImage: 'waypoint',
+          geometry: LatLng(lastLocation!.latitude!, lastLocation!.longitude!)));
+    }
+  }
+
   void finishRecording() async {
-    recording = false;
-    stop = true;
-    String? name = await opentDialog();
-    debugPrint('...................................DIAGLOG BOX $name');
+    String? name = await openDialog('track');
     if (name == null || name.isEmpty) return;
 
     final gpx = GeoXml();
@@ -269,6 +294,7 @@ class _MapWidgetState extends State<MapWidget> {
     gpx.metadata?.name = 'world cities';
     gpx.metadata?.desc = 'location of some of world cities';
     gpx.metadata?.time = DateTime.utc(2010, 1, 2, 3, 4, 5);
+    gpx.wpts = wpts;
     gpx.trks = [
       Trk(trksegs: [Trkseg(trkpts: track!.wpts)])
     ];
@@ -286,6 +312,16 @@ class _MapWidgetState extends State<MapWidget> {
       fileName: '$name.gpx',
       allowedExtensions: ['gpx'],
     );
+    if (outputFile != null) {
+      setState(() {
+        recording = false;
+        isPaused = false;
+        isStopped = false;
+        isResumed = false;
+        showPauseButton = false;
+        showResumeOrStopButtons = false;
+      });
+    }
   }
 
   bool mapIsCreated() {
@@ -421,11 +457,14 @@ class _MapWidgetState extends State<MapWidget> {
     track!.setCurrentElevation(loc.altitude?.floor());
   }
 
-  void centerMap(LatLng location) {
-    mapController!.animateCamera(
-      CameraUpdate.newLatLng(location),
-      duration: const Duration(milliseconds: 100),
-    );
+  void centerMap(LatLng? location) {
+    location ??= LatLng(lastLocation!.latitude!, lastLocation!.longitude!);
+    if (location != null) {
+      mapController!.animateCamera(
+        CameraUpdate.newLatLng(location),
+        duration: const Duration(milliseconds: 100),
+      );
+    }
   }
 
   void firstCamaraView(LatLng location, double zoomLevel) {
@@ -449,6 +488,10 @@ class _MapWidgetState extends State<MapWidget> {
               'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
           trackCameraPosition: true,
+          onStyleLoadedCallback: () {
+            addImageFromAsset(
+                mapController!, "waypoint", "assets/symbols/waypoint.png");
+          },
         ),
         Positioned(
           top: 15,
@@ -459,12 +502,13 @@ class _MapWidgetState extends State<MapWidget> {
               (recording)
                   ? ElevatedButton(
                       style: styleElevatedButtons,
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        var result = await Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
                                     TrackStats(track: track!)));
+                        centerMap(getLastLocation());
                       },
                       child: Text(AppLocalizations.of(context)!.trackData,
                           style: TextStyle(color: Colors.white, fontSize: 18)))
@@ -498,14 +542,16 @@ class _MapWidgetState extends State<MapWidget> {
                 ))
             : Container(),
         AnimatedPositioned(
+          bottom: 30,
           duration: Duration(milliseconds: milliseconds),
           onEnd: () {
             setState(() {
-              showPauseButton = true;
+              if (recording) {
+                showPauseButton = true;
+              }
             });
           },
           left: (!recording && !showPauseButton) ? 10 : -75,
-          bottom: 30,
           child: SizedBox(
             width: 75,
             child: Row(
@@ -536,7 +582,7 @@ class _MapWidgetState extends State<MapWidget> {
         ),
         AnimatedPositioned(
           duration: Duration(milliseconds: milliseconds),
-          left: (showPauseButton) ? 10 : -80,
+          left: (showPauseButton && recording && !isStopped) ? 10 : -80,
           onEnd: () {
             setState(() {
               if (!showPauseButton) {
@@ -549,12 +595,25 @@ class _MapWidgetState extends State<MapWidget> {
             color: Colors.transparent,
             child: SizedBox(
               width: 80,
-              child: Row(
+              child: Column(
                 children: [
                   ElevatedButton(
                     style: styleRecordingButtons,
                     onPressed: () {
-                      pauseRecording!();
+                      addWpt();
+                    },
+                    child: const Icon(
+                      Icons.flag,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                    style: styleRecordingButtons,
+                    onPressed: () {
+                      pauseRecording();
                       setState(() {
                         showPauseButton = false;
                         isPaused = true;
@@ -571,8 +630,8 @@ class _MapWidgetState extends State<MapWidget> {
           ),
         ),
         AnimatedPositioned(
-          duration: Duration(milliseconds: milliseconds),
           left: showResumeOrStopButtons ? 10 : -160,
+          duration: Duration(milliseconds: milliseconds),
           onEnd: () {
             setState(() {
               if (isResumed && !isPaused) {
@@ -590,7 +649,7 @@ class _MapWidgetState extends State<MapWidget> {
                   ElevatedButton(
                     style: styleRecordingButtons,
                     onPressed: () {
-                      resumeRecording!();
+                      resumeRecording();
                       setState(() {
                         showResumeOrStopButtons = false;
                         isResumed = true;
@@ -607,10 +666,7 @@ class _MapWidgetState extends State<MapWidget> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      finishRecording!();
-                      setState(() {
-                        isStopped = true;
-                      });
+                      finishRecording();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,

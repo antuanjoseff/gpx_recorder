@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 class MainController {
   // Future<Line?> Function(List<Wpt> lineSegment)? loadTrack;
@@ -21,4 +22,6 @@ class MainController {
   void Function()? resumeRecording;
   void Function()? finishRecording;
   bool Function()? mapIsCreated;
+  void Function(LatLng?)? centerMap;
+  LatLng? Function()? getLastLocation;
 }

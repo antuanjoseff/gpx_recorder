@@ -69,12 +69,6 @@ class _MyHomePageState extends State<MyHomePage> {
   MainController _mainController = MainController();
   bool recording = false;
   int milliseconds = 300;
-  bool showPauseButton = false;
-  bool showResumeOrStopButtons = false;
-  bool isPaused = false;
-  bool isStopped = false;
-  bool isResumed = false;
-  bool mapCentered = true;
 
   bool fullScreen = false;
   late bool numSatelites;
@@ -111,7 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // toolbarHeight: !fullScreen ? 40 : 0,
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           title: Text(AppLocalizations.of(context)!.appTitle),
@@ -156,6 +149,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       color = col;
                       _mainController.setTrackPreferences!(numSatelites,
                           accuracy, speed, heading, provider, visible, color);
+
+                      _mainController
+                          .centerMap!(_mainController.getLastLocation!());
                     }
                   },
                 )
