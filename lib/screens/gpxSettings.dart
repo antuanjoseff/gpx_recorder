@@ -15,20 +15,19 @@ class GpxSettings extends StatefulWidget {
 }
 
 class _GpxSettingsState extends State<GpxSettings> {
-  late bool numSatelitesIsSwitched;
-  late bool accuracyIsSwitched;
-  late bool speedIsSwitched;
-  late bool headingIsSwitched;
-  late bool providerIsSwitched;
-  double switchScale = 1;
-  @override
-  void initState() {
-    debugPrint('kkkkk    ${widget.controller.speed}');
-    super.initState();
-  }
+  late bool numSatelites;
+  late bool accuracy;
+  late bool speed;
+  late bool heading;
+  late bool provider;
 
   @override
   Widget build(BuildContext context) {
+    numSatelites = false;
+    accuracy = UserPreferences.getAccuracy();
+    speed = UserPreferences.getSpeed();
+    heading = UserPreferences.getHeading();
+    provider = UserPreferences.getProvider();
     return DefaultTextStyle(
       style: TextStyle(color: primaryColor, fontSize: 20),
       child: Padding(
@@ -43,8 +42,9 @@ class _GpxSettingsState extends State<GpxSettings> {
             children: [
               Container(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     widget.controller.speed = !widget.controller.speed;
+                    await UserPreferences.setSpeed(widget.controller.speed);
                     setState(() {});
                   },
                   style: ElevatedButton.styleFrom(
@@ -75,8 +75,9 @@ class _GpxSettingsState extends State<GpxSettings> {
               ),
               Container(
                   child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   widget.controller.heading = !widget.controller.heading;
+                  await UserPreferences.setHeading(widget.controller.heading);
                   setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
@@ -106,8 +107,9 @@ class _GpxSettingsState extends State<GpxSettings> {
               )),
               Container(
                   child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   widget.controller.accuracy = !widget.controller.accuracy;
+                  await UserPreferences.setAccuracy(widget.controller.accuracy);
                   setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
@@ -137,8 +139,9 @@ class _GpxSettingsState extends State<GpxSettings> {
               )),
               Container(
                   child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   widget.controller.provider = !widget.controller.provider;
+                  await UserPreferences.setProvider(widget.controller.provider);
                   setState(() {});
                 },
                 style: ElevatedButton.styleFrom(

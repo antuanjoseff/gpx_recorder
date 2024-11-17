@@ -47,7 +47,11 @@ class _MapWidgetState extends State<MapWidget> {
   Track? track;
   bool _myLocationEnabled = false;
   bool hasLocationPermission = false;
+
   bool recording = false;
+  bool isPaused = false;
+  bool isStopped = false;
+  bool recordingStarted = false;
 
   bool lastLocationMoving = false;
   late DateTime lastMovingTimeAt;
@@ -89,9 +93,6 @@ class _MapWidgetState extends State<MapWidget> {
   );
 
   bool showResumeOrStopButtons = false;
-  bool isPaused = false;
-  bool isStopped = false;
-  bool isResumed = false;
 
   _MapWidgetState(MainController mainController) {
     mainController.setTrackPreferences = setTrackPreferences;
@@ -190,7 +191,6 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void startRecording() async {
-    recording = true;
     movingDuration = Duration(seconds: 0);
     track!.init();
 
@@ -212,7 +212,6 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void resumeRecording() {
-    recording = true;
     print('resume recording!!!!');
   }
 
@@ -263,7 +262,6 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void cancel() {
-    recording = true;
     Navigator.of(context).pop();
   }
 
@@ -285,8 +283,8 @@ class _MapWidgetState extends State<MapWidget> {
 
   void finishRecording() async {
     String? name = await openDialog('track');
+    debugPrint('+++++++++++++++++++++++++++++++++++++++++++++++++++');
     if (name == null || name.isEmpty) return;
-
     final gpx = GeoXml();
     gpx.version = '1.1';
     gpx.creator = 'dart-gpx library';
@@ -315,9 +313,9 @@ class _MapWidgetState extends State<MapWidget> {
     if (outputFile != null) {
       setState(() {
         recording = false;
+        recordingStarted = false;
         isPaused = false;
         isStopped = false;
-        isResumed = false;
         showPauseButton = false;
         showResumeOrStopButtons = false;
       });
@@ -458,13 +456,13 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void centerMap(LatLng? location) {
+    if (lastLocation == null) return;
     location ??= LatLng(lastLocation!.latitude!, lastLocation!.longitude!);
-    if (location != null) {
-      mapController!.animateCamera(
-        CameraUpdate.newLatLng(location),
-        duration: const Duration(milliseconds: 100),
-      );
-    }
+
+    mapController!.animateCamera(
+      CameraUpdate.newLatLng(location),
+      duration: const Duration(milliseconds: 100),
+    );
   }
 
   void firstCamaraView(LatLng location, double zoomLevel) {
@@ -542,16 +540,14 @@ class _MapWidgetState extends State<MapWidget> {
                 ))
             : Container(),
         AnimatedPositioned(
+          left: (!recording && !recordingStarted) ? 10 : -75,
           bottom: 30,
           duration: Duration(milliseconds: milliseconds),
           onEnd: () {
             setState(() {
-              if (recording) {
-                showPauseButton = true;
-              }
+              recording = true;
             });
           },
-          left: (!recording && !showPauseButton) ? 10 : -75,
           child: SizedBox(
             width: 75,
             child: Row(
@@ -568,7 +564,7 @@ class _MapWidgetState extends State<MapWidget> {
                     }
                     startRecording();
                     setState(() {
-                      recording = true;
+                      recordingStarted = true;
                     });
                   },
                   child: const Icon(
@@ -581,12 +577,12 @@ class _MapWidgetState extends State<MapWidget> {
           ),
         ),
         AnimatedPositioned(
+          left: (recording) ? 10 : -80,
           duration: Duration(milliseconds: milliseconds),
-          left: (showPauseButton && recording && !isStopped) ? 10 : -80,
           onEnd: () {
             setState(() {
-              if (!showPauseButton) {
-                showResumeOrStopButtons = true;
+              if (!recording) {
+                isPaused = true;
               }
             });
           },
@@ -615,8 +611,7 @@ class _MapWidgetState extends State<MapWidget> {
                     onPressed: () {
                       pauseRecording();
                       setState(() {
-                        showPauseButton = false;
-                        isPaused = true;
+                        recording = false;
                       });
                     },
                     child: const Icon(
@@ -630,12 +625,12 @@ class _MapWidgetState extends State<MapWidget> {
           ),
         ),
         AnimatedPositioned(
-          left: showResumeOrStopButtons ? 10 : -160,
+          left: isPaused ? 10 : -160,
           duration: Duration(milliseconds: milliseconds),
           onEnd: () {
             setState(() {
-              if (isResumed && !isPaused) {
-                showPauseButton = true;
+              if (!isPaused) {
+                recording = true;
               }
             });
           },
@@ -651,8 +646,6 @@ class _MapWidgetState extends State<MapWidget> {
                     onPressed: () {
                       resumeRecording();
                       setState(() {
-                        showResumeOrStopButtons = false;
-                        isResumed = true;
                         isPaused = false;
                       });
                     },

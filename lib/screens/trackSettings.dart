@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../classes/vars.dart';
 import '../controllers/track.dart';
+import '../classes/user_preferences.dart';
 
 class TrackSettings extends StatefulWidget {
   final TrackController controller;
@@ -13,10 +14,14 @@ class TrackSettings extends StatefulWidget {
 }
 
 class _TrackSettingsState extends State<TrackSettings> {
-  bool visible = true;
-  @override
+  late bool visible;
+  late Color trackColor;
+
   @override
   Widget build(BuildContext context) {
+    visible = UserPreferences.getTrackVisible();
+    trackColor = UserPreferences.getTrackColor();
+
     return DefaultTextStyle(
       style: TextStyle(color: primaryColor, fontSize: 20),
       child: Padding(
@@ -31,16 +36,15 @@ class _TrackSettingsState extends State<TrackSettings> {
             children: [
               Container(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     widget.controller.visible = !widget.controller.visible;
+                    await UserPreferences.setTrackVisible(
+                        widget.controller.visible);
                     setState(() {});
                   },
                   style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          widget.controller.visible ? fourthColor : fifthColor,
-                      foregroundColor: widget.controller.visible
-                          ? Colors.white
-                          : primaryColor,
+                      backgroundColor: visible ? fourthColor : fifthColor,
+                      foregroundColor: visible ? Colors.white : primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       )),
@@ -77,9 +81,10 @@ class _TrackSettingsState extends State<TrackSettings> {
                                   child: Column(
                                     children: [
                                       BlockPicker(
-                                        pickerColor: widget.controller.color,
-                                        onColorChanged: (value) {
+                                        pickerColor: trackColor,
+                                        onColorChanged: (value) async {
                                           widget.controller.color = value;
+                                          UserPreferences.setTrackColor(value);
                                           setState(() {});
                                         },
                                         availableColors: colors,
@@ -109,8 +114,7 @@ class _TrackSettingsState extends State<TrackSettings> {
                             });
                       },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        visible ? widget.controller.color : fifthColor,
+                    backgroundColor: visible ? trackColor : fifthColor,
                     foregroundColor: visible ? Colors.white : primaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),

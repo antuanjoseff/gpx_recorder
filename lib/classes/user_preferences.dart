@@ -63,10 +63,10 @@ class UserPreferences {
 
   static bool getTrackVisible() {
     final visible = _preferences.getBool(_trackVisible);
-    return visible == null ? false : visible;
+    return visible == null ? true : visible;
   }
 
-  static Color? getTrackColor() {
+  static Color getTrackColor() {
     final trackColor = _preferences.getInt(_trackColor);
     return trackColor == null ? Colors.pink : Color(trackColor);
   }
