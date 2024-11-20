@@ -49,7 +49,7 @@ class _TrackSettingsState extends State<TrackSettings> {
                       style: ElevatedButton.styleFrom(
                           backgroundColor: visible ? fourthColor : fifthColor,
                           foregroundColor:
-                              visible ? textInactiveColor : primaryColor,
+                              visible ? Colors.white : primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
                           )),
@@ -61,13 +61,18 @@ class _TrackSettingsState extends State<TrackSettings> {
                               visible ? Icons.visibility_off : Icons.visibility,
                               size: 40,
                               color: widget.controller.visible
-                                  ? textInactiveColor
-                                  : primaryColor),
+                                  ? Colors.white
+                                  : textInactiveColor),
                           Text(
                             widget.controller.visible
                                 ? AppLocalizations.of(context)!.hideTrackOnMap
                                 : AppLocalizations.of(context)!.showTrackOnMap,
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: widget.controller.visible
+                                  ? Colors.white
+                                  : textInactiveColor,
+                            ),
                           ),
                         ],
                       ),

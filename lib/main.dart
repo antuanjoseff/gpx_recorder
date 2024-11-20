@@ -78,6 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool provider;
   bool visible = true;
   Color color = Colors.pink;
+  late String gpsMethod;
+  late double gpsUnitsDistance;
+  late double gpsUnitsTime;
+  late double gpsUnits;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
       minimumSize: Size.zero, // Set this
@@ -91,6 +95,9 @@ class _MyHomePageState extends State<MyHomePage> {
     speed = UserPreferences.getSpeed();
     heading = UserPreferences.getHeading();
     provider = UserPreferences.getProvider();
+    gpsMethod = UserPreferences.getGpsMethod();
+    gpsUnitsDistance = UserPreferences.getGpsUnitsDistance();
+    gpsUnitsTime = UserPreferences.getGpsUnitsTime();
     super.initState();
   }
 
@@ -128,7 +135,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               accuracy: accuracy,
                               provider: provider,
                               visible: visible,
-                              color: color),
+                              color: color,
+                              gpsMethod: gpsMethod,
+                              gpsUnits: gpsMethod == 'distance'
+                                  ? gpsUnitsDistance
+                                  : gpsUnitsTime),
                         ));
                     if (result != null) {
                       var (
@@ -138,7 +149,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         bool Ac,
                         bool Pro,
                         bool vis,
-                        Color col
+                        Color col,
+                        String gpsmethod,
+                        double gpsunits
                       ) = result;
                       numSatelites = numSat;
                       accuracy = Ac;
@@ -147,8 +160,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       provider = Pro;
                       visible = vis;
                       color = col;
+                      gpsMethod = gpsmethod;
+                      gpsUnits = gpsunits;
+
                       _mainController.setTrackPreferences!(numSatelites,
                           accuracy, speed, heading, provider, visible, color);
+
+                      _mainController.setGpsSettings!(gpsmethod, gpsunits);
 
                       _mainController
                           .centerMap!(_mainController.getLastLocation!());

@@ -38,6 +38,9 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _trackVisible;
   late Color _trackColor;
   late TextEditingController controller;
+  late String gpsMethod;
+  double? gpsUnitsDistance;
+  double? gpsUnitsTime;
 
   double mapScaleWidth = 60;
   double? resolution;
@@ -103,6 +106,22 @@ class _MapWidgetState extends State<MapWidget> {
     mainController.mapIsCreated = mapIsCreated;
     mainController.centerMap = centerMap;
     mainController.getLastLocation = getLastLocation;
+    mainController.setGpsSettings = setGpsSettings;
+  }
+
+  void setGpsSettings(method, units) {
+    debugPrint('GPS SETTINGS $method $units');
+    gpsMethod = method;
+    gpsUnitsDistance = method == 'distance' ? units : 0;
+    gpsUnitsTime = method == 'time' ? units : 1000;
+
+    if (recordingStarted) {
+      gps.changeSettings(
+        LocationAccuracy.high,
+        gpsUnitsTime!.floor() * 1000,
+        gpsUnitsDistance,
+      ); // double required
+    }
   }
 
   LatLng? getLastLocation() {
@@ -144,7 +163,10 @@ class _MapWidgetState extends State<MapWidget> {
   void initState() {
     getUserPreferences();
     controller = TextEditingController();
-    // checkUserLocation();
+    gpsMethod = UserPreferences.getGpsMethod();
+    gpsUnitsDistance =
+        gpsMethod == 'distance' ? UserPreferences.getGpsUnitsDistance() : 0;
+    gpsUnitsTime = UserPreferences.getGpsUnitsTime();
     super.initState();
   }
 
@@ -168,7 +190,7 @@ class _MapWidgetState extends State<MapWidget> {
       hasPermission = await gps.checkPermission();
       if (hasPermission) {
         _myLocationEnabled = true;
-        gps.changeSettings(LocationAccuracy.high, 1000, 10);
+
         callSetState();
       }
     }
@@ -207,6 +229,13 @@ class _MapWidgetState extends State<MapWidget> {
     await locationSubscription?.cancel();
     gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
         AppLocalizations.of(context)!.notificationContent);
+
+    gps.changeSettings(
+      LocationAccuracy.high,
+      gpsUnitsTime!.floor() * 1000,
+      gpsUnitsDistance,
+    );
+
     locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
   }
@@ -411,6 +440,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void handleNewPosition(LocationData loc) async {
+    debugPrint('NEW POSITION $loc');
     lastLocation = loc;
     if (userIsMoving(loc)) {
       // USER IS MOVING
@@ -424,10 +454,6 @@ class _MapWidgetState extends State<MapWidget> {
         track!.addMovingTime(movingDuration);
       }
       lastLocationMoving = true;
-
-      if (recording) {
-        addNewLocationToTrack(loc);
-      }
     }
     // USER IS STOPPED
     else {
@@ -438,6 +464,10 @@ class _MapWidgetState extends State<MapWidget> {
         // USER REMAINs STOPPED
       }
       lastLocationMoving = false;
+    }
+
+    if (recording) {
+      addNewLocationToTrack(loc);
     }
 
     if (!userMovedMap) {

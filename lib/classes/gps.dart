@@ -1,5 +1,6 @@
 import 'package:location/location.dart';
 import 'dart:async';
+import 'package:flutter/material.dart';
 
 // Request a location
 
@@ -54,8 +55,8 @@ class Gps {
   changeSettings(
       LocationAccuracy accuracy, int? interval, double? distanceFilter) {
     location.changeSettings(
-      interval: interval ?? 1000,
-      distanceFilter: distanceFilter ?? 0,
+      interval: interval,
+      distanceFilter: distanceFilter,
       accuracy: accuracy,
     );
   }

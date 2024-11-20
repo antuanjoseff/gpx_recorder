@@ -73,6 +73,13 @@ class _TrackSettingsState extends State<GpsSettings> {
                           debugPrint('BACK BUTTON $units');
                           Navigator.of(context).pop(units.toString());
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                        ),
                         child: Text(AppLocalizations.of(context)!.accept)),
                   ]));
     }
@@ -104,6 +111,7 @@ class _TrackSettingsState extends State<GpsSettings> {
                         if (result == null) return;
 
                         double value = double.parse(result);
+                        widget.controller.units = value;
                         await UserPreferences.setGpsUnitsDistance(value);
                         setState(() {});
                       },
@@ -147,7 +155,8 @@ class _TrackSettingsState extends State<GpsSettings> {
                           context, AppLocalizations.of(context)!.time);
                       if (result == null) return;
 
-                      double value = double.parse(result!);
+                      double value = double.parse(result);
+                      widget.controller.units = value;
                       await UserPreferences.setGpsUnitsTime(value);
                       setState(() {});
                     },

@@ -17,6 +17,8 @@ class TabSettings extends StatefulWidget {
   final bool provider;
   final bool visible;
   final Color color;
+  final String gpsMethod;
+  final double gpsUnits;
 
   TabSettings({
     super.key,
@@ -27,6 +29,8 @@ class TabSettings extends StatefulWidget {
     required this.provider,
     required this.visible,
     required this.color,
+    required this.gpsMethod,
+    required this.gpsUnits,
   });
 
   @override
@@ -48,6 +52,9 @@ class _TabSettingsState extends State<TabSettings> {
     gpxController.provider = widget.provider;
     trackController.visible = widget.visible;
     trackController.color = widget.color;
+    gpsController.method = widget.gpsMethod;
+    gpsController.units = widget.gpsUnits;
+
     super.initState();
   }
 
@@ -70,7 +77,9 @@ class _TabSettingsState extends State<TabSettings> {
                   gpxController.accuracy,
                   gpxController.provider,
                   trackController.visible,
-                  trackController.color
+                  trackController.color,
+                  gpsController.method,
+                  gpsController.units
                 ));
               },
             ),
