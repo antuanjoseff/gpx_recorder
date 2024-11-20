@@ -22,5 +22,12 @@
     "close": "Cerrar",
     "trackName": "Nombre",
     "accept": "Acceptar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "distance": "Distancia",
+    "time": "Tiempo",
+    "gpsDistanceUnits": "metros",
+    "gpsTimeUnits": "segundos",
+    "recordingMethod": "Método de grabación",
+    "trackProperties": "Propiedades del track",
+    "gpxAttributes": "Atributoss del arxicho GPX"
 }

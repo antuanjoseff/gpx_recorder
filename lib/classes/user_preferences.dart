@@ -14,6 +14,9 @@ class UserPreferences {
   static const _trackAltitude = 'trackAltitude';
   static const _trackVisible = 'trackVisible';
   static const _trackColor = 'trackColor';
+  static const _gpsMethod = 'gpsMethod';
+  static const _gpsUnitsDistance = 'gpsUnitsDistance';
+  static const _gpsUnitsTime = 'gpsUnitsTime';
 
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
@@ -71,6 +74,21 @@ class UserPreferences {
     return trackColor == null ? Colors.pink : Color(trackColor);
   }
 
+  static String getGpsMethod() {
+    final method = _preferences.getString(_gpsMethod);
+    return method == null ? 'meters' : method;
+  }
+
+  static double getGpsUnitsDistance() {
+    final units = _preferences.getDouble(_gpsUnitsDistance);
+    return units == null ? 10 : units;
+  }
+
+  static double getGpsUnitsTime() {
+    final units = _preferences.getDouble(_gpsUnitsTime);
+    return units == null ? 10 : units;
+  }
+
   // SETTERS
 
   static Future setNumSatelites(bool numSatelites) async =>
@@ -102,4 +120,13 @@ class UserPreferences {
 
   static Future setTrackColor(Color color) async =>
       await _preferences.setInt(_trackColor, color.value);
+
+  static Future setGpsMethod(String method) async =>
+      await _preferences.setString(_gpsMethod, method);
+
+  static Future setGpsUnitsDistance(double units) async =>
+      await _preferences.setDouble(_gpsUnitsDistance, units);
+
+  static Future setGpsUnitsTime(double units) async =>
+      await _preferences.setDouble(_gpsUnitsTime, units);
 }

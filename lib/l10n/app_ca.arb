@@ -22,5 +22,12 @@
     "close": "Tancar",
     "trackName": "Nom",
     "accept": "Acceptar",
-    "cancel": "Cancel·lar"
+    "cancel": "Cancel·lar",
+    "distance": "Distància",
+    "time": "Temps",
+    "gpsDistanceUnits": "metres",
+    "gpsTimeUnits": "segonds",
+    "recordingMethod": "Mètode de gravació",
+    "trackProperties": "Propietats del track",
+    "gpxAttributes": "Atributs de l'arxiu GPX"
 }

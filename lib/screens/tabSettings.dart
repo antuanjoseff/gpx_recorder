@@ -4,8 +4,10 @@ import '../classes/vars.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'gpxSettings.dart';
 import 'trackSettings.dart';
+import 'gpsSettings.dart';
 import '../controllers/gpx.dart';
 import '../controllers/track.dart';
+import '../controllers/gps.dart';
 
 class TabSettings extends StatefulWidget {
   final bool numSatelites;
@@ -34,6 +36,7 @@ class TabSettings extends StatefulWidget {
 class _TabSettingsState extends State<TabSettings> {
   GpxController gpxController = GpxController();
   TrackController trackController = TrackController();
+  GpsController gpsController = GpsController();
 
   @override
   void initState() {
@@ -51,7 +54,7 @@ class _TabSettingsState extends State<TabSettings> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
           appBar: AppBar(
             title: Text(AppLocalizations.of(context)!.settings),
@@ -98,7 +101,20 @@ class _TabSettingsState extends State<TabSettings> {
                         color: Colors.white,
                       ),
                       SizedBox(width: 10),
-                      Text('TRACK', style: TextStyle(color: Colors.white)),
+                      Text('Track', style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ),
+                Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.satellite_alt_outlined,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10),
+                      Text('GPS', style: TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -111,6 +127,7 @@ class _TabSettingsState extends State<TabSettings> {
               children: [
                 GpxSettings(controller: gpxController),
                 TrackSettings(controller: trackController),
+                GpsSettings(controller: gpsController),
               ],
             ),
           )),

@@ -9,6 +9,7 @@ Color secondaryColor = Color(0xffD5ED9F);
 Color thirthColor = Color(0xffFFFBE6);
 Color fourthColor = Color(0xffFF9100);
 Color fifthColor = Color(0xffdfdfdf);
+Color textInactiveColor = Colors.grey;
 
 Color buttonBackgroundColor = primaryColor;
 Color buttonForegroundColor = Colors.white;
