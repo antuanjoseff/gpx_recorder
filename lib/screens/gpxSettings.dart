@@ -22,6 +22,12 @@ class _GpxSettingsState extends State<GpxSettings> {
   late bool provider;
 
   @override
+  void initState() {
+    UserPreferences.setDefaultTab(0);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     numSatelites = false;
     accuracy = UserPreferences.getAccuracy();
@@ -49,7 +55,6 @@ class _GpxSettingsState extends State<GpxSettings> {
                     child: ElevatedButton(
                       onPressed: () async {
                         widget.controller.speed = !widget.controller.speed;
-                        await UserPreferences.setSpeed(widget.controller.speed);
                         setState(() {});
                       },
                       style: ElevatedButton.styleFrom(
@@ -83,8 +88,6 @@ class _GpxSettingsState extends State<GpxSettings> {
                       child: ElevatedButton(
                     onPressed: () async {
                       widget.controller.heading = !widget.controller.heading;
-                      await UserPreferences.setHeading(
-                          widget.controller.heading);
                       setState(() {});
                     },
                     style: ElevatedButton.styleFrom(
@@ -117,8 +120,6 @@ class _GpxSettingsState extends State<GpxSettings> {
                       child: ElevatedButton(
                     onPressed: () async {
                       widget.controller.accuracy = !widget.controller.accuracy;
-                      await UserPreferences.setAccuracy(
-                          widget.controller.accuracy);
                       setState(() {});
                     },
                     style: ElevatedButton.styleFrom(
@@ -151,8 +152,6 @@ class _GpxSettingsState extends State<GpxSettings> {
                       child: ElevatedButton(
                     onPressed: () async {
                       widget.controller.provider = !widget.controller.provider;
-                      await UserPreferences.setProvider(
-                          widget.controller.provider);
                       setState(() {});
                     },
                     style: ElevatedButton.styleFrom(

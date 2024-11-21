@@ -18,7 +18,8 @@ class TabSettings extends StatefulWidget {
   final bool visible;
   final Color color;
   final String gpsMethod;
-  final double gpsUnits;
+  final double gpsUnitsDistance;
+  final int gpsUnitsTime;
 
   TabSettings({
     super.key,
@@ -30,7 +31,8 @@ class TabSettings extends StatefulWidget {
     required this.visible,
     required this.color,
     required this.gpsMethod,
-    required this.gpsUnits,
+    required this.gpsUnitsDistance,
+    required this.gpsUnitsTime,
   });
 
   @override
@@ -41,10 +43,12 @@ class _TabSettingsState extends State<TabSettings> {
   GpxController gpxController = GpxController();
   TrackController trackController = TrackController();
   GpsController gpsController = GpsController();
+  late int defaultTab;
 
   @override
   void initState() {
     // TODO: implement initState
+    defaultTab = 0;
     gpxController.speed = widget.speed;
     gpxController.heading = widget.heading;
     gpxController.numSatelites = widget.numSatelites;
@@ -53,15 +57,18 @@ class _TabSettingsState extends State<TabSettings> {
     trackController.visible = widget.visible;
     trackController.color = widget.color;
     gpsController.method = widget.gpsMethod;
-    gpsController.units = widget.gpsUnits;
+    gpsController.unitsDistance = widget.gpsUnitsDistance;
+    gpsController.unitsTime = widget.gpsUnitsTime;
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    defaultTab = UserPreferences.getDefaultTab();
     return DefaultTabController(
       length: 3,
+      initialIndex: defaultTab,
       child: Scaffold(
           appBar: AppBar(
             title: Text(AppLocalizations.of(context)!.settings),
@@ -79,7 +86,8 @@ class _TabSettingsState extends State<TabSettings> {
                   trackController.visible,
                   trackController.color,
                   gpsController.method,
-                  gpsController.units
+                  gpsController.unitsDistance,
+                  gpsController.unitsTime,
                 ));
               },
             ),

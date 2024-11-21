@@ -23,6 +23,6 @@ class MainController {
   void Function()? finishRecording;
   bool Function()? mapIsCreated;
   void Function(LatLng?)? centerMap;
-  void Function(String, double?)? setGpsSettings;
+  void Function(String, double, int)? setGpsSettings;
   LatLng? Function()? getLastLocation;
 }

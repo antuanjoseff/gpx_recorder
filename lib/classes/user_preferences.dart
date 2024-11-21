@@ -17,6 +17,7 @@ class UserPreferences {
   static const _gpsMethod = 'gpsMethod';
   static const _gpsUnitsDistance = 'gpsUnitsDistance';
   static const _gpsUnitsTime = 'gpsUnitsTime';
+  static const _defaultTab = 'defaultSettingsTab';
 
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
@@ -84,9 +85,14 @@ class UserPreferences {
     return units == null ? 10 : units;
   }
 
-  static double getGpsUnitsTime() {
-    final units = _preferences.getDouble(_gpsUnitsTime);
+  static int getGpsUnitsTime() {
+    final units = _preferences.getInt(_gpsUnitsTime);
     return units == null ? 10 : units;
+  }
+
+  static int getDefaultTab() {
+    final tab = _preferences.getInt(_defaultTab);
+    return tab == null ? 0 : tab;
   }
 
   // SETTERS
@@ -127,6 +133,9 @@ class UserPreferences {
   static Future setGpsUnitsDistance(double units) async =>
       await _preferences.setDouble(_gpsUnitsDistance, units);
 
-  static Future setGpsUnitsTime(double units) async =>
-      await _preferences.setDouble(_gpsUnitsTime, units);
+  static Future setGpsUnitsTime(int units) async =>
+      await _preferences.setInt(_gpsUnitsTime, units);
+
+  static Future setDefaultTab(int tab) async =>
+      await _preferences.setInt(_defaultTab, tab);
 }

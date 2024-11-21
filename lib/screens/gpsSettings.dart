@@ -16,7 +16,13 @@ class GpsSettings extends StatefulWidget {
 class _TrackSettingsState extends State<GpsSettings> {
   late String _method;
   late double _unitsDistance;
-  late double _unitsTime;
+  late int _unitsTime;
+
+  @override
+  void initState() {
+    UserPreferences.setDefaultTab(2);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +44,9 @@ class _TrackSettingsState extends State<GpsSettings> {
           ? AppLocalizations.of(context)!.gpsDistanceUnits
           : AppLocalizations.of(context)!.gpsTimeUnits;
 
-      double units = methodIsDistance() ? _unitsDistance : _unitsTime;
+      double units = methodIsDistance()
+          ? widget.controller.unitsDistance
+          : widget.controller.unitsTime.toDouble();
 
       return await showDialog(
           context: context,
@@ -70,7 +78,6 @@ class _TrackSettingsState extends State<GpsSettings> {
                   actions: [
                     ElevatedButton(
                         onPressed: () {
-                          debugPrint('BACK BUTTON $units');
                           Navigator.of(context).pop(units.toString());
                         },
                         style: ElevatedButton.styleFrom(
@@ -105,15 +112,15 @@ class _TrackSettingsState extends State<GpsSettings> {
                     child: ElevatedButton(
                       onPressed: () async {
                         widget.controller.method = 'distance';
-                        await UserPreferences.setGpsMethod('distance');
                         var (result) = await openDialog(
                             context, AppLocalizations.of(context)!.distance);
                         if (result == null) return;
 
                         double value = double.parse(result);
-                        widget.controller.units = value;
-                        await UserPreferences.setGpsUnitsDistance(value);
-                        setState(() {});
+                        setState(() {
+                          widget.controller.unitsDistance = value;
+                          _unitsDistance = value;
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor:
@@ -138,7 +145,7 @@ class _TrackSettingsState extends State<GpsSettings> {
                             style: TextStyle(fontSize: 20),
                           ),
                           Text(
-                            '${_unitsDistance.floor()} (m)',
+                            '${widget.controller.unitsDistance.floor()} m',
                             style: TextStyle(fontSize: 20),
                           ),
                         ],
@@ -150,15 +157,18 @@ class _TrackSettingsState extends State<GpsSettings> {
                       child: ElevatedButton(
                     onPressed: () async {
                       widget.controller.method = 'time';
-                      await UserPreferences.setGpsMethod('time');
+
                       var (result) = await openDialog(
                           context, AppLocalizations.of(context)!.time);
                       if (result == null) return;
 
                       double value = double.parse(result);
-                      widget.controller.units = value;
-                      await UserPreferences.setGpsUnitsTime(value);
-                      setState(() {});
+                      widget.controller.unitsTime = value.floor();
+
+                      setState(() {
+                        widget.controller.unitsTime = value.floor();
+                        _unitsTime = value.floor();
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor:
@@ -182,7 +192,7 @@ class _TrackSettingsState extends State<GpsSettings> {
                           style: TextStyle(fontSize: 20),
                         ),
                         Text(
-                          '${_unitsTime.floor()} (s)',
+                          '${widget.controller.unitsTime.floor()} (s)',
                           style: TextStyle(fontSize: 20),
                         ),
                       ],

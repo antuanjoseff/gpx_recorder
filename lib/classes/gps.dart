@@ -53,11 +53,16 @@ class Gps {
   }
 
   changeSettings(
-      LocationAccuracy accuracy, int? interval, double? distanceFilter) {
+    LocationAccuracy accuracy,
+    double? distanceFilter,
+    int? interval,
+  ) {
+    debugPrint(
+        'DEBUG; time (s) ${(interval! / 1000)} distance (m) $distanceFilter');
     location.changeSettings(
+      accuracy: accuracy,
       interval: interval,
       distanceFilter: distanceFilter,
-      accuracy: accuracy,
     );
   }
 

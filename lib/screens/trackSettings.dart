@@ -18,6 +18,12 @@ class _TrackSettingsState extends State<TrackSettings> {
   late Color trackColor;
 
   @override
+  void initState() {
+    UserPreferences.setDefaultTab(1);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     visible = UserPreferences.getTrackVisible();
     trackColor = UserPreferences.getTrackColor();
@@ -42,12 +48,13 @@ class _TrackSettingsState extends State<TrackSettings> {
                     child: ElevatedButton(
                       onPressed: () async {
                         widget.controller.visible = !widget.controller.visible;
-                        await UserPreferences.setTrackVisible(
-                            widget.controller.visible);
+
                         setState(() {});
                       },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: visible ? fourthColor : fifthColor,
+                          backgroundColor: widget.controller.visible
+                              ? fourthColor
+                              : fifthColor,
                           foregroundColor:
                               visible ? Colors.white : primaryColor,
                           shape: RoundedRectangleBorder(
@@ -58,7 +65,9 @@ class _TrackSettingsState extends State<TrackSettings> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
-                              visible ? Icons.visibility_off : Icons.visibility,
+                              widget.controller.visible
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               size: 40,
                               color: widget.controller.visible
                                   ? Colors.white
@@ -95,8 +104,6 @@ class _TrackSettingsState extends State<TrackSettings> {
                                             pickerColor: trackColor,
                                             onColorChanged: (value) async {
                                               widget.controller.color = value;
-                                              UserPreferences.setTrackColor(
-                                                  value);
                                               setState(() {});
                                             },
                                             availableColors: colors,
@@ -113,6 +120,12 @@ class _TrackSettingsState extends State<TrackSettings> {
                                                             5.0),
                                                   )),
                                               onPressed: () {
+                                                setState(() {
+                                                  visible =
+                                                      widget.controller.visible;
+                                                  trackColor =
+                                                      widget.controller.color;
+                                                });
                                                 Navigator.of(context,
                                                         rootNavigator: true)
                                                     .pop();
@@ -127,8 +140,12 @@ class _TrackSettingsState extends State<TrackSettings> {
                                 });
                           },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: visible ? trackColor : fifthColor,
-                        foregroundColor: visible ? Colors.white : primaryColor,
+                        backgroundColor: widget.controller.visible
+                            ? widget.controller.color
+                            : fifthColor,
+                        foregroundColor: widget.controller.visible
+                            ? Colors.white
+                            : primaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         )),

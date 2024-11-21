@@ -40,7 +40,7 @@ class _MapWidgetState extends State<MapWidget> {
   late TextEditingController controller;
   late String gpsMethod;
   double? gpsUnitsDistance;
-  double? gpsUnitsTime;
+  int? gpsUnitsTime;
 
   double mapScaleWidth = 60;
   double? resolution;
@@ -109,18 +109,19 @@ class _MapWidgetState extends State<MapWidget> {
     mainController.setGpsSettings = setGpsSettings;
   }
 
-  void setGpsSettings(method, units) {
-    debugPrint('GPS SETTINGS $method $units');
+  void setGpsSettings(method, distance, time) async {
     gpsMethod = method;
-    gpsUnitsDistance = method == 'distance' ? units : 0;
-    gpsUnitsTime = method == 'time' ? units : 1000;
 
     if (recordingStarted) {
       gps.changeSettings(
         LocationAccuracy.high,
-        gpsUnitsTime!.floor() * 1000,
-        gpsUnitsDistance,
+        distance,
+        time!.floor() * 1000,
       ); // double required
+      if (locationSubscription != null) {
+        locationSubscription!.cancel();
+        locationSubscription = await gps.listenOnBackground(handleNewPosition);
+      }
     }
   }
 
@@ -232,8 +233,8 @@ class _MapWidgetState extends State<MapWidget> {
 
     gps.changeSettings(
       LocationAccuracy.high,
-      gpsUnitsTime!.floor() * 1000,
       gpsUnitsDistance,
+      gpsUnitsTime!.floor() * 1000,
     );
 
     locationSubscription = await gps.listenOnBackground(handleNewPosition);

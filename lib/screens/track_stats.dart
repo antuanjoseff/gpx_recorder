@@ -102,6 +102,7 @@ class _TrackStatsState extends State<TrackStats> {
     // defines a timer
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
       setState(() {
+        trackLength = _track.getLength();
         trackTimeDuration = _track.getStartTime() != null
             ? _formatDuration(DateTime.now().difference(_track.getStartTime()!))
             : '00:00:00';

@@ -80,8 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Color color = Colors.pink;
   late String gpsMethod;
   late double gpsUnitsDistance;
-  late double gpsUnitsTime;
-  late double gpsUnits;
+  late int gpsUnitsTime;
+  double gpsUnits = -1;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
       minimumSize: Size.zero, // Set this
@@ -106,6 +106,97 @@ class _MyHomePageState extends State<MyHomePage> {
     // setState(() {
     //   fullScreen = !fullScreen;
     // });
+  }
+
+  void handleSettings(var settings) async {
+    var (
+      bool Sp,
+      bool He,
+      bool numSat,
+      bool Ac,
+      bool Pro,
+      bool vis,
+      Color col,
+      String gpsmethod,
+      double gpsunitsdistance,
+      int gpsunitstime
+    ) = settings;
+
+    bool gpxEdit = false;
+
+    if (accuracy != Ac) {
+      await UserPreferences.setAccuracy(Ac);
+      gpxEdit = true;
+    }
+
+    if (speed != Sp) {
+      await UserPreferences.setSpeed(Sp);
+      gpxEdit = true;
+    }
+
+    if (heading != He) {
+      await UserPreferences.setHeading(He);
+      gpxEdit = true;
+    }
+
+    if (provider != Pro) {
+      await UserPreferences.setProvider(Pro);
+      gpxEdit = true;
+    }
+
+    if (visible != vis) {
+      await UserPreferences.setTrackVisible(vis);
+      gpxEdit = true;
+    }
+
+    if (color != col) {
+      UserPreferences.setTrackColor(col);
+      gpxEdit = true;
+    }
+
+    if (gpxEdit) {
+      _mainController.setTrackPreferences!(
+          numSatelites, accuracy, speed, heading, provider, visible, color);
+    }
+
+    if (gpsMethod != gpsmethod ||
+        gpsUnitsDistance != gpsunitsdistance ||
+        gpsUnitsTime != gpsunitstime) {
+      await UserPreferences.setGpsMethod(gpsmethod);
+      if (gpsmethod == 'distance') {
+        await UserPreferences.setGpsUnitsDistance(gpsunitsdistance);
+      } else {
+        await UserPreferences.setGpsUnitsTime(gpsunitstime);
+      }
+
+      double distanceFilter = 0;
+      int interval = 1000;
+
+      if (gpsMethod == 'distance') {
+        distanceFilter = gpsunitsdistance;
+      } else {
+        interval = gpsunitstime * 1000;
+      }
+
+      _mainController.setGpsSettings!(
+        gpsmethod,
+        distanceFilter,
+        interval,
+      );
+    }
+
+    numSatelites = numSat;
+    accuracy = Ac;
+    speed = Sp;
+    heading = He;
+    provider = Pro;
+    visible = vis;
+    color = col;
+    gpsMethod = gpsmethod;
+    gpsUnitsDistance = gpsunitsdistance;
+    gpsUnitsTime = gpsunitstime;
+
+    _mainController.centerMap!(_mainController.getLastLocation!());
   }
 
   @override
@@ -137,39 +228,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               visible: visible,
                               color: color,
                               gpsMethod: gpsMethod,
-                              gpsUnits: gpsMethod == 'distance'
-                                  ? gpsUnitsDistance
-                                  : gpsUnitsTime),
+                              gpsUnitsDistance: gpsUnitsDistance,
+                              gpsUnitsTime: gpsUnitsTime),
                         ));
                     if (result != null) {
-                      var (
-                        bool Sp,
-                        bool He,
-                        bool numSat,
-                        bool Ac,
-                        bool Pro,
-                        bool vis,
-                        Color col,
-                        String gpsmethod,
-                        double gpsunits
-                      ) = result;
-                      numSatelites = numSat;
-                      accuracy = Ac;
-                      speed = Sp;
-                      heading = He;
-                      provider = Pro;
-                      visible = vis;
-                      color = col;
-                      gpsMethod = gpsmethod;
-                      gpsUnits = gpsunits;
-
-                      _mainController.setTrackPreferences!(numSatelites,
-                          accuracy, speed, heading, provider, visible, color);
-
-                      _mainController.setGpsSettings!(gpsmethod, gpsunits);
-
-                      _mainController
-                          .centerMap!(_mainController.getLastLocation!());
+                      handleSettings(result);
                     }
                   },
                 )
