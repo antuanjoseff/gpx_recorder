@@ -112,6 +112,10 @@ class _MapWidgetState extends State<MapWidget> {
   void setGpsSettings(method, distance, time) async {
     gpsMethod = method;
 
+    gpsMethod = method;
+    gpsUnitsDistance = gpsMethod == 'distance' ? distance : 0;
+    gpsUnitsTime = time;
+
     if (recordingStarted) {
       gps.changeSettings(
         LocationAccuracy.high,

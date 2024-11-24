@@ -40,9 +40,14 @@ class _TrackSettingsState extends State<GpsSettings> {
           ? AppLocalizations.of(context)!.distance
           : AppLocalizations.of(context)!.time;
 
+      debugPrint('units times $_unitsTime');
       String sliderTitle = methodIsDistance()
-          ? AppLocalizations.of(context)!.gpsDistanceUnits
-          : AppLocalizations.of(context)!.gpsTimeUnits;
+          ? (_unitsDistance > 1
+              ? AppLocalizations.of(context)!.gpsDistanceUnits
+              : AppLocalizations.of(context)!.gpsDistanceUnit)
+          : (_unitsTime > 1
+              ? AppLocalizations.of(context)!.gpsTimeUnits
+              : AppLocalizations.of(context)!.gpsTimeUnit);
 
       double units = methodIsDistance()
           ? widget.controller.unitsDistance
@@ -51,26 +56,64 @@ class _TrackSettingsState extends State<GpsSettings> {
       return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-                  title: Text(title, style: TextStyle(color: primaryColor)),
+                  title: Center(
+                    child: Text(
+                        methodIsDistance()
+                            ? AppLocalizations.of(context)!.distance
+                            : AppLocalizations.of(context)!.time,
+                        style: TextStyle(color: primaryColor, fontSize: 25)),
+                  ),
                   content: StatefulBuilder(
                       builder: (BuildContext context, StateSetter setState) {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${subtitle} (${sliderTitle})',
-                            style: TextStyle(color: primaryColor)),
-                        Slider(
-                          value: units,
-                          min: 1,
-                          max: methodIsDistance() ? 100 : 60,
-                          divisions: 15,
-                          label: "${units!.round().toString()}",
-                          activeColor: primaryColor,
-                          onChanged: (value) {
-                            setState(() {
-                              units = value;
-                            });
-                          },
+                        // Text('${subtitle}',
+                        //     style: TextStyle(color: primaryColor)),
+                        Text('${units.floor()} ${sliderTitle}',
+                            style:
+                                TextStyle(color: primaryColor, fontSize: 20)),
+                        Expanded(
+                          child: RotatedBox(
+                            quarterTurns: 3,
+                            child: Slider(
+                              value: units,
+                              min: 1,
+                              divisions: methodIsDistance() ? 100 : 60,
+                              max: methodIsDistance() ? 100 : 60,
+                              // label: "${units!.round().toString()}",
+                              activeColor: primaryColor,
+                              onChanged: (value) async {
+                                setState(() {
+                                  units = value;
+
+                                  if (methodIsDistance()) {
+                                    sliderTitle = (value > 1)
+                                        ? AppLocalizations.of(context)!
+                                            .gpsDistanceUnits
+                                        : AppLocalizations.of(context)!
+                                            .gpsDistanceUnit;
+
+                                    _unitsDistance = value.toDouble();
+                                    widget.controller.unitsDistance =
+                                        _unitsDistance;
+                                    UserPreferences.setGpsUnitsDistance(
+                                        _unitsDistance);
+                                  } else {
+                                    sliderTitle = (value > 1)
+                                        ? AppLocalizations.of(context)!
+                                            .gpsTimeUnits
+                                        : AppLocalizations.of(context)!
+                                            .gpsTimeUnit;
+
+                                    _unitsTime = value.floor();
+                                    widget.controller.unitsTime = _unitsTime;
+                                    UserPreferences.setGpsUnitsTime(_unitsTime);
+                                  }
+                                });
+                              },
+                            ),
+                          ),
                         ),
                       ],
                     );
