@@ -157,9 +157,10 @@ class _TrackSettingsState extends State<GpsSettings> {
                         widget.controller.method = 'distance';
                         var (result) = await openDialog(
                             context, AppLocalizations.of(context)!.distance);
-                        if (result == null) return;
+                        result == result ??
+                            UserPreferences.getGpsUnitsDistance();
 
-                        double value = double.parse(result);
+                        double value = double.parse(result!);
                         setState(() {
                           widget.controller.unitsDistance = value;
                           _unitsDistance = value;
@@ -203,9 +204,9 @@ class _TrackSettingsState extends State<GpsSettings> {
 
                       var (result) = await openDialog(
                           context, AppLocalizations.of(context)!.time);
-                      if (result == null) return;
+                      result == result ?? UserPreferences.getGpsUnitsTime();
 
-                      double value = double.parse(result);
+                      double value = double.parse(result!);
                       widget.controller.unitsTime = value.floor();
 
                       setState(() {
