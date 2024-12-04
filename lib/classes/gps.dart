@@ -12,9 +12,15 @@ class Gps {
   Location location = Location();
 
   Future<bool> checkService() async {
+    debugPrint('INSIDE CHECK SERVICE');
     _serviceEnabled = await location.serviceEnabled();
+        debugPrint('INSIDE CHECK SERVICE 2');
+
     if (!_serviceEnabled) {
+          debugPrint('INSIDE CHECK SERVICE 3');
       _serviceEnabled = await location.requestService();
+          debugPrint('INSIDE CHECK SERVICE 4');
+
       if (!_serviceEnabled) {
         return false;
       }

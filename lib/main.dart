@@ -9,7 +9,6 @@ import './classes/vars.dart';
 import './classes/gps.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 
 void main() async {
   // await _checkPermission();
@@ -25,7 +24,7 @@ Future<void> _checkPermission() async {
 
   bool enabled = await gps.checkService();
   if (enabled) {
-    await gps.checkPermission();
+    await gps.checkPermission();  
   }
   return;
 }
@@ -99,19 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
     gpsMethod = UserPreferences.getGpsMethod();
     gpsUnitsDistance = UserPreferences.getGpsUnitsDistance();
     gpsUnitsTime = UserPreferences.getGpsUnitsTime();
-    DisableBatteryOptimization.isBatteryOptimizationDisabled
-        .then((isBatteryOptimizationDisabled) async {
-      await handleBatteryOptimization(isBatteryOptimizationDisabled);
-    });
     super.initState();
-  }
-
-  Future<void> handleBatteryOptimization(
-      bool? isBatteryOptimizationDisabled) async {
-    isBatteryOptimizationDisabled ??= false;
-    if (!isBatteryOptimizationDisabled) {
-      await DisableBatteryOptimization.showDisableBatteryOptimizationSettings();
-    }
   }
 
   void toggleAppBar() {

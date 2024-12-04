@@ -190,7 +190,9 @@ class _MapWidgetState extends State<MapWidget> {
 
   Future<bool> checkGpsService() async {
     bool hasPermission = false;
+    debugPrint('CHECK GPS SERVICE');
     bool enabled = await gps.checkService();
+    debugPrint('GPS ENABLED $enabled');
     if (enabled) {
       hasPermission = await gps.checkPermission();
       if (hasPermission) {
@@ -225,6 +227,7 @@ class _MapWidgetState extends State<MapWidget> {
     _myLocationRenderMode = MyLocationRenderMode.compass;
 
     if (loc != null) {
+      debugPrint('location ${loc.latitude} - ${loc.longitude}');
       handleNewPosition(loc);
       firstCamaraView(LatLng(loc.latitude!, loc.longitude!), 14);
       _myLocationRenderMode = MyLocationRenderMode.compass;
@@ -241,7 +244,7 @@ class _MapWidgetState extends State<MapWidget> {
       gpsUnitsTime!.floor() * 1000,
     );
 
-    locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    // locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
   }
 
@@ -593,7 +596,8 @@ class _MapWidgetState extends State<MapWidget> {
                     if (!hasLocationPermission) {
                       hasLocationPermission = await checkGpsService();
                     }
-
+                    debugPrint('onclick');
+                    debugPrint('${hasLocationPermission}');
                     if (!mapIsCreated() || !hasLocationPermission) {
                       return;
                     }

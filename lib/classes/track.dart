@@ -68,6 +68,7 @@ class Track {
 
   Future<void> init() async {
     startAt = DateTime.now();
+    debugPrint('START AT $startAt');
     if (visible) addLine();
     notMovingTime = Duration(seconds: 0);
   }
