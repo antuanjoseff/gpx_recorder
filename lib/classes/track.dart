@@ -43,10 +43,10 @@ class Track {
   int elevationGain = 0;
 
   // Calculate elevation gain every X seconds
-  int elevationGainInterval = 60;
+  int elevationTimeGap = 5;
 
   // Last DateTime when elevation gain was calculated
-  DateTime? lastElevatonGainTime;
+  DateTime? lastTimeElevationChecked;
 
   // Last elevation checked for elevation gain calc
   int? lastElevationChecked;
@@ -175,15 +175,16 @@ class Track {
       inc = getDistanceFromLatLonInMeters(P, prev);
     }
 
-    if (lastElevatonGainTime == null) {
-      lastElevatonGainTime = DateTime.now();
+    if (lastTimeElevationChecked == null) {
+      lastTimeElevationChecked = DateTime.now();
       lastElevationChecked = wpt.ele == null ? null : wpt.ele!.toInt();
     } else {
-      if (DateTime.now().difference(lastElevatonGainTime!).inSeconds >
-          elevationGainInterval) {
+      if (DateTime.now().difference(lastTimeElevationChecked!).inSeconds >
+          elevationTimeGap) {
         int? newElevation = wpt.ele != null ? wpt.ele!.toInt() : null;
+        print('ELEVATION POINT $newElevation');
         if (newElevation != null && lastElevationChecked != null) {
-          elevationGain += newElevation - lastElevationChecked!;
+          elevationGain += (newElevation - lastElevationChecked!);
           lastElevationChecked = newElevation;
         }
       }

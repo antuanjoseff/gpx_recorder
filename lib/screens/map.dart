@@ -39,8 +39,8 @@ class _MapWidgetState extends State<MapWidget> {
   late Color _trackColor;
   late TextEditingController controller;
   late String gpsMethod;
-  double? gpsUnitsDistance;
-  int? gpsUnitsTime;
+  double? distancePreferences;
+  int? timePreferences;
 
   double mapScaleWidth = 60;
   double? resolution;
@@ -110,20 +110,18 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void setGpsSettings(method, distance, time) async {
-    gpsMethod = method;
-
-    gpsMethod = method;
-    gpsUnitsDistance = gpsMethod == 'distance' ? distance : 0;
-    gpsUnitsTime = time;
+    if (method == 'distance') {
+      time = 0;
+    } else {
+      distance = 0;
+    }
+    distancePreferences = distance.toDouble();
+    timePreferences = time;
 
     if (recordingStarted) {
-      gps.changeSettings(
-        LocationAccuracy.high,
-        distance,
-        time!.floor() * 1000,
-      ); // double required
       if (locationSubscription != null) {
         locationSubscription!.cancel();
+        gps.changeSettings(LocationAccuracy.high, distance.toDouble(), time);
         locationSubscription = await gps.listenOnBackground(handleNewPosition);
       }
     }
@@ -138,7 +136,6 @@ class _MapWidgetState extends State<MapWidget> {
 
   void setTrackPreferences(bool numSatelites, bool accuracy, bool speed,
       bool heading, bool provider, bool visible, Color color) {
-    debugPrint(' nova speed $speed');
     _numSatelites = numSatelites;
     _accuracy = accuracy;
     _speed = speed;
@@ -146,6 +143,7 @@ class _MapWidgetState extends State<MapWidget> {
     _provider = provider;
     track!.visible = visible;
     track!.trackColor = color;
+
     if (!track!.visible) {
       track!.removeLine();
     } else {
@@ -169,9 +167,9 @@ class _MapWidgetState extends State<MapWidget> {
     getUserPreferences();
     controller = TextEditingController();
     gpsMethod = UserPreferences.getGpsMethod();
-    gpsUnitsDistance =
-        gpsMethod == 'distance' ? UserPreferences.getGpsUnitsDistance() : 0;
-    gpsUnitsTime = UserPreferences.getGpsUnitsTime();
+    distancePreferences =
+        gpsMethod == 'distance' ? UserPreferences.getDistancePreferences() : 0;
+    timePreferences = UserPreferences.getTimePreferences();
     super.initState();
   }
 
@@ -235,11 +233,20 @@ class _MapWidgetState extends State<MapWidget> {
     gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
         AppLocalizations.of(context)!.notificationContent);
 
-    gps.changeSettings(
-      LocationAccuracy.high,
-      gpsUnitsDistance,
-      gpsUnitsTime!.floor() * 1000,
-    );
+    gpsMethod = UserPreferences.getGpsMethod();
+    if (gpsMethod == 'distance') {
+      gps.changeSettings(
+        LocationAccuracy.high,
+        distancePreferences,
+        0,
+      );
+    } else {
+      gps.changeSettings(
+        LocationAccuracy.high,
+        0,
+        timePreferences,
+      );
+    }
 
     locationSubscription = await gps.listenOnBackground(handleNewPosition);
     setState(() {});
@@ -317,7 +324,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   void finishRecording() async {
     String? name = await openDialog('track');
-    debugPrint('+++++++++++++++++++++++++++++++++++++++++++++++++++');
+
     if (name == null || name.isEmpty) return;
     final gpx = GeoXml();
     gpx.version = '1.1';
@@ -368,8 +375,6 @@ class _MapWidgetState extends State<MapWidget> {
         mapController!.cameraPosition!.target.latitude);
 
     mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
-    debugPrint('SCALE TEXT $mapScaleText');
-    debugPrint('SCALE RESOLUTION $resolution');
     setState(() {});
   }
 
@@ -399,8 +404,6 @@ class _MapWidgetState extends State<MapWidget> {
         mapController!.cameraPosition!.target.latitude);
 
     mapScaleText = (mapScaleWidth * resolution!).toStringAsFixed(2);
-    debugPrint('SCALE TEXT $mapScaleText');
-    debugPrint('SCALE RESOLUTION $resolution');
     setState(() {});
   }
 
@@ -416,27 +419,26 @@ class _MapWidgetState extends State<MapWidget> {
       wpt.extensions = {};
     }
 
-    debugPrint('${wpt.extensions}');
     if (_accuracy) {
       wpt.extensions['accuracy'] = location.accuracy.toString();
     }
-    debugPrint('${wpt.extensions}');
+
     if (_numSatelites) {
       wpt.extensions['satelites'] = location.satelliteNumber.toString();
     }
-    debugPrint('${wpt.extensions}');
+
     if (_speed) {
       wpt.extensions['speed'] = location.speed.toString();
     }
-    debugPrint('${wpt.extensions}');
+
     if (_heading) {
       wpt.extensions['heading'] = location.heading.toString();
     }
-    debugPrint('${wpt.extensions}');
+
     if (_provider) {
       wpt.extensions['provider'] = location.provider.toString();
     }
-    debugPrint('${wpt.extensions}');
+
     return wpt;
   }
 
@@ -444,8 +446,21 @@ class _MapWidgetState extends State<MapWidget> {
     return (loc.speed! > 0.7);
   }
 
+  bool accuracyIsInvalid(double? accuracy) {
+    if (accuracy == null) {
+      return true;
+    }
+    if (accuracy > 50) {
+      return true;
+    }
+    return false;
+  }
+
   void handleNewPosition(LocationData loc) async {
-    debugPrint('NEW POSITION $loc');
+    if (accuracyIsInvalid(loc.accuracy)) {
+      return;
+    }
+
     lastLocation = loc;
     if (userIsMoving(loc)) {
       // USER IS MOVING

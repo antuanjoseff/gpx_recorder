@@ -1,5 +1,6 @@
 {
     "appTitle": "Gpx Recorder",
+    "tapAgainToExit": "Toca enrera de nou per sortir",
     "settings": "Configuració",
     "accuracy": "Precisió",
     "numSatelites": "Núm. satèl·lits",

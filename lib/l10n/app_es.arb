@@ -1,6 +1,7 @@
 {
     "appTitle": "Gpx Recorder",
     "settings": "Configuración",
+    "tapAgainToExit": "Toca atrás de nuevo para salir",
     "accuracy": "Precisión",
     "numSatelites": "Número de satèl·lits",
     "speed": "Velocidad",
@@ -21,7 +22,7 @@
     "changeTrackColor": "Color",
     "close": "Cerrar",
     "trackName": "Nombre",
-    "accept": "Acceptar",
+    "accept": "Aceptar",
     "cancel": "Cancelar",
     "distance": "Distancia",
     "time": "Tiempo",

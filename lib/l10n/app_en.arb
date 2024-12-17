@@ -1,6 +1,7 @@
 {
   "appTitle": "Gpx Recorder",
   "settings": "Settings",
+  "tapAgainToExit": "Tap again to exit",
   "accuracy": "Accuracy",
   "numSatelites": "No. of satèlites",
   "speed": "Speed",

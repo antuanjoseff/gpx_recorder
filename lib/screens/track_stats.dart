@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:gpx_recorder/classes/vars.dart';
 import '../classes/track.dart';
-import '../classes/user_preferences.dart';
 
 class TrackStats extends StatefulWidget {
   final Track track;
@@ -51,13 +50,13 @@ class _TrackStatsState extends State<TrackStats> {
 
     String format = '';
     if (kms > 0) {
-      format = '${kms.toString()}';
-      distanceUnits = 'Km$plural';
-    } else {
-      distanceUnits = 'm';
+      format = '${kms.toString()} Km${plural}';
     }
 
-    format += '${mts}';
+    if (mts != 0) {
+      format += ' $mts m';
+    }
+
     return format;
   }
 
@@ -188,22 +187,12 @@ class _TrackStatsState extends State<TrackStats> {
                       children: [
                         Text(AppLocalizations.of(context)!.distance,
                             style: titleStyle),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              formatDistance(_track.getLength()),
-                              style: contentStyle,
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              distanceUnits,
-                              style: unitsStyle,
-                            ),
-                          ],
+                        Text(
+                          formatDistance(_track.getLength()),
+                          style: contentStyle,
                         ),
-                        Text(_track.gpxCoords.length.toStringAsFixed(2))
+                        Text(
+                            '${_track.gpxCoords.length.toStringAsFixed(2)} npts')
                       ],
                     ),
                     // ACCURACY
@@ -226,7 +215,7 @@ class _TrackStatsState extends State<TrackStats> {
                             ),
                           ],
                         ),
-                        Text(trackHeadingString)
+                        Text('$trackHeadingString heading')
                       ],
                     ),
                     // ELEVATION

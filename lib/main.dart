@@ -10,6 +10,7 @@ import './classes/gps.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+import 'package:double_tap_to_exit/double_tap_to_exit.dart';
 
 void main() async {
   // await _checkPermission();
@@ -80,8 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool visible = true;
   Color color = Colors.pink;
   late String gpsMethod;
-  late double gpsUnitsDistance;
-  late int gpsUnitsTime;
+  late double distancePreferences;
+  late int timePreferences;
   double gpsUnits = -1;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
@@ -97,8 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
     heading = UserPreferences.getHeading();
     provider = UserPreferences.getProvider();
     gpsMethod = UserPreferences.getGpsMethod();
-    gpsUnitsDistance = UserPreferences.getGpsUnitsDistance();
-    gpsUnitsTime = UserPreferences.getGpsUnitsTime();
+    distancePreferences = UserPreferences.getDistancePreferences();
+    timePreferences = UserPreferences.getTimePreferences();
     DisableBatteryOptimization.isBatteryOptimizationDisabled
         .then((isBatteryOptimizationDisabled) async {
       await handleBatteryOptimization(isBatteryOptimizationDisabled);
@@ -121,7 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // });
   }
 
-  void handleSettings(var settings) async {
+  // When user exists the settings tabs, some updates are required
+  void updateSettings(var settings) async {
     var (
       bool Sp,
       bool He,
@@ -169,34 +171,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (gpxEdit) {
       _mainController.setTrackPreferences!(
-          numSatelites, accuracy, speed, heading, provider, visible, color);
+          numSatelites, accuracy, speed, heading, provider, vis, col);
     }
 
-    if (gpsMethod != gpsmethod ||
-        gpsUnitsDistance != gpsunitsdistance ||
-        gpsUnitsTime != gpsunitstime) {
-      await UserPreferences.setGpsMethod(gpsmethod);
-      if (gpsmethod == 'distance') {
-        await UserPreferences.setGpsUnitsDistance(gpsunitsdistance);
-      } else {
-        await UserPreferences.setGpsUnitsTime(gpsunitstime);
-      }
+    await UserPreferences.setGpsMethod(gpsmethod);
+    await UserPreferences.setDistancePreferences(gpsunitsdistance);
+    await UserPreferences.setTimePreferences(gpsunitstime);
 
-      double distanceFilter = 0;
-      int interval = 1000;
+    double distanceFilter = 0;
+    int interval = 1;
 
-      if (gpsMethod == 'distance') {
-        distanceFilter = gpsunitsdistance;
-      } else {
-        interval = gpsunitstime * 1000;
-      }
-
-      _mainController.setGpsSettings!(
-        gpsmethod,
-        distanceFilter,
-        interval,
-      );
+    if (gpsmethod == 'distance') {
+      distanceFilter = gpsunitsdistance;
+      interval = 0;
+    } else {
+      distanceFilter = 0;
+      interval = gpsunitstime;
     }
+
+    _mainController.setGpsSettings!(
+      gpsmethod,
+      distanceFilter,
+      interval,
+    );
 
     numSatelites = numSat;
     accuracy = Ac;
@@ -206,53 +203,69 @@ class _MyHomePageState extends State<MyHomePage> {
     visible = vis;
     color = col;
     gpsMethod = gpsmethod;
-    gpsUnitsDistance = gpsunitsdistance;
-    gpsUnitsTime = gpsunitstime;
+    distancePreferences = gpsunitsdistance;
+    timePreferences = gpsunitstime;
 
     _mainController.centerMap!(_mainController.getLastLocation!());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          title: Text(AppLocalizations.of(context)!.appTitle),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.settings,
-                    color: thirthColor,
-                  ),
-                  onPressed: () async {
-                    var result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TabSettings(
-                              speed: speed,
-                              heading: heading,
-                              numSatelites: numSatelites,
-                              accuracy: accuracy,
-                              provider: provider,
-                              visible: visible,
-                              color: color,
-                              gpsMethod: gpsMethod,
-                              gpsUnitsDistance: gpsUnitsDistance,
-                              gpsUnitsTime: gpsUnitsTime),
-                        ));
-                    if (result != null) {
-                      handleSettings(result);
-                    }
-                  },
-                )
-              ],
-            )
-          ],
+    return DoubleTapToExit(
+      snackBar: SnackBar(
+        duration: const Duration(seconds: 2),
+        backgroundColor: primaryColor,
+        margin: const EdgeInsets.only(left: 50, right: 50, bottom: 30),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
         ),
-        body: MapWidget(mainController: _mainController));
+
+        //this will add margin to all side
+        behavior: SnackBarBehavior.floating,
+        content: Text(AppLocalizations.of(context)!.tapAgainToExit,
+            textAlign: TextAlign.center),
+      ),
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
+            title: Text(AppLocalizations.of(context)!.appTitle),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.settings,
+                      color: thirthColor,
+                    ),
+                    onPressed: () async {
+                      var result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TabSettings(
+                                speed: speed,
+                                heading: heading,
+                                numSatelites: numSatelites,
+                                accuracy: accuracy,
+                                provider: provider,
+                                visible: visible,
+                                color: color,
+                                gpsMethod: gpsMethod,
+                                gpsUnitsDistance: distancePreferences,
+                                gpsUnitsTime: timePreferences),
+                          ));
+
+                      if (result != null) {
+                        updateSettings(result);
+                      }
+                    },
+                  )
+                ],
+              )
+            ],
+          ),
+          body: MapWidget(mainController: _mainController)),
+    );
   }
 }

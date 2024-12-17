@@ -17,6 +17,7 @@ class MainController {
     bool visible,
     Color color,
   )? setTrackPreferences;
+
   void Function()? startRecording;
   void Function()? pauseRecording;
   void Function()? resumeRecording;

@@ -61,7 +61,7 @@ class Gps {
         'DEBUG; time (s) ${(interval! / 1000)} distance (m) $distanceFilter');
     location.changeSettings(
       accuracy: accuracy,
-      interval: interval,
+      interval: interval * 1000,
       distanceFilter: distanceFilter,
     );
   }
