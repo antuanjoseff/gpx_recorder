@@ -98,8 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
     heading = UserPreferences.getHeading();
     provider = UserPreferences.getProvider();
     gpsMethod = UserPreferences.getGpsMethod();
-    gpsUnitsDistance = UserPreferences.getGpsUnitsDistance();
-    gpsUnitsTime = UserPreferences.getGpsUnitsTime();
+    gpsUnitsDistance = UserPreferences.getDistancePreferences();
+    gpsUnitsTime = UserPreferences.getTimePreferences();
     // DisableBatteryOptimization.isBatteryOptimizationDisabled
     //     .then((isBatteryOptimizationDisabled) async {
     //   await handleBatteryOptimization(isBatteryOptimizationDisabled);
@@ -178,9 +178,9 @@ class _MyHomePageState extends State<MyHomePage> {
         gpsUnitsTime != gpsunitstime) {
       await UserPreferences.setGpsMethod(gpsmethod);
       if (gpsmethod == 'distance') {
-        await UserPreferences.setGpsUnitsDistance(gpsunitsdistance);
+        await UserPreferences.setDistancePreferences(gpsunitsdistance);
       } else {
-        await UserPreferences.setGpsUnitsTime(gpsunitstime);
+        await UserPreferences.setTimePreferences(gpsunitstime);
       }
 
       double distanceFilter = 0;

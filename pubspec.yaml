@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   # disable_battery_optimization: ^1.1.1
+  double_tap_to_exit: ^1.0.1
   flutter_grid_button: ^2.1.0
   flutter_colorpicker: ^1.1.0
   accordion: ^2.6.0

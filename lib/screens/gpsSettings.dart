@@ -27,8 +27,8 @@ class _TrackSettingsState extends State<GpsSettings> {
   @override
   Widget build(BuildContext context) {
     _method = UserPreferences.getGpsMethod();
-    _unitsDistance = UserPreferences.getGpsUnitsDistance();
-    _unitsTime = UserPreferences.getGpsUnitsTime();
+    _unitsDistance = UserPreferences.getDistancePreferences();
+    _unitsTime = UserPreferences.getTimePreferences();
 
     bool methodIsDistance() {
       return widget.controller.method == 'distance';
@@ -97,7 +97,7 @@ class _TrackSettingsState extends State<GpsSettings> {
                                     _unitsDistance = value.toDouble();
                                     widget.controller.unitsDistance =
                                         _unitsDistance;
-                                    UserPreferences.setGpsUnitsDistance(
+                                    UserPreferences.setDistancePreferences(
                                         _unitsDistance);
                                   } else {
                                     sliderTitle = (value > 1)
@@ -108,7 +108,8 @@ class _TrackSettingsState extends State<GpsSettings> {
 
                                     _unitsTime = value.floor();
                                     widget.controller.unitsTime = _unitsTime;
-                                    UserPreferences.setGpsUnitsTime(_unitsTime);
+                                    UserPreferences.setTimePreferences(
+                                        _unitsTime);
                                   }
                                 });
                               },
@@ -157,8 +158,9 @@ class _TrackSettingsState extends State<GpsSettings> {
                         widget.controller.method = 'distance';
                         var (result) = await openDialog(
                             context, AppLocalizations.of(context)!.distance);
-                        result ??= await UserPreferences.getGpsUnitsDistance()
-                            .toString();
+                        result ??=
+                            await UserPreferences.getDistancePreferences()
+                                .toString();
 
                         debugPrint('DEBUG $result');
 
@@ -207,7 +209,7 @@ class _TrackSettingsState extends State<GpsSettings> {
                       var (result) = await openDialog(
                           context, AppLocalizations.of(context)!.time);
                       result ??=
-                          await UserPreferences.getGpsUnitsTime().toString();
+                          await UserPreferences.getTimePreferences().toString();
                       debugPrint('DEBUG $result');
                       double value = double.parse(result!);
                       widget.controller.unitsTime = value.floor();

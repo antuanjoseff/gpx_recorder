@@ -80,12 +80,12 @@ class UserPreferences {
     return method == null ? 'meters' : method;
   }
 
-  static double getGpsUnitsDistance() {
+  static double getDistancePreferences() {
     final units = _preferences.getDouble(_gpsUnitsDistance);
     return units == null ? 10 : units;
   }
 
-  static int getGpsUnitsTime() {
+  static int getTimePreferences() {
     final units = _preferences.getInt(_gpsUnitsTime);
     return units == null ? 10 : units;
   }
@@ -130,10 +130,10 @@ class UserPreferences {
   static Future setGpsMethod(String method) async =>
       await _preferences.setString(_gpsMethod, method);
 
-  static Future setGpsUnitsDistance(double units) async =>
+  static Future setDistancePreferences(double units) async =>
       await _preferences.setDouble(_gpsUnitsDistance, units);
 
-  static Future setGpsUnitsTime(int units) async =>
+  static Future setTimePreferences(int units) async =>
       await _preferences.setInt(_gpsUnitsTime, units);
 
   static Future setDefaultTab(int tab) async =>
