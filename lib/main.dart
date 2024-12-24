@@ -9,7 +9,8 @@ import './classes/vars.dart';
 import './classes/gps.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+// import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+import './screens/leftDrawer.dart';
 
 void main() async {
   // await _checkPermission();
@@ -99,20 +100,20 @@ class _MyHomePageState extends State<MyHomePage> {
     gpsMethod = UserPreferences.getGpsMethod();
     gpsUnitsDistance = UserPreferences.getGpsUnitsDistance();
     gpsUnitsTime = UserPreferences.getGpsUnitsTime();
-    DisableBatteryOptimization.isBatteryOptimizationDisabled
-        .then((isBatteryOptimizationDisabled) async {
-      await handleBatteryOptimization(isBatteryOptimizationDisabled);
-    });
+    // DisableBatteryOptimization.isBatteryOptimizationDisabled
+    //     .then((isBatteryOptimizationDisabled) async {
+    //   await handleBatteryOptimization(isBatteryOptimizationDisabled);
+    // });
     super.initState();
   }
 
-  Future<void> handleBatteryOptimization(
-      bool? isBatteryOptimizationDisabled) async {
-    isBatteryOptimizationDisabled ??= false;
-    if (!isBatteryOptimizationDisabled) {
-      await DisableBatteryOptimization.showDisableBatteryOptimizationSettings();
-    }
-  }
+  // Future<void> handleBatteryOptimization(
+  //     bool? isBatteryOptimizationDisabled) async {
+  //   isBatteryOptimizationDisabled ??= false;
+  //   if (!isBatteryOptimizationDisabled) {
+  //     await DisableBatteryOptimization.showDisableBatteryOptimizationSettings();
+  //   }
+  // }
 
   void toggleAppBar() {
     print('......................toggle appbar');
@@ -215,6 +216,23 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        endDrawerEnableOpenDragGesture: false,
+        onEndDrawerChanged: (isOpen) {
+          setState(() {});
+        },
+        drawerScrimColor: Colors.transparent,
+        endDrawer: Drawer(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: SizedBox(
+                width: 200,
+                child: Container(
+                    color: Theme.of(context).canvasColor,
+                    child: LeffDrawer(controller: _mainController))),
+          ),
+        ),
         appBar: AppBar(
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,

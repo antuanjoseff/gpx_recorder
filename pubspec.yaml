@@ -28,7 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  disable_battery_optimization: ^1.1.1
+  # disable_battery_optimization: ^1.1.1
   flutter_grid_button: ^2.1.0
   flutter_colorpicker: ^1.1.0
   accordion: ^2.6.0
@@ -70,6 +70,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/symbols/waypoint.png
+    - assets/styles/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

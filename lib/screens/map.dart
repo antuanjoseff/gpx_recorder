@@ -36,6 +36,7 @@ class _MapWidgetState extends State<MapWidget> {
   late bool _heading;
   late bool _provider;
   late bool _trackVisible;
+  bool ortoVisible = true;
   late Color _trackColor;
   late TextEditingController controller;
   late String gpsMethod;
@@ -107,6 +108,37 @@ class _MapWidgetState extends State<MapWidget> {
     mainController.centerMap = centerMap;
     mainController.getLastLocation = getLastLocation;
     mainController.setGpsSettings = setGpsSettings;
+    mainController.setBaseLayer = setBaseLayer;
+    mainController.getCenter = getCenter;
+    mainController.getZoom = getZoom;
+  }
+
+  LatLng getCenter() {
+    return mapController!.cameraPosition!.target;
+  }
+
+  double getZoom() {
+    return mapController!.cameraPosition!.zoom;
+  }
+
+  void setBaseLayer(layer) {
+    if (layer == 'orto') {
+      ortoVisible = true;
+    } else {
+      ortoVisible = false;
+    }
+    mapController!.setLayerProperties(
+        "osm",
+        LineLayerProperties.fromJson(
+            {"visibility": !ortoVisible ? "visible" : "none"}));
+    mapController!.setLayerProperties(
+        "ortoEsri",
+        LineLayerProperties.fromJson(
+            {"visibility": ortoVisible ? "visible" : "none"}));
+    mapController!.setLayerProperties(
+        "ortoICGC",
+        LineLayerProperties.fromJson(
+            {"visibility": ortoVisible ? "visible" : "none"}));
   }
 
   void setGpsSettings(method, distance, time) async {
@@ -517,14 +549,39 @@ class _MapWidgetState extends State<MapWidget> {
           myLocationTrackingMode: _myLocationTrackingMode,
           myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
-          styleString:
-              'https://geoserveis.icgc.cat/contextmaps/icgc_orto_hibrida.json',
+          styleString: 'assets/styles/mainmap_style.json',
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
           trackCameraPosition: true,
           onStyleLoadedCallback: () {
             addImageFromAsset(
                 mapController!, "waypoint", "assets/symbols/waypoint.png");
           },
+        ),
+        Positioned(
+          left: 10,
+          top: 10,
+          child: CircleAvatar(
+            radius: 27,
+            backgroundColor: primaryColor,
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: Scaffold.of(context).isEndDrawerOpen
+                  ? primaryColor
+                  : Colors.white,
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.baseLayer,
+                icon: Icon(Icons.layers_rounded),
+                color: Scaffold.of(context).isEndDrawerOpen
+                    ? Colors.white
+                    : primaryColor,
+                onPressed: () {
+                  setState(() {
+                    Scaffold.of(context).openEndDrawer();
+                  });
+                },
+              ),
+            ),
+          ),
         ),
         Positioned(
           top: 15,

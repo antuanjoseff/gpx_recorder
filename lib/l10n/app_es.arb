@@ -31,5 +31,7 @@
     "gpsTimeUnits": "segundos",
     "recordingMethod": "Método de grabación",
     "trackProperties": "Propiedades del track",
-    "gpxAttributes": "Atributoss del arxicho GPX"
+    "gpxAttributes": "Atributoss del arxicho GPX",
+    "leftDrawerTitle": "CAPA BASE",
+    "baseLayer": "Capa base"
 }

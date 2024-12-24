@@ -25,4 +25,7 @@ class MainController {
   void Function(LatLng?)? centerMap;
   void Function(String, double, int)? setGpsSettings;
   LatLng? Function()? getLastLocation;
+  void Function(String)? setBaseLayer;
+  LatLng Function()? getCenter;
+  double Function()? getZoom;
 }

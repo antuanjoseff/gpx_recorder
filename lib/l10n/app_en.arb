@@ -31,5 +31,7 @@
   "gpsTimeUnits": "seconds",
   "recordingMethod": "Recording method",
   "trackProperties": "Track properties",
-  "gpxAttributes": "GPX file attributes"
+  "gpxAttributes": "GPX file attributes",
+  "leftDrawerTitle": "BASE LAYER",
+  "baseLayer": "Base layer"
 }
