@@ -339,7 +339,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void addWpt() async {
-    // LocationData? location = await gps.getLocation();
+    // LocationData? location = await gps.getLocatioaddSymboln();
 
     if (lastLocation != null) {
       Wpt newWpt = createWptFromLocation(lastLocation!);

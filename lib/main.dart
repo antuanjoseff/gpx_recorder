@@ -79,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool heading;
   late bool provider;
   bool visible = true;
+  bool showLayers = false;
   Color color = Colors.pink;
   late String gpsMethod;
   late double gpsUnitsDistance;
@@ -104,6 +105,9 @@ class _MyHomePageState extends State<MyHomePage> {
     //     .then((isBatteryOptimizationDisabled) async {
     //   await handleBatteryOptimization(isBatteryOptimizationDisabled);
     // });
+    setState(() {
+      showLayers = true;
+    });
     super.initState();
   }
 
@@ -241,6 +245,21 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                Builder(
+                  builder: (context) => IconButton(
+                    tooltip: AppLocalizations.of(context)!.baseLayer,
+                    icon: Icon(Icons.layers_rounded),
+                    color: Scaffold.of(context).isEndDrawerOpen
+                        ? primaryColor
+                        : Colors.white,
+                    onPressed: () {
+                      debugPrint('pressed');
+                      setState(() {
+                        Scaffold.of(context).openEndDrawer();
+                      });
+                    },
+                  ),
+                ),
                 IconButton(
                   icon: Icon(
                     Icons.settings,
