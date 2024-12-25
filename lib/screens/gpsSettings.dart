@@ -144,36 +144,87 @@ class _TrackSettingsState extends State<GpsSettings> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(AppLocalizations.of(context)!.recordingMethod),
-              GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                shrinkWrap: true,
-                padding: EdgeInsets.all(10),
-                children: [
-                  // DISTANCE BUTTON
-                  Container(
-                    child: ElevatedButton(
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 600),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.all(10),
+                  children: [
+                    // DISTANCE BUTTON
+                    Container(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          widget.controller.method = 'distance';
+                          var (result) = await openDialog(
+                              context, AppLocalizations.of(context)!.distance);
+                          result ??=
+                              await UserPreferences.getDistancePreferences()
+                                  .toString();
+
+                          debugPrint('DEBUG $result');
+
+                          double value = double.parse(result);
+                          setState(() {
+                            widget.controller.unitsDistance = value;
+                            _unitsDistance = value;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                methodIsDistance() ? fourthColor : fifthColor,
+                            foregroundColor: methodIsDistance()
+                                ? Colors.white
+                                : textInactiveColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            )),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.straighten_outlined,
+                                size: 40,
+                                color: methodIsDistance()
+                                    ? Colors.white
+                                    : textInactiveColor),
+                            Text(
+                              AppLocalizations.of(context)!.distance,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            Text(
+                              '${widget.controller.unitsDistance.floor()} m',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // TIME BUTTON
+                    Container(
+                        child: ElevatedButton(
                       onPressed: () async {
-                        widget.controller.method = 'distance';
+                        widget.controller.method = 'time';
+
                         var (result) = await openDialog(
-                            context, AppLocalizations.of(context)!.distance);
-                        result ??=
-                            await UserPreferences.getDistancePreferences()
-                                .toString();
-
+                            context, AppLocalizations.of(context)!.time);
+                        result ??= await UserPreferences.getTimePreferences()
+                            .toString();
                         debugPrint('DEBUG $result');
+                        double value = double.parse(result!);
+                        widget.controller.unitsTime = value.floor();
 
-                        double value = double.parse(result);
                         setState(() {
-                          widget.controller.unitsDistance = value;
-                          _unitsDistance = value;
+                          widget.controller.unitsTime = value.floor();
+                          _unitsTime = value.floor();
                         });
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              methodIsDistance() ? fourthColor : fifthColor,
-                          foregroundColor: methodIsDistance()
+                              !methodIsDistance() ? fourthColor : fifthColor,
+                          foregroundColor: !methodIsDistance()
                               ? Colors.white
                               : textInactiveColor,
                           shape: RoundedRectangleBorder(
@@ -183,71 +234,23 @@ class _TrackSettingsState extends State<GpsSettings> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Icon(Icons.straighten_outlined,
-                              size: 40,
-                              color: methodIsDistance()
-                                  ? Colors.white
-                                  : textInactiveColor),
+                          const Icon(
+                            Icons.hourglass_bottom_rounded,
+                            size: 40,
+                          ),
                           Text(
-                            AppLocalizations.of(context)!.distance,
+                            AppLocalizations.of(context)!.time,
                             style: TextStyle(fontSize: 20),
                           ),
                           Text(
-                            '${widget.controller.unitsDistance.floor()} m',
+                            '${widget.controller.unitsTime.floor()} (s)',
                             style: TextStyle(fontSize: 20),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                  // TIME BUTTON
-                  Container(
-                      child: ElevatedButton(
-                    onPressed: () async {
-                      widget.controller.method = 'time';
-
-                      var (result) = await openDialog(
-                          context, AppLocalizations.of(context)!.time);
-                      result ??=
-                          await UserPreferences.getTimePreferences().toString();
-                      debugPrint('DEBUG $result');
-                      double value = double.parse(result!);
-                      widget.controller.unitsTime = value.floor();
-
-                      setState(() {
-                        widget.controller.unitsTime = value.floor();
-                        _unitsTime = value.floor();
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            !methodIsDistance() ? fourthColor : fifthColor,
-                        foregroundColor: !methodIsDistance()
-                            ? Colors.white
-                            : textInactiveColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                        )),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.hourglass_bottom_rounded,
-                          size: 40,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.time,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        Text(
-                          '${widget.controller.unitsTime.floor()} (s)',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  )),
-                ],
+                    )),
+                  ],
+                ),
               ),
             ],
           ),

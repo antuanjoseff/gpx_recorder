@@ -174,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (gpxEdit) {
       _mainController.setTrackPreferences!(
-          numSatelites, accuracy, speed, heading, provider, visible, color);
+          numSatelites, accuracy, speed, heading, provider, visible, col);
     }
 
     if (gpsMethod != gpsmethod ||
@@ -220,12 +220,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        endDrawerEnableOpenDragGesture: false,
-        onEndDrawerChanged: (isOpen) {
+        drawerEnableOpenDragGesture: false,
+        onDrawerChanged: (isOpen) {
           setState(() {});
         },
         drawerScrimColor: Colors.transparent,
-        endDrawer: Drawer(
+        drawer: Drawer(
           child: GestureDetector(
             onTap: () {
               Navigator.of(context).pop();
@@ -238,6 +238,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         appBar: AppBar(
+          automaticallyImplyLeading:
+              false, // this will hide Drawer hamburger icon
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           title: Text(AppLocalizations.of(context)!.appTitle),
@@ -246,46 +248,62 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Builder(
-                  builder: (context) => IconButton(
-                    tooltip: AppLocalizations.of(context)!.baseLayer,
-                    icon: Icon(Icons.layers_rounded),
-                    color: Scaffold.of(context).isEndDrawerOpen
-                        ? primaryColor
-                        : Colors.white,
-                    onPressed: () {
-                      debugPrint('pressed');
-                      setState(() {
-                        Scaffold.of(context).openEndDrawer();
-                      });
-                    },
+                  builder: (context) => CircleAvatar(
+                    radius: 27,
+                    backgroundColor: primaryColor,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Scaffold.of(context).isDrawerOpen
+                          ? primaryColor
+                          : Colors.white,
+                      child: IconButton(
+                        tooltip: AppLocalizations.of(context)!.baseLayer,
+                        icon: Icon(Icons.layers_rounded),
+                        color: Scaffold.of(context).isDrawerOpen
+                            ? Colors.white
+                            : primaryColor,
+                        onPressed: () {
+                          setState(() {
+                            Scaffold.of(context).openDrawer();
+                          });
+                        },
+                      ),
+                    ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.settings,
-                    color: thirthColor,
-                  ),
-                  onPressed: () async {
-                    var result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TabSettings(
-                              speed: speed,
-                              heading: heading,
-                              numSatelites: numSatelites,
-                              accuracy: accuracy,
-                              provider: provider,
-                              visible: visible,
-                              color: color,
-                              gpsMethod: gpsMethod,
-                              gpsUnitsDistance: gpsUnitsDistance,
-                              gpsUnitsTime: gpsUnitsTime),
-                        ));
-                    if (result != null) {
-                      handleSettings(result);
-                    }
-                  },
-                )
+                CircleAvatar(
+                    radius: 27,
+                    backgroundColor: primaryColor,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.settings,
+                          color: primaryColor,
+                        ),
+                        onPressed: () async {
+                          var result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TabSettings(
+                                    speed: speed,
+                                    heading: heading,
+                                    numSatelites: numSatelites,
+                                    accuracy: accuracy,
+                                    provider: provider,
+                                    visible: visible,
+                                    color: color,
+                                    gpsMethod: gpsMethod,
+                                    gpsUnitsDistance: gpsUnitsDistance,
+                                    gpsUnitsTime: gpsUnitsTime),
+                              ));
+                          if (result != null) {
+                            handleSettings(result);
+                          }
+                        },
+                      ),
+                    ))
               ],
             )
           ],

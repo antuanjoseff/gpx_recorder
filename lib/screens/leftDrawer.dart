@@ -38,92 +38,92 @@ class _LeffDrawerState extends State<LeffDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      // height: 500,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const SizedBox(
-              height: 50,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_forward),
-                  color: Colors.white,
-                  iconSize: 30,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-            Text(AppLocalizations.of(context)!.leftDrawerTitle,
-                style: TextStyle(color: Colors.white, fontSize: 20)),
-            SizedBox(
-              height: 200,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: primaryColor,
-                  ),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    widget.controller.setBaseLayer!('orto');
-                    // Navigator.of(context).pop();
-                  },
-                  child: AbsorbPointer(
-                    child: MapLibreMap(
-                      compassEnabled: false,
-                      onMapCreated: _onMapCreated,
-                      minMaxZoomPreference: MinMaxZoomPreference(0, 16),
-                      styleString: 'assets/styles/only_orto_style.json',
-                      attributionButtonPosition: attributionButtonPosition,
-                      initialCameraPosition: CameraPosition(
-                        target: widget.controller.getCenter!(),
-                        zoom: widget.controller.getZoom!() - 2,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            SizedBox(
-              height: 200,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: primaryColor,
-                  ),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    widget.controller.setBaseLayer!('osm');
-                    // Navigator.of(context).pop();
-                  },
-                  child: AbsorbPointer(
-                    child: MapLibreMap(
-                      compassEnabled: false,
-                      styleString: 'assets/styles/only_osm_style.json',
-                      onMapCreated: _onMapCreated,
-                      minMaxZoomPreference: MinMaxZoomPreference(0, 16),
-                      initialCameraPosition: CameraPosition(
-                        target: widget.controller.getCenter!(),
-                        zoom: widget.controller.getZoom!() - 2,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            IconButton(
+              icon: Icon(Icons.cancel),
+              color: primaryColor,
+              iconSize: 30,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
           ],
         ),
-      ),
+        const SizedBox(
+          height: 50,
+        ),
+        Text(AppLocalizations.of(context)!.leftDrawerTitle,
+            style: TextStyle(color: Colors.white, fontSize: 20)),
+        SizedBox(
+          height: 200,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: primaryColor,
+                ),
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  widget.controller.setBaseLayer!('orto');
+                  // Navigator.of(context).pop();
+                },
+                child: AbsorbPointer(
+                  child: MapLibreMap(
+                    compassEnabled: false,
+                    onMapCreated: _onMapCreated,
+                    minMaxZoomPreference: MinMaxZoomPreference(0, 16),
+                    styleString: 'assets/styles/only_orto_style.json',
+                    attributionButtonPosition: attributionButtonPosition,
+                    initialCameraPosition: CameraPosition(
+                      target: widget.controller.getCenter!(),
+                      zoom: widget.controller.getZoom!() - 2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+        SizedBox(
+          height: 200,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: primaryColor,
+                ),
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  widget.controller.setBaseLayer!('osm');
+                  // Navigator.of(context).pop();
+                },
+                child: AbsorbPointer(
+                  child: MapLibreMap(
+                    compassEnabled: false,
+                    styleString: 'assets/styles/only_osm_style.json',
+                    onMapCreated: _onMapCreated,
+                    minMaxZoomPreference: MinMaxZoomPreference(0, 16),
+                    initialCameraPosition: CameraPosition(
+                      target: widget.controller.getCenter!(),
+                      zoom: widget.controller.getZoom!() - 2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

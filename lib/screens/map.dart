@@ -15,6 +15,7 @@ import 'dart:async';
 import '../widgets/mapScale.dart';
 import '../utils/util.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class MapWidget extends StatefulWidget {
   final MainController mainController;
@@ -175,7 +176,8 @@ class _MapWidgetState extends State<MapWidget> {
     _provider = provider;
     track!.visible = visible;
     track!.trackColor = color;
-
+    debugPrint('TRACK PREFERENCES $color');
+    debugPrint('TRACK PREFERENCES $visible');
     if (!track!.visible) {
       track!.removeLine();
     } else {
@@ -261,10 +263,11 @@ class _MapWidgetState extends State<MapWidget> {
     }
     lastMovingTimeAt = DateTime.now();
 
-    await locationSubscription?.cancel();
-    gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
-        AppLocalizations.of(context)!.notificationContent);
-
+    if (!kIsWeb) {
+      await locationSubscription?.cancel();
+      gps.enableBackground(AppLocalizations.of(context)!.notificationTitle,
+          AppLocalizations.of(context)!.notificationContent);
+    }
     gpsMethod = UserPreferences.getGpsMethod();
     if (gpsMethod == 'distance') {
       gps.changeSettings(
@@ -279,8 +282,9 @@ class _MapWidgetState extends State<MapWidget> {
         timePreferences,
       );
     }
-
-    locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    if (!kIsWeb) {
+      locationSubscription = await gps.listenOnBackground(handleNewPosition);
+    }
     setState(() {});
   }
 
@@ -572,32 +576,32 @@ class _MapWidgetState extends State<MapWidget> {
                 mapController!, "waypoint", "assets/symbols/waypoint.png");
           },
         ),
-        Positioned(
-          left: 10,
-          top: 10,
-          child: CircleAvatar(
-            radius: 27,
-            backgroundColor: primaryColor,
-            child: CircleAvatar(
-              radius: 25,
-              backgroundColor: Scaffold.of(context).isEndDrawerOpen
-                  ? primaryColor
-                  : Colors.white,
-              child: IconButton(
-                tooltip: AppLocalizations.of(context)!.baseLayer,
-                icon: Icon(Icons.layers_rounded),
-                color: Scaffold.of(context).isEndDrawerOpen
-                    ? Colors.white
-                    : primaryColor,
-                onPressed: () {
-                  setState(() {
-                    Scaffold.of(context).openEndDrawer();
-                  });
-                },
-              ),
-            ),
-          ),
-        ),
+        // Positioned(
+        //   left: 10,
+        //   top: 10,
+        //   child: CircleAvatar(
+        //     radius: 27,
+        //     backgroundColor: primaryColor,
+        //     child: CircleAvatar(
+        //       radius: 25,
+        //       backgroundColor: Scaffold.of(context).isEndDrawerOpen
+        //           ? primaryColor
+        //           : Colors.white,
+        //       child: IconButton(
+        //         tooltip: AppLocalizations.of(context)!.baseLayer,
+        //         icon: Icon(Icons.layers_rounded),
+        //         color: Scaffold.of(context).isEndDrawerOpen
+        //             ? Colors.white
+        //             : primaryColor,
+        //         onPressed: () {
+        //           setState(() {
+        //             Scaffold.of(context).openEndDrawer();
+        //           });
+        //         },
+        //       ),
+        //     ),
+        //   ),
+        // ),
         Positioned(
           top: 15,
           left: 10,
