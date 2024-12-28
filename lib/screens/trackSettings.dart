@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../classes/vars.dart';
+import '../controllers/map.dart';
 import '../controllers/track.dart';
 import '../classes/user_preferences.dart';
 
 class TrackSettings extends StatefulWidget {
   final TrackController controller;
-  TrackSettings({super.key, required this.controller});
+  final MapController mapController;
+
+  TrackSettings(
+      {super.key, required this.controller, required this.mapController});
 
   @override
   State<TrackSettings> createState() => _TrackSettingsState();

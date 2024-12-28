@@ -4,7 +4,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:location/location.dart';
 import '../classes/gps.dart';
 import '../classes/track.dart';
-import '../controllers/main.dart';
+import '../controllers/map.dart';
 import '../classes/user_preferences.dart';
 import '../screens/track_stats.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -18,7 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class MapWidget extends StatefulWidget {
-  final MainController mainController;
+  final MapController mainController;
 
   const MapWidget({
     super.key,
@@ -99,7 +99,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   bool showResumeOrStopButtons = false;
 
-  _MapWidgetState(MainController mainController) {
+  _MapWidgetState(MapController mainController) {
     mainController.setTrackPreferences = setTrackPreferences;
     mainController.startRecording = startRecording;
     mainController.resumeRecording = resumeRecording;
@@ -143,6 +143,8 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void setGpsSettings(method, distance, time) async {
+    debugPrint(
+        'DEBUG recording $recordingStarted ---- setgpssettings  distance $distance  time  $time');
     if (method == 'distance') {
       time = 0;
     } else {

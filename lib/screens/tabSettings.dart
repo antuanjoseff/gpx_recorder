@@ -8,6 +8,7 @@ import 'gpsSettings.dart';
 import '../controllers/gpx.dart';
 import '../controllers/track.dart';
 import '../controllers/gps.dart';
+import '../controllers/map.dart';
 
 class TabSettings extends StatefulWidget {
   final bool numSatelites;
@@ -20,20 +21,21 @@ class TabSettings extends StatefulWidget {
   final String gpsMethod;
   final double gpsUnitsDistance;
   final int gpsUnitsTime;
+  final MapController mapController;
 
-  TabSettings({
-    super.key,
-    required this.speed,
-    required this.heading,
-    required this.numSatelites,
-    required this.accuracy,
-    required this.provider,
-    required this.visible,
-    required this.color,
-    required this.gpsMethod,
-    required this.gpsUnitsDistance,
-    required this.gpsUnitsTime,
-  });
+  TabSettings(
+      {super.key,
+      required this.speed,
+      required this.heading,
+      required this.numSatelites,
+      required this.accuracy,
+      required this.provider,
+      required this.visible,
+      required this.color,
+      required this.gpsMethod,
+      required this.gpsUnitsDistance,
+      required this.gpsUnitsTime,
+      required this.mapController});
 
   @override
   State<TabSettings> createState() => _TabSettingsState();
@@ -43,6 +45,7 @@ class _TabSettingsState extends State<TabSettings> {
   GpxController gpxController = GpxController();
   TrackController trackController = TrackController();
   GpsController gpsController = GpsController();
+  MapController mapController = MapController();
   late int defaultTab;
 
   @override
@@ -59,7 +62,7 @@ class _TabSettingsState extends State<TabSettings> {
     gpsController.method = widget.gpsMethod;
     gpsController.unitsDistance = widget.gpsUnitsDistance;
     gpsController.unitsTime = widget.gpsUnitsTime;
-
+    mapController = widget.mapController;
     super.initState();
   }
 
@@ -142,9 +145,12 @@ class _TabSettingsState extends State<TabSettings> {
             color: thirthColor,
             child: TabBarView(
               children: [
-                GpxSettings(controller: gpxController),
-                TrackSettings(controller: trackController),
-                GpsSettings(controller: gpsController),
+                GpxSettings(
+                    mapController: mapController, controller: gpxController),
+                TrackSettings(
+                    mapController: mapController, controller: trackController),
+                GpsSettings(
+                    mapController: mapController, controller: gpsController),
               ],
             ),
           )),

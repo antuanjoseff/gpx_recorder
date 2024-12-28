@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
-class MainController {
+class MapController {
   // Future<Line?> Function(List<Wpt> lineSegment)? loadTrack;
   // Future<void> Function()? removeTrackLine;
   // Future<List<Symbol>> Function()? addMapSymbols;

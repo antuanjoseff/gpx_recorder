@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import './screens/settingsPage.dart';
 import './screens/map.dart';
 import './screens/tabSettings.dart';
-import 'controllers/main.dart';
+import 'controllers/map.dart';
 import './classes/user_preferences.dart';
 import './classes/vars.dart';
 import './classes/gps.dart';
@@ -68,7 +68,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  MainController _mainController = MainController();
+  MapController _mainController = MapController();
   bool recording = false;
   int milliseconds = 300;
 
@@ -188,12 +188,12 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       double distanceFilter = 0;
-      int interval = 1000;
+      int interval = 1;
 
       if (gpsMethod == 'distance') {
         distanceFilter = gpsunitsdistance;
       } else {
-        interval = gpsunitstime * 1000;
+        interval = gpsunitstime;
       }
 
       _mainController.setGpsSettings!(
@@ -296,7 +296,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     color: color,
                                     gpsMethod: gpsMethod,
                                     gpsUnitsDistance: gpsUnitsDistance,
-                                    gpsUnitsTime: gpsUnitsTime),
+                                    gpsUnitsTime: gpsUnitsTime,
+                                    mapController: _mainController),
                               ));
                           if (result != null) {
                             handleSettings(result);

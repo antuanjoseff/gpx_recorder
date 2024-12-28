@@ -4,11 +4,17 @@ import 'dart:io' show Platform;
 import '../classes/vars.dart';
 import '../classes/user_preferences.dart';
 import '../controllers/gpx.dart';
+import '../controllers/map.dart';
 
 class GpxSettings extends StatefulWidget {
   final GpxController controller;
+  final MapController mapController;
 
-  GpxSettings({super.key, required this.controller});
+  GpxSettings({
+    super.key,
+    required this.controller,
+    required this.mapController,
+  });
 
   @override
   State<GpxSettings> createState() => _GpxSettingsState();

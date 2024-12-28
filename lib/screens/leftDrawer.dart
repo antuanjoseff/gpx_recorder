@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import '../classes/vars.dart';
-import '../controllers/main.dart';
+import '../controllers/map.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LeffDrawer extends StatefulWidget {
-  final MainController controller;
+  final MapController controller;
 
   const LeffDrawer({
     Key? key,
@@ -18,7 +18,7 @@ class LeffDrawer extends StatefulWidget {
 
 MapLibreMapController? mapController;
 
-late MainController controller;
+late MapController controller;
 late double zoom;
 late LatLng center;
 

@@ -9,6 +9,7 @@ import 'gpsSettings.dart';
 import 'trackSettings.dart';
 import '../controllers/gpx.dart';
 import '../controllers/track.dart';
+import '../controllers/map.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool numSatelites;
@@ -16,14 +17,17 @@ class SettingsPage extends StatefulWidget {
   final bool speed;
   final bool heading;
   final bool provider;
+  final MapController mapController;
 
-  SettingsPage(
-      {super.key,
-      required this.speed,
-      required this.heading,
-      required this.numSatelites,
-      required this.accuracy,
-      required this.provider});
+  SettingsPage({
+    super.key,
+    required this.speed,
+    required this.heading,
+    required this.numSatelites,
+    required this.accuracy,
+    required this.provider,
+    required this.mapController,
+  });
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -42,6 +46,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void colorChanged(Color color) {
     debugPrint(color.toString());
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
   }
 
   @override
@@ -90,7 +100,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       leftIcon: const Icon(Icons.insert_drive_file_outlined,
                           color: Colors.white),
                       header: const Text('GPX properties', style: headerStyle),
-                      content: GpxSettings(controller: gpxController),
+                      content: GpxSettings(
+                          mapController: widget.mapController,
+                          controller: gpxController),
                     ),
                     AccordionSection(
                       isOpen: false,
@@ -101,6 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           const Icon(Icons.satellite_alt, color: Colors.white),
                       header: const Text('GPS properties', style: headerStyle),
                       content: GpsSettings(
+                        mapController: widget.mapController,
                         controller: GpsController(),
                       ),
                     ),
@@ -114,6 +127,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       header:
                           const Text('Track properties', style: headerStyle),
                       content: TrackSettings(
+                        mapController: widget.mapController,
                         controller: trackController,
                       ),
                     ),

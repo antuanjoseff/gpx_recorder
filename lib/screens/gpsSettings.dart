@@ -4,10 +4,17 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../classes/vars.dart';
 import '../controllers/gps.dart';
 import '../classes/user_preferences.dart';
+import '../controllers/map.dart';
 
 class GpsSettings extends StatefulWidget {
   final GpsController controller;
-  GpsSettings({super.key, required this.controller});
+  final MapController mapController;
+
+  GpsSettings({
+    super.key,
+    required this.controller,
+    required this.mapController,
+  });
 
   @override
   State<GpsSettings> createState() => _TrackSettingsState();
@@ -17,10 +24,11 @@ class _TrackSettingsState extends State<GpsSettings> {
   late String _method;
   late double _unitsDistance;
   late int _unitsTime;
-
+  late MapController mapController;
   @override
   void initState() {
     UserPreferences.setDefaultTab(2);
+    mapController = widget.mapController;
     super.initState();
   }
 
@@ -95,10 +103,6 @@ class _TrackSettingsState extends State<GpsSettings> {
                                             .gpsDistanceUnit;
 
                                     _unitsDistance = value.toDouble();
-                                    widget.controller.unitsDistance =
-                                        _unitsDistance;
-                                    UserPreferences.setDistancePreferences(
-                                        _unitsDistance);
                                   } else {
                                     sliderTitle = (value > 1)
                                         ? AppLocalizations.of(context)!
@@ -107,9 +111,6 @@ class _TrackSettingsState extends State<GpsSettings> {
                                             .gpsTimeUnit;
 
                                     _unitsTime = value.floor();
-                                    widget.controller.unitsTime = _unitsTime;
-                                    UserPreferences.setTimePreferences(
-                                        _unitsTime);
                                   }
                                 });
                               },
@@ -122,6 +123,19 @@ class _TrackSettingsState extends State<GpsSettings> {
                   actions: [
                     ElevatedButton(
                         onPressed: () {
+                          if (methodIsDistance()) {
+                            widget.controller.unitsDistance = _unitsDistance;
+                            UserPreferences.setDistancePreferences(
+                                _unitsDistance);
+                            mapController.setGpsSettings!(
+                                'distance', _unitsDistance, 0);
+                          } else {
+                            widget.controller.unitsTime = _unitsTime;
+                            UserPreferences.setTimePreferences(_unitsTime);
+                            mapController.setGpsSettings!(
+                                'time', 0, _unitsTime);
+                          }
+
                           Navigator.of(context).pop(units.toString());
                         },
                         style: ElevatedButton.styleFrom(
