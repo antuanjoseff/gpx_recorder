@@ -170,7 +170,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void setTrackPreferences(bool numSatelites, bool accuracy, bool speed,
-      bool heading, bool provider, bool visible, Color color) {
+      bool heading, bool provider, bool visible, Color color, int width) {
     _numSatelites = numSatelites;
     _accuracy = accuracy;
     _speed = speed;
@@ -178,6 +178,7 @@ class _MapWidgetState extends State<MapWidget> {
     _provider = provider;
     track!.visible = visible;
     track!.trackColor = color;
+    track!.trackWidth = width;
     debugPrint('TRACK PREFERENCES $color');
     debugPrint('TRACK PREFERENCES $visible');
     if (!track!.visible) {

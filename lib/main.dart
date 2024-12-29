@@ -80,7 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool provider;
   bool visible = true;
   bool showLayers = false;
-  Color color = Colors.pink;
+  late Color color;
+  late int width;
   late String gpsMethod;
   late double gpsUnitsDistance;
   late int gpsUnitsTime;
@@ -101,6 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
     gpsMethod = UserPreferences.getGpsMethod();
     gpsUnitsDistance = UserPreferences.getDistancePreferences();
     gpsUnitsTime = UserPreferences.getTimePreferences();
+    color = UserPreferences.getTrackColor();
+    width = UserPreferences.getTrackWidth();
     // DisableBatteryOptimization.isBatteryOptimizationDisabled
     //     .then((isBatteryOptimizationDisabled) async {
     //   await handleBatteryOptimization(isBatteryOptimizationDisabled);
@@ -128,91 +131,98 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void handleSettings(var settings) async {
     var (
-      bool Sp,
-      bool He,
-      bool numSat,
-      bool Ac,
-      bool Pro,
-      bool vis,
-      Color col,
-      String gpsmethod,
-      double gpsunitsdistance,
-      int gpsunitstime
+      bool newSpeed,
+      bool newHeading,
+      bool newNumSat,
+      bool newAccuracy,
+      bool newProvider,
+      bool newVisibility,
+      Color newColor,
+      int newWidth,
+      String newGpsMethod,
+      double newGpsUnitsDistance,
+      int newGpsUnitsTime
     ) = settings;
 
     bool gpxEdit = false;
 
-    if (accuracy != Ac) {
-      await UserPreferences.setAccuracy(Ac);
+    if (accuracy != newAccuracy) {
+      await UserPreferences.setAccuracy(newAccuracy);
       gpxEdit = true;
     }
 
-    if (speed != Sp) {
-      await UserPreferences.setSpeed(Sp);
+    if (speed != newSpeed) {
+      await UserPreferences.setSpeed(newSpeed);
       gpxEdit = true;
     }
 
-    if (heading != He) {
-      await UserPreferences.setHeading(He);
+    if (heading != newHeading) {
+      await UserPreferences.setHeading(newHeading);
       gpxEdit = true;
     }
 
-    if (provider != Pro) {
-      await UserPreferences.setProvider(Pro);
+    if (provider != newProvider) {
+      await UserPreferences.setProvider(newProvider);
       gpxEdit = true;
     }
 
-    if (visible != vis) {
-      await UserPreferences.setTrackVisible(vis);
+    if (visible != newVisibility) {
+      await UserPreferences.setTrackVisible(newVisibility);
       gpxEdit = true;
     }
 
-    if (color != col) {
-      UserPreferences.setTrackColor(col);
+    if (color != newColor) {
+      UserPreferences.setTrackColor(newColor);
+      gpxEdit = true;
+    }
+
+    if (width != newWidth) {
+      UserPreferences.setTrackWidth(newWidth);
       gpxEdit = true;
     }
 
     if (gpxEdit) {
-      _mainController.setTrackPreferences!(
-          numSatelites, accuracy, speed, heading, provider, visible, col);
+      _mainController.setTrackPreferences!(numSatelites, accuracy, speed,
+          heading, provider, visible, newColor, newWidth);
     }
 
-    if (gpsMethod != gpsmethod ||
-        gpsUnitsDistance != gpsunitsdistance ||
-        gpsUnitsTime != gpsunitstime) {
-      await UserPreferences.setGpsMethod(gpsmethod);
-      if (gpsmethod == 'distance') {
-        await UserPreferences.setDistancePreferences(gpsunitsdistance);
-      } else {
-        await UserPreferences.setTimePreferences(gpsunitstime);
-      }
+    // if (gpsMethod != newGpsMethod ||
+    //     gpsUnitsDistance != newGpsUnitsDistance ||
+    //     gpsUnitsTime != newGpsUnitsTime) {
+    //   await UserPreferences.setGpsMethod(newGpsMethod);
+    //   if (newGpsMethod == 'distance') {
+    //     await UserPreferences.setDistancePreferences(newGpsUnitsDistance);
+    //   } else {
+    //     await UserPreferences.setTimePreferences(newGpsUnitsTime);
+    //   }
 
-      double distanceFilter = 0;
-      int interval = 1;
+    //   double distanceFilter = 0;
+    //   int interval = 1;
 
-      if (gpsMethod == 'distance') {
-        distanceFilter = gpsunitsdistance;
-      } else {
-        interval = gpsunitstime;
-      }
+    //   if (gpsMethod == 'distance') {
+    //     distanceFilter = newGpsUnitsDistance;
+    //   } else {
+    //     interval = newGpsUnitsTime;
+    //   }
 
-      _mainController.setGpsSettings!(
-        gpsmethod,
-        distanceFilter,
-        interval,
-      );
-    }
+    //   _mainController.setGpsSettings!(
+    //     newGpsMethod,
+    //     distanceFilter,
+    //     interval,
+    //   );
+    // }
 
-    numSatelites = numSat;
-    accuracy = Ac;
-    speed = Sp;
-    heading = He;
-    provider = Pro;
-    visible = vis;
-    color = col;
-    gpsMethod = gpsmethod;
-    gpsUnitsDistance = gpsunitsdistance;
-    gpsUnitsTime = gpsunitstime;
+    numSatelites = newNumSat;
+    accuracy = newAccuracy;
+    speed = newSpeed;
+    heading = newHeading;
+    provider = newProvider;
+    visible = newVisibility;
+    color = newColor;
+    width = newWidth;
+    gpsMethod = newGpsMethod;
+    gpsUnitsDistance = newGpsUnitsDistance;
+    gpsUnitsTime = newGpsUnitsTime;
 
     _mainController.centerMap!(_mainController.getLastLocation!());
   }
@@ -294,6 +304,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     provider: provider,
                                     visible: visible,
                                     color: color,
+                                    width: width,
                                     gpsMethod: gpsMethod,
                                     gpsUnitsDistance: gpsUnitsDistance,
                                     gpsUnitsTime: gpsUnitsTime,

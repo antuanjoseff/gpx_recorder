@@ -16,6 +16,7 @@ class MapController {
     bool provider,
     bool visible,
     Color color,
+    int width,
   )? setTrackPreferences;
 
   void Function()? startRecording;

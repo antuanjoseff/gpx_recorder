@@ -20,17 +20,21 @@ class TrackSettings extends StatefulWidget {
 class _TrackSettingsState extends State<TrackSettings> {
   late bool visible;
   late Color trackColor;
+  late int trackWidth;
 
   @override
   void initState() {
+    debugPrint('TRACK SETTINGS INITSTATE');
     UserPreferences.setDefaultTab(1);
+    visible = UserPreferences.getTrackVisible();
+    trackColor = UserPreferences.getTrackColor();
+    trackWidth = UserPreferences.getTrackWidth();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    visible = UserPreferences.getTrackVisible();
-    trackColor = UserPreferences.getTrackColor();
+    double widthValue = 4;
 
     return DefaultTextStyle(
       style: TextStyle(color: primaryColor, fontSize: 20),
@@ -101,56 +105,117 @@ class _TrackSettingsState extends State<TrackSettings> {
                         child: ElevatedButton(
                       onPressed: !widget.controller.visible
                           ? null
-                          : () {
-                              showDialog(
+                          : () async {
+                              await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Select a color'),
-                                      content: SingleChildScrollView(
-                                        child: Column(
-                                          children: [
-                                            BlockPicker(
-                                              pickerColor: trackColor,
-                                              onColorChanged: (value) async {
-                                                widget.controller.color = value;
-                                                setState(() {});
-                                              },
-                                              availableColors: colors,
-                                              // layoutBuilder: pickerLayoutBuilder,
-                                              // itemBuilder: pickerItemBuilder,
+                                    return StatefulBuilder(
+                                      builder: (context, setState) {
+                                        return AlertDialog(
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                const Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Text('Select a color'),
+                                                  ],
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: BlockPicker(
+                                                    pickerColor: trackColor,
+                                                    onColorChanged:
+                                                        (value) async {
+                                                      trackColor = value;
+                                                      widget.controller.color =
+                                                          value;
+                                                      setState(() {});
+                                                    },
+                                                    availableColors: colors,
+                                                    // layoutBuilder: pickerLayoutBuilder,
+                                                    // itemBuilder: pickerItemBuilder,
+                                                  ),
+                                                ),
+                                                const Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Text('Track width'),
+                                                  ],
+                                                ),
+                                                SliderTheme(
+                                                  data: SliderTheme.of(context)
+                                                      .copyWith(
+                                                    trackShape:
+                                                        RectangularSliderTrackShape(),
+                                                    trackHeight:
+                                                        trackWidth.toDouble(),
+                                                    overlayColor: trackColor
+                                                        .withAlpha(32),
+                                                    overlayShape:
+                                                        RoundSliderOverlayShape(
+                                                            overlayRadius:
+                                                                28.0),
+                                                  ),
+                                                  child: Slider(
+                                                    value:
+                                                        trackWidth.toDouble(),
+                                                    min: 1,
+                                                    divisions: 10,
+                                                    max: 20,
+                                                    label:
+                                                        "${trackWidth.floor().toString()}",
+                                                    activeColor: trackColor,
+                                                    onChanged: (value) {
+                                                      widget.controller.width =
+                                                          value.floor();
+                                                      trackWidth =
+                                                          value.floor();
+                                                      setState(() {});
+                                                    },
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                            backgroundColor:
+                                                                fourthColor,
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5.0),
+                                                            )),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        visible = widget
+                                                            .controller.visible;
+                                                        trackColor = widget
+                                                            .controller.color;
+                                                      });
+                                                      Navigator.of(context,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pop();
+                                                    },
+                                                    child: Text(
+                                                        AppLocalizations.of(
+                                                                context)!
+                                                            .close))
+                                              ],
                                             ),
-                                            ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        fourthColor,
-                                                    foregroundColor:
-                                                        Colors.white,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5.0),
-                                                    )),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    visible = widget
-                                                        .controller.visible;
-                                                    trackColor =
-                                                        widget.controller.color;
-                                                  });
-                                                  Navigator.of(context,
-                                                          rootNavigator: true)
-                                                      .pop();
-                                                },
-                                                child: Text(AppLocalizations.of(
-                                                        context)!
-                                                    .close))
-                                          ],
-                                        ),
-                                      ),
+                                          ),
+                                        );
+                                      },
                                     );
                                   });
+                              setState(() {});
                             },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: widget.controller.visible

@@ -18,6 +18,7 @@ class UserPreferences {
   static const _gpsUnitsDistance = 'gpsUnitsDistance';
   static const _gpsUnitsTime = 'gpsUnitsTime';
   static const _defaultTab = 'defaultSettingsTab';
+  static const _trackWidth = 'trackWidth';
 
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
@@ -75,6 +76,11 @@ class UserPreferences {
     return trackColor == null ? Colors.pink : Color(trackColor);
   }
 
+  static int getTrackWidth() {
+    final trackWidth = _preferences.getInt(_trackWidth);
+    return trackWidth == null ? 4 : trackWidth;
+  }
+
   static String getGpsMethod() {
     final method = _preferences.getString(_gpsMethod);
     return method == null ? 'meters' : method;
@@ -126,6 +132,9 @@ class UserPreferences {
 
   static Future setTrackColor(Color color) async =>
       await _preferences.setInt(_trackColor, color.value);
+
+  static Future setTrackWidth(int width) async =>
+      await _preferences.setInt(_trackWidth, width);
 
   static Future setGpsMethod(String method) async =>
       await _preferences.setString(_gpsMethod, method);

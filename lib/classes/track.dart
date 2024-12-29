@@ -281,7 +281,7 @@ class Track {
       LineOptions(
         geometry: gpxCoords,
         lineColor: trackColor.toHexStringRGB(),
-        lineWidth: 3,
+        lineWidth: trackWidth.toDouble(),
         lineOpacity: 0.9,
       ),
     );
