@@ -30,6 +30,7 @@ class MapWidget extends StatefulWidget {
 }
 
 class _MapWidgetState extends State<MapWidget> {
+  Symbol? userLocation;
   late Duration movingDuration;
   late bool _numSatelites;
   late bool _accuracy;
@@ -210,17 +211,24 @@ class _MapWidgetState extends State<MapWidget> {
     super.initState();
   }
 
-  void checkUserLocation() {
-    gps.checkService().then((serviceEnabled) {
-      if (serviceEnabled) {
-        gps.checkPermission().then((hasPermission) {
-          if (hasPermission) {
-            _myLocationEnabled = true;
-            callSetState();
-          }
-        });
+  Future<Symbol?> createUserLocation() async {
+    bool serviceEnabled = await gps.checkService();
+
+    if (serviceEnabled) {
+      bool hasPermission = await gps.checkPermission();
+      if (hasPermission) {
+        LocationData? loc = await gps.getLocation();
+        Symbol userloc = await mapController!.addSymbol(SymbolOptions(
+            draggable: false,
+            iconImage: 'userLocation',
+            geometry: LatLng(loc!.latitude!, loc.longitude!)));
+        return userloc;
+      } else {
+        return null;
       }
-    });
+    } else {
+      return null;
+    }
   }
 
   Future<bool> checkGpsService() async {
@@ -357,6 +365,7 @@ class _MapWidgetState extends State<MapWidget> {
       Symbol wptSymbol = await mapController!.addSymbol(SymbolOptions(
           draggable: false,
           iconImage: 'waypoint',
+          iconOffset: kIsWeb ? Offset(20, -180 / 2) : Offset(5, -25),
           geometry: LatLng(lastLocation!.latitude!, lastLocation!.longitude!)));
     }
   }
@@ -501,6 +510,15 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     lastLocation = loc;
+    //update userLocation
+    if (userLocation != null) {
+      await mapController!.updateSymbol(
+          userLocation!,
+          SymbolOptions(
+              iconRotate: loc.heading,
+              geometry: LatLng(loc.latitude!, loc.longitude!)));
+    }
+
     if (userIsMoving(loc)) {
       // USER IS MOVING
       if (!lastLocationMoving) {
@@ -566,17 +584,22 @@ class _MapWidgetState extends State<MapWidget> {
     return Stack(
       children: [
         MapLibreMap(
-          minMaxZoomPreference: MinMaxZoomPreference(0, 19),
-          myLocationEnabled: _myLocationEnabled,
-          myLocationTrackingMode: _myLocationTrackingMode,
-          myLocationRenderMode: _myLocationRenderMode,
+          minMaxZoomPreference: MinMaxZoomPreference(0, 18),
+          // myLocationEnabled: _myLocationEnabled,
+          // myLocationTrackingMode: _myLocationTrackingMode,
+          // myLocationRenderMode: _myLocationRenderMode,
           onMapCreated: _onMapCreated,
           styleString: 'assets/styles/mainmap_style.json',
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
           trackCameraPosition: true,
-          onStyleLoadedCallback: () {
+          onStyleLoadedCallback: () async {
+            // addImageFromAsset(
+            //     mapController!, "waypoint", "assets/symbols/waypoint.png");
             addImageFromAsset(
-                mapController!, "waypoint", "assets/symbols/waypoint.png");
+                mapController!, "waypoint", "assets/symbols/flag100.png");
+            addImageFromAsset(mapController!, "userLocation",
+                "assets/symbols/userlocation.png");
+            userLocation = await createUserLocation();
           },
         ),
         // Positioned(

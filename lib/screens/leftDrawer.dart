@@ -83,7 +83,9 @@ class _LeffDrawerState extends State<LeffDrawer> {
                     attributionButtonPosition: attributionButtonPosition,
                     initialCameraPosition: CameraPosition(
                       target: widget.controller.getCenter!(),
-                      zoom: widget.controller.getZoom!() - 2,
+                      zoom: (widget.controller.getZoom!() - 2) >= 15
+                          ? 15
+                          : widget.controller.getZoom!() - 2,
                     ),
                   ),
                 ),
@@ -115,7 +117,9 @@ class _LeffDrawerState extends State<LeffDrawer> {
                     minMaxZoomPreference: MinMaxZoomPreference(0, 16),
                     initialCameraPosition: CameraPosition(
                       target: widget.controller.getCenter!(),
-                      zoom: widget.controller.getZoom!() - 2,
+                      zoom: (widget.controller.getZoom!() - 2) >= 15
+                          ? 15
+                          : widget.controller.getZoom!() - 2,
                     ),
                   ),
                 ),
