@@ -18,17 +18,12 @@ class TrackSettings extends StatefulWidget {
 }
 
 class _TrackSettingsState extends State<TrackSettings> {
-  late bool visible;
-  late Color trackColor;
-  late int trackWidth;
-
   @override
   void initState() {
-    debugPrint('TRACK SETTINGS INITSTATE');
     UserPreferences.setDefaultTab(1);
-    visible = UserPreferences.getTrackVisible();
-    trackColor = UserPreferences.getTrackColor();
-    trackWidth = UserPreferences.getTrackWidth();
+    // widget.controller.visible = UserPreferences.getTrackVisible();
+    // widget.controller.color = UserPreferences.getTrackColor();
+    // widget.controller.width = UserPreferences.getTrackWidth();
     super.initState();
   }
 
@@ -68,8 +63,9 @@ class _TrackSettingsState extends State<TrackSettings> {
                             backgroundColor: widget.controller.visible
                                 ? fourthColor
                                 : fifthColor,
-                            foregroundColor:
-                                visible ? Colors.white : primaryColor,
+                            foregroundColor: widget.controller.visible
+                                ? Colors.white
+                                : primaryColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
                             )),
@@ -126,10 +122,12 @@ class _TrackSettingsState extends State<TrackSettings> {
                                                   padding:
                                                       const EdgeInsets.all(8.0),
                                                   child: BlockPicker(
-                                                    pickerColor: trackColor,
+                                                    pickerColor:
+                                                        widget.controller.color,
                                                     onColorChanged:
                                                         (value) async {
-                                                      trackColor = value;
+                                                      widget.controller.color =
+                                                          value;
                                                       widget.controller.color =
                                                           value;
                                                       setState(() {});
@@ -151,9 +149,11 @@ class _TrackSettingsState extends State<TrackSettings> {
                                                       .copyWith(
                                                     trackShape:
                                                         RectangularSliderTrackShape(),
-                                                    trackHeight:
-                                                        trackWidth.toDouble(),
-                                                    overlayColor: trackColor
+                                                    trackHeight: widget
+                                                        .controller.width
+                                                        .toDouble(),
+                                                    overlayColor: widget
+                                                        .controller.color
                                                         .withAlpha(32),
                                                     overlayShape:
                                                         RoundSliderOverlayShape(
@@ -161,18 +161,20 @@ class _TrackSettingsState extends State<TrackSettings> {
                                                                 28.0),
                                                   ),
                                                   child: Slider(
-                                                    value:
-                                                        trackWidth.toDouble(),
+                                                    value: widget
+                                                        .controller.width
+                                                        .toDouble(),
                                                     min: 1,
                                                     divisions: 10,
                                                     max: 20,
                                                     label:
-                                                        "${trackWidth.floor().toString()}",
-                                                    activeColor: trackColor,
+                                                        "${widget.controller.width.floor().toString()}",
+                                                    activeColor:
+                                                        widget.controller.color,
                                                     onChanged: (value) {
                                                       widget.controller.width =
                                                           value.floor();
-                                                      trackWidth =
+                                                      widget.controller.width =
                                                           value.floor();
                                                       setState(() {});
                                                     },
@@ -194,10 +196,14 @@ class _TrackSettingsState extends State<TrackSettings> {
                                                             )),
                                                     onPressed: () {
                                                       setState(() {
-                                                        visible = widget
-                                                            .controller.visible;
-                                                        trackColor = widget
-                                                            .controller.color;
+                                                        widget.controller
+                                                                .visible =
+                                                            widget.controller
+                                                                .visible;
+                                                        widget.controller
+                                                                .color =
+                                                            widget.controller
+                                                                .color;
                                                       });
                                                       Navigator.of(context,
                                                               rootNavigator:

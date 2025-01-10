@@ -9,7 +9,10 @@ import './classes/vars.dart';
 import './classes/gps.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-// import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+import '../controllers/gpx.dart';
+import '../controllers/track.dart';
+import '../controllers/gps.dart';
+
 import './screens/leftDrawer.dart';
 
 void main() async {
@@ -69,6 +72,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   MapController _mainController = MapController();
+  late GpxController gpxController;
+  late TrackController trackController;
+  late GpsController gpsController;
+
   bool recording = false;
   int milliseconds = 300;
 
@@ -83,8 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late Color color;
   late int width;
   late String gpsMethod;
-  late double gpsUnitsDistance;
-  late int gpsUnitsTime;
+  late double unitsDistance;
+  late int unitsTime;
   double gpsUnits = -1;
 
   ButtonStyle customStyleButton = ElevatedButton.styleFrom(
@@ -99,28 +106,36 @@ class _MyHomePageState extends State<MyHomePage> {
     speed = UserPreferences.getSpeed();
     heading = UserPreferences.getHeading();
     provider = UserPreferences.getProvider();
+
+    gpxController = GpxController(
+        numSatelites: numSatelites,
+        accuracy: accuracy,
+        speed: speed,
+        heading: heading,
+        provider: provider);
+
     gpsMethod = UserPreferences.getGpsMethod();
-    gpsUnitsDistance = UserPreferences.getDistancePreferences();
-    gpsUnitsTime = UserPreferences.getTimePreferences();
+    unitsDistance = UserPreferences.getDistancePreferences();
+    unitsTime = UserPreferences.getTimePreferences();
+
+    gpsController = GpsController(
+      method: gpsMethod,
+      unitsDistance: unitsDistance,
+      unitsTime: unitsTime,
+    );
+
+    visible = UserPreferences.getTrackVisible();
     color = UserPreferences.getTrackColor();
     width = UserPreferences.getTrackWidth();
-    // DisableBatteryOptimization.isBatteryOptimizationDisabled
-    //     .then((isBatteryOptimizationDisabled) async {
-    //   await handleBatteryOptimization(isBatteryOptimizationDisabled);
-    // });
+
+    trackController =
+        TrackController(visible: visible, color: color, width: width);
+
     setState(() {
       showLayers = true;
     });
     super.initState();
   }
-
-  // Future<void> handleBatteryOptimization(
-  //     bool? isBatteryOptimizationDisabled) async {
-  //   isBatteryOptimizationDisabled ??= false;
-  //   if (!isBatteryOptimizationDisabled) {
-  //     await DisableBatteryOptimization.showDisableBatteryOptimizationSettings();
-  //   }
-  // }
 
   void toggleAppBar() {
     print('......................toggle appbar');
@@ -130,73 +145,56 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void handleSettings(var settings) async {
-    var (
-      bool newSpeed,
-      bool newHeading,
-      bool newNumSat,
-      bool newAccuracy,
-      bool newProvider,
-      bool newVisible,
-      Color newColor,
-      int newWidth,
-      String newGpsMethod,
-      double newGpsUnitsDistance,
-      int newGpsUnitsTime
-    ) = settings;
+    var (gpxController, trackController, gpsController) = settings;
 
     bool gpxEdit = false;
 
-    debugPrint('TAB HANDLESETTINGS ACCURACY ${newAccuracy}');
-    debugPrint('TAB HANDLESETTINGS SPEED ${newSpeed}');
-    debugPrint('TAB HANDLESETTINGS HEADING ${newHeading}');
-    debugPrint('TAB HANDLESETTINGS PROVIDER ${newProvider}');
-
-    if (accuracy != newAccuracy) {
-      await UserPreferences.setAccuracy(newAccuracy);
+    if (accuracy != gpxController.accuracy) {
+      await UserPreferences.setAccuracy(gpxController.accuracy);
       gpxEdit = true;
     }
 
-    if (speed != newSpeed) {
-      await UserPreferences.setSpeed(newSpeed);
+    if (speed != gpxController.speed) {
+      await UserPreferences.setSpeed(gpxController.speed);
       gpxEdit = true;
     }
 
-    if (heading != newHeading) {
-      await UserPreferences.setHeading(newHeading);
+    if (heading != gpxController.heading) {
+      await UserPreferences.setHeading(gpxController.heading);
       gpxEdit = true;
     }
 
-    if (provider != newProvider) {
-      await UserPreferences.setProvider(newProvider);
+    if (provider != gpxController.provider) {
+      await UserPreferences.setProvider(gpxController.provider);
       gpxEdit = true;
     }
 
-    if (visible != newVisible) {
-      await UserPreferences.setTrackVisible(newVisible);
+    if (visible != trackController.visible) {
+      await UserPreferences.setTrackVisible(trackController.visible);
       gpxEdit = true;
     }
 
-    if (color != newColor) {
-      UserPreferences.setTrackColor(newColor);
+    if (color != trackController.color) {
+      UserPreferences.setTrackColor(trackController.color);
       gpxEdit = true;
     }
 
-    if (width != newWidth) {
-      UserPreferences.setTrackWidth(newWidth);
+    if (width != trackController.width) {
+      UserPreferences.setTrackWidth(trackController.width);
       gpxEdit = true;
     }
 
-    numSatelites = newNumSat;
-    accuracy = newAccuracy;
-    speed = newSpeed;
-    heading = newHeading;
-    provider = newProvider;
-    visible = newVisible;
-    color = newColor;
-    width = newWidth;
-    gpsMethod = newGpsMethod;
-    gpsUnitsDistance = newGpsUnitsDistance;
-    gpsUnitsTime = newGpsUnitsTime;
+    numSatelites = gpxController.numSatelites;
+    accuracy = gpxController.accuracy;
+    speed = gpxController.speed;
+    heading = gpxController.heading;
+    provider = gpxController.provider;
+    visible = trackController.visible;
+    color = trackController.color;
+    width = trackController.width;
+    gpsMethod = gpsController.method;
+    unitsDistance = gpsController.unitsDistance;
+    unitsTime = gpsController.unitsTime;
 
     if (gpxEdit) {
       _mainController.setTrackPreferences!(numSatelites, accuracy, speed,
@@ -276,18 +274,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => TabSettings(
-                                    speed: speed,
-                                    heading: heading,
-                                    numSatelites: numSatelites,
-                                    accuracy: accuracy,
-                                    provider: provider,
-                                    visible: visible,
-                                    color: color,
-                                    width: width,
-                                    gpsMethod: gpsMethod,
-                                    gpsUnitsDistance: gpsUnitsDistance,
-                                    gpsUnitsTime: gpsUnitsTime,
-                                    mapController: _mainController),
+                                  gpxController: gpxController,
+                                  trackController: trackController,
+                                  gpsController: gpsController,
+                                  mapController: _mainController,
+                                ),
                               ));
                           if (result != null) {
                             handleSettings(result);

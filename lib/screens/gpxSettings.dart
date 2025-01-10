@@ -7,7 +7,7 @@ import '../controllers/gpx.dart';
 import '../controllers/map.dart';
 
 class GpxSettings extends StatefulWidget {
-  final GpxController controller;
+  GpxController controller;
   final MapController mapController;
 
   GpxSettings({
@@ -21,12 +21,10 @@ class GpxSettings extends StatefulWidget {
 }
 
 class _GpxSettingsState extends State<GpxSettings> {
-  late bool numSatelites;
   late bool accuracy;
   late bool speed;
   late bool heading;
   late bool provider;
-
   @override
   void initState() {
     UserPreferences.setDefaultTab(0);
@@ -35,11 +33,10 @@ class _GpxSettingsState extends State<GpxSettings> {
 
   @override
   Widget build(BuildContext context) {
-    numSatelites = false;
-    accuracy = UserPreferences.getAccuracy();
-    speed = UserPreferences.getSpeed();
-    heading = UserPreferences.getHeading();
-    provider = UserPreferences.getProvider();
+    // accuracy = UserPreferences.getAccuracy();
+    // speed = UserPreferences.getSpeed();
+    // heading = UserPreferences.getHeading();
+    // provider = UserPreferences.getProvider();
     return DefaultTextStyle(
       style: TextStyle(fontSize: 20),
       child: Padding(
@@ -65,13 +62,10 @@ class _GpxSettingsState extends State<GpxSettings> {
                       Container(
                         child: ElevatedButton(
                           onPressed: () async {
-                            widget.controller.speed = !widget.controller.speed;
-                            debugPrint(
-                                'TAB CHANGED ACCURACY ${widget.controller.accuracy}');
-                            debugPrint(
-                                'TAB CHANGED SPEED ${widget.controller.speed}');
-
-                            setState(() {});
+                            setState(() {
+                              widget.controller.speed =
+                                  !widget.controller.speed;
+                            });
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: widget.controller.speed
@@ -140,10 +134,6 @@ class _GpxSettingsState extends State<GpxSettings> {
                         onPressed: () async {
                           widget.controller.accuracy =
                               !widget.controller.accuracy;
-                          debugPrint(
-                              'TAB CHANGED ACCURACY ${widget.controller.accuracy}');
-                          debugPrint(
-                              'TAB CHANGED SPEED ${widget.controller.speed}');
                           setState(() {});
                         },
                         style: ElevatedButton.styleFrom(

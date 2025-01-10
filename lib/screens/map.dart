@@ -144,8 +144,6 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void setGpsSettings(method, distance, time) async {
-    debugPrint(
-        'DEBUG recording $recordingStarted ---- setgpssettings  distance $distance  time  $time');
     if (method == 'distance') {
       time = 0;
     } else {
@@ -180,8 +178,6 @@ class _MapWidgetState extends State<MapWidget> {
     track!.visible = visible;
     track!.trackColor = color;
     track!.trackWidth = width;
-    debugPrint('ACCURACY PREFERENCES $_accuracy');
-    debugPrint('SPEED PREFERENCES $_speed');
     if (!track!.visible) {
       track!.removeLine();
     } else {
@@ -457,9 +453,6 @@ class _MapWidgetState extends State<MapWidget> {
 
   Wpt createWptFromLocation(LocationData location) {
     Wpt wpt = Wpt();
-
-    debugPrint('ACCURACY PREFERENCES createWptFromLocation $_accuracy');
-    debugPrint('SPEED PREFERENCES createWptFromLocation $_speed');
 
     wpt.lat = location.latitude;
     wpt.lon = location.longitude;

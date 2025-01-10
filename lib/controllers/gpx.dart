@@ -1,7 +1,15 @@
 class GpxController {
-  bool speed = false;
-  bool heading = false;
-  bool numSatelites = false;
-  bool accuracy = false;
-  bool provider = false;
+  bool speed;
+  bool heading;
+  bool numSatelites;
+  bool accuracy;
+  bool provider;
+
+  GpxController({
+    required this.speed,
+    required this.accuracy,
+    required this.heading,
+    required this.provider,
+    required this.numSatelites,
+  });
 }

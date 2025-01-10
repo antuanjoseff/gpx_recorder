@@ -11,32 +11,16 @@ import '../controllers/gps.dart';
 import '../controllers/map.dart';
 
 class TabSettings extends StatefulWidget {
-  final bool numSatelites;
-  final bool accuracy;
-  final bool speed;
-  final bool heading;
-  final bool provider;
-  final bool visible;
-  final Color color;
-  final int width;
-  final String gpsMethod;
-  final double gpsUnitsDistance;
-  final int gpsUnitsTime;
+  final GpxController gpxController;
+  final TrackController trackController;
+  final GpsController gpsController;
   final MapController mapController;
 
   TabSettings(
       {super.key,
-      required this.speed,
-      required this.heading,
-      required this.numSatelites,
-      required this.accuracy,
-      required this.provider,
-      required this.visible,
-      required this.color,
-      required this.width,
-      required this.gpsMethod,
-      required this.gpsUnitsDistance,
-      required this.gpsUnitsTime,
+      required this.gpxController,
+      required this.trackController,
+      required this.gpsController,
       required this.mapController});
 
   @override
@@ -44,30 +28,14 @@ class TabSettings extends StatefulWidget {
 }
 
 class _TabSettingsState extends State<TabSettings> {
-  GpxController gpxController = GpxController();
-  TrackController trackController = TrackController();
-  GpsController gpsController = GpsController();
-  MapController mapController = MapController();
   late int defaultTab;
 
   @override
   void initState() {
     // TODO: implement initState
     defaultTab = 0;
-    gpxController.speed = widget.speed;
-    gpxController.heading = widget.heading;
-    gpxController.numSatelites = widget.numSatelites;
-    gpxController.accuracy = widget.accuracy;
-    gpxController.provider = widget.provider;
-    trackController.visible = widget.visible;
-    trackController.color = widget.color;
-    trackController.width = widget.width;
-    gpsController.method = widget.gpsMethod;
-    gpsController.unitsDistance = widget.gpsUnitsDistance;
-    gpsController.unitsTime = widget.gpsUnitsTime;
-    mapController = widget.mapController;
-    debugPrint('TAB OPEN ACCURACY ${gpxController.accuracy}');
-    debugPrint('TAB OPEN SPEED ${gpxController.speed}');
+    debugPrint('TAB OPEN ACCURACY ${widget.gpxController.accuracy}');
+    debugPrint('TAB OPEN SPEED ${widget.gpxController.speed}');
     super.initState();
   }
 
@@ -84,20 +52,10 @@ class _TabSettingsState extends State<TabSettings> {
             foregroundColor: Colors.white,
             leading: BackButton(
               onPressed: () {
-                debugPrint('TAB CLOSED ACCURACY ${gpxController.accuracy}');
-                debugPrint('TAB CLOSED SPEED ${gpxController.speed}');
                 Navigator.of(context).pop((
-                  gpxController.speed,
-                  gpxController.heading,
-                  gpxController.numSatelites,
-                  gpxController.accuracy,
-                  gpxController.provider,
-                  trackController.visible,
-                  trackController.color,
-                  trackController.width,
-                  gpsController.method,
-                  gpsController.unitsDistance,
-                  gpsController.unitsTime,
+                  widget.gpxController,
+                  widget.trackController,
+                  widget.gpsController,
                 ));
               },
             ),
@@ -153,11 +111,14 @@ class _TabSettingsState extends State<TabSettings> {
             child: TabBarView(
               children: [
                 GpxSettings(
-                    mapController: mapController, controller: gpxController),
+                    mapController: widget.mapController,
+                    controller: widget.gpxController),
                 TrackSettings(
-                    mapController: mapController, controller: trackController),
+                    mapController: widget.mapController,
+                    controller: widget.trackController),
                 GpsSettings(
-                    mapController: mapController, controller: gpsController),
+                    mapController: widget.mapController,
+                    controller: widget.gpsController),
               ],
             ),
           )),

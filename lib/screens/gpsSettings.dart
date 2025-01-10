@@ -21,9 +21,6 @@ class GpsSettings extends StatefulWidget {
 }
 
 class _TrackSettingsState extends State<GpsSettings> {
-  late String _method;
-  late double _unitsDistance;
-  late int _unitsTime;
   late MapController mapController;
   @override
   void initState() {
@@ -34,9 +31,9 @@ class _TrackSettingsState extends State<GpsSettings> {
 
   @override
   Widget build(BuildContext context) {
-    _method = UserPreferences.getGpsMethod();
-    _unitsDistance = UserPreferences.getDistancePreferences();
-    _unitsTime = UserPreferences.getTimePreferences();
+    // widget.controller.method = UserPreferences.getGpsMethod();
+    // widget.controller.unitsDistance = UserPreferences.getDistancePreferences();
+    // widget.controller.unitsTime = UserPreferences.getTimePreferences();
 
     bool methodIsDistance() {
       return widget.controller.method == 'distance';
@@ -48,12 +45,11 @@ class _TrackSettingsState extends State<GpsSettings> {
           ? AppLocalizations.of(context)!.distance
           : AppLocalizations.of(context)!.time;
 
-      debugPrint('units times $_unitsTime');
       String sliderTitle = methodIsDistance()
-          ? (_unitsDistance > 1
+          ? (widget.controller.unitsDistance > 1
               ? AppLocalizations.of(context)!.gpsDistanceUnits
               : AppLocalizations.of(context)!.gpsDistanceUnit)
-          : (_unitsTime > 1
+          : (widget.controller.unitsTime > 1
               ? AppLocalizations.of(context)!.gpsTimeUnits
               : AppLocalizations.of(context)!.gpsTimeUnit);
 
@@ -102,7 +98,8 @@ class _TrackSettingsState extends State<GpsSettings> {
                                         : AppLocalizations.of(context)!
                                             .gpsDistanceUnit;
 
-                                    _unitsDistance = value.toDouble();
+                                    widget.controller.unitsDistance =
+                                        value.toDouble();
                                   } else {
                                     sliderTitle = (value > 1)
                                         ? AppLocalizations.of(context)!
@@ -110,7 +107,7 @@ class _TrackSettingsState extends State<GpsSettings> {
                                         : AppLocalizations.of(context)!
                                             .gpsTimeUnit;
 
-                                    _unitsTime = value.floor();
+                                    widget.controller.unitsTime = value.floor();
                                   }
                                 });
                               },
@@ -124,16 +121,19 @@ class _TrackSettingsState extends State<GpsSettings> {
                     ElevatedButton(
                         onPressed: () {
                           if (methodIsDistance()) {
-                            widget.controller.unitsDistance = _unitsDistance;
+                            widget.controller.unitsDistance =
+                                widget.controller.unitsDistance;
                             UserPreferences.setDistancePreferences(
-                                _unitsDistance);
+                                widget.controller.unitsDistance);
                             mapController.setGpsSettings!(
-                                'distance', _unitsDistance, 0);
+                                'distance', widget.controller.unitsDistance, 0);
                           } else {
-                            widget.controller.unitsTime = _unitsTime;
-                            UserPreferences.setTimePreferences(_unitsTime);
+                            widget.controller.unitsTime =
+                                widget.controller.unitsTime;
+                            UserPreferences.setTimePreferences(
+                                widget.controller.unitsTime);
                             mapController.setGpsSettings!(
-                                'time', 0, _unitsTime);
+                                'time', 0, widget.controller.unitsTime);
                           }
 
                           Navigator.of(context).pop(units.toString());
@@ -178,12 +178,10 @@ class _TrackSettingsState extends State<GpsSettings> {
                               await UserPreferences.getDistancePreferences()
                                   .toString();
 
-                          debugPrint('DEBUG $result');
-
                           double value = double.parse(result);
                           setState(() {
                             widget.controller.unitsDistance = value;
-                            _unitsDistance = value;
+                            widget.controller.unitsDistance = value;
                           });
                         },
                         style: ElevatedButton.styleFrom(
@@ -226,13 +224,13 @@ class _TrackSettingsState extends State<GpsSettings> {
                             context, AppLocalizations.of(context)!.time);
                         result ??= await UserPreferences.getTimePreferences()
                             .toString();
-                        debugPrint('DEBUG $result');
+
                         double value = double.parse(result!);
                         widget.controller.unitsTime = value.floor();
 
                         setState(() {
                           widget.controller.unitsTime = value.floor();
-                          _unitsTime = value.floor();
+                          widget.controller.unitsTime = value.floor();
                         });
                       },
                       style: ElevatedButton.styleFrom(

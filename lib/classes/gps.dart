@@ -57,10 +57,12 @@ class Gps {
     double? distanceFilter,
     int? interval,
   ) {
-    debugPrint('DEBUG; time (s) ${(interval!)} distance (m) $distanceFilter');
+    if (interval == null) {
+      interval = 1;
+    }
     location.changeSettings(
       accuracy: accuracy,
-      interval: interval * 1000,
+      interval: interval! * 1000,
       distanceFilter: distanceFilter,
     );
   }
