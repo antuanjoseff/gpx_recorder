@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bool newNumSat,
       bool newAccuracy,
       bool newProvider,
-      bool newVisibility,
+      bool newVisible,
       Color newColor,
       int newWidth,
       String newGpsMethod,
@@ -145,6 +145,11 @@ class _MyHomePageState extends State<MyHomePage> {
     ) = settings;
 
     bool gpxEdit = false;
+
+    debugPrint('TAB HANDLESETTINGS ACCURACY ${newAccuracy}');
+    debugPrint('TAB HANDLESETTINGS SPEED ${newSpeed}');
+    debugPrint('TAB HANDLESETTINGS HEADING ${newHeading}');
+    debugPrint('TAB HANDLESETTINGS PROVIDER ${newProvider}');
 
     if (accuracy != newAccuracy) {
       await UserPreferences.setAccuracy(newAccuracy);
@@ -166,8 +171,8 @@ class _MyHomePageState extends State<MyHomePage> {
       gpxEdit = true;
     }
 
-    if (visible != newVisibility) {
-      await UserPreferences.setTrackVisible(newVisibility);
+    if (visible != newVisible) {
+      await UserPreferences.setTrackVisible(newVisible);
       gpxEdit = true;
     }
 
@@ -181,48 +186,22 @@ class _MyHomePageState extends State<MyHomePage> {
       gpxEdit = true;
     }
 
-    if (gpxEdit) {
-      _mainController.setTrackPreferences!(numSatelites, accuracy, speed,
-          heading, provider, visible, newColor, newWidth);
-    }
-
-    // if (gpsMethod != newGpsMethod ||
-    //     gpsUnitsDistance != newGpsUnitsDistance ||
-    //     gpsUnitsTime != newGpsUnitsTime) {
-    //   await UserPreferences.setGpsMethod(newGpsMethod);
-    //   if (newGpsMethod == 'distance') {
-    //     await UserPreferences.setDistancePreferences(newGpsUnitsDistance);
-    //   } else {
-    //     await UserPreferences.setTimePreferences(newGpsUnitsTime);
-    //   }
-
-    //   double distanceFilter = 0;
-    //   int interval = 1;
-
-    //   if (gpsMethod == 'distance') {
-    //     distanceFilter = newGpsUnitsDistance;
-    //   } else {
-    //     interval = newGpsUnitsTime;
-    //   }
-
-    //   _mainController.setGpsSettings!(
-    //     newGpsMethod,
-    //     distanceFilter,
-    //     interval,
-    //   );
-    // }
-
     numSatelites = newNumSat;
     accuracy = newAccuracy;
     speed = newSpeed;
     heading = newHeading;
     provider = newProvider;
-    visible = newVisibility;
+    visible = newVisible;
     color = newColor;
     width = newWidth;
     gpsMethod = newGpsMethod;
     gpsUnitsDistance = newGpsUnitsDistance;
     gpsUnitsTime = newGpsUnitsTime;
+
+    if (gpxEdit) {
+      _mainController.setTrackPreferences!(numSatelites, accuracy, speed,
+          heading, provider, visible, color, width);
+    }
 
     _mainController.centerMap!(_mainController.getLastLocation!());
   }

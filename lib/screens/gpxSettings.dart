@@ -66,6 +66,11 @@ class _GpxSettingsState extends State<GpxSettings> {
                         child: ElevatedButton(
                           onPressed: () async {
                             widget.controller.speed = !widget.controller.speed;
+                            debugPrint(
+                                'TAB CHANGED ACCURACY ${widget.controller.accuracy}');
+                            debugPrint(
+                                'TAB CHANGED SPEED ${widget.controller.speed}');
+
                             setState(() {});
                           },
                           style: ElevatedButton.styleFrom(
@@ -135,6 +140,10 @@ class _GpxSettingsState extends State<GpxSettings> {
                         onPressed: () async {
                           widget.controller.accuracy =
                               !widget.controller.accuracy;
+                          debugPrint(
+                              'TAB CHANGED ACCURACY ${widget.controller.accuracy}');
+                          debugPrint(
+                              'TAB CHANGED SPEED ${widget.controller.speed}');
                           setState(() {});
                         },
                         style: ElevatedButton.styleFrom(

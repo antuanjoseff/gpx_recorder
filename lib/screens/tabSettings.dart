@@ -66,6 +66,8 @@ class _TabSettingsState extends State<TabSettings> {
     gpsController.unitsDistance = widget.gpsUnitsDistance;
     gpsController.unitsTime = widget.gpsUnitsTime;
     mapController = widget.mapController;
+    debugPrint('TAB OPEN ACCURACY ${gpxController.accuracy}');
+    debugPrint('TAB OPEN SPEED ${gpxController.speed}');
     super.initState();
   }
 
@@ -82,7 +84,8 @@ class _TabSettingsState extends State<TabSettings> {
             foregroundColor: Colors.white,
             leading: BackButton(
               onPressed: () {
-                debugPrint('${gpxController.speed}  ${gpxController.heading}');
+                debugPrint('TAB CLOSED ACCURACY ${gpxController.accuracy}');
+                debugPrint('TAB CLOSED SPEED ${gpxController.speed}');
                 Navigator.of(context).pop((
                   gpxController.speed,
                   gpxController.heading,

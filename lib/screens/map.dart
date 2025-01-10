@@ -180,8 +180,8 @@ class _MapWidgetState extends State<MapWidget> {
     track!.visible = visible;
     track!.trackColor = color;
     track!.trackWidth = width;
-    debugPrint('TRACK PREFERENCES $color');
-    debugPrint('TRACK PREFERENCES $visible');
+    debugPrint('ACCURACY PREFERENCES $_accuracy');
+    debugPrint('SPEED PREFERENCES $_speed');
     if (!track!.visible) {
       track!.removeLine();
     } else {
@@ -457,6 +457,9 @@ class _MapWidgetState extends State<MapWidget> {
 
   Wpt createWptFromLocation(LocationData location) {
     Wpt wpt = Wpt();
+
+    debugPrint('ACCURACY PREFERENCES createWptFromLocation $_accuracy');
+    debugPrint('SPEED PREFERENCES createWptFromLocation $_speed');
 
     wpt.lat = location.latitude;
     wpt.lon = location.longitude;
