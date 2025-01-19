@@ -22,6 +22,7 @@ class _TrackStatsState extends State<TrackStats> {
   late String trackElevationString;
   late String trackHeadingString;
   late String trackElevationGainString;
+  late String trackElevationLossString;
 
   late String avgSpeed;
   late double? currentSpeed;
@@ -72,11 +73,15 @@ class _TrackStatsState extends State<TrackStats> {
 
     trackElevationString = _track.getCurrentElevation() != null
         ? _track.getCurrentElevation()!.toStringAsFixed(0)
-        : '--';
+        : '-';
 
     trackElevationGainString = _track.getElevationGain() != null
         ? _track.getElevationGain()!.toStringAsFixed(0)
-        : '--';
+        : '-';
+
+    trackElevationLossString = _track.getElevationLoss() != null
+        ? _track.getElevationLoss()!.toStringAsFixed(0)
+        : '-';
 
     trackAccuracy = _track.getAccuracy();
     trackHeading = _track.getHeading();
@@ -244,13 +249,13 @@ class _TrackStatsState extends State<TrackStats> {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(AppLocalizations.of(context)!.elevationGain,
+                        Text(AppLocalizations.of(context)!.elevation,
                             style: titleStyle),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              trackElevationGainString,
+                              '+$trackElevationGainString / -$trackElevationLossString',
                               style: contentStyle,
                             ),
                             SizedBox(width: 5),

@@ -13,7 +13,7 @@
   "centerMap": "Center map",
   "distance": "Distance",
   "altitude": "Altitude",
-  "elevationGain": "Elevation gain",
+  "elevation": "Elevation",
   "elapsedTime": "Elapsed time",
   "movingTime": "Moving time",
   "trackSpeedAverage": "Average speed",

@@ -13,7 +13,7 @@
     "centerMap": "Centrar mapa",
     "distance": "Distancia",
     "altitude": "Altitud",
-    "elevationGain": "Desnivel +",
+    "elevation": "Desnivel",
     "elapsedTime": "Tiempo total",
     "movingTime": "Tiempo en movimiento",
     "trackSpeedAverage": "Velocidad media",

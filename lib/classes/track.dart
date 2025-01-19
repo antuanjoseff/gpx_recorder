@@ -42,8 +42,11 @@ class Track {
   // Elevation Gain
   int elevationGain = 0;
 
+  // Elevation Loss
+  int elevationLoss = 0;
+
   // Calculate elevation gain every X seconds
-  int elevationTimeGap = 5;
+  int elevationTimeGap = 15;
 
   // Last DateTime when elevation gain was calculated
   DateTime? lastTimeElevationChecked;
@@ -111,6 +114,10 @@ class Track {
 
   int? getElevationGain() {
     return elevationGain;
+  }
+
+  int? getElevationLoss() {
+    return elevationLoss;
   }
 
   DateTime? getStartTime() {
@@ -182,9 +189,14 @@ class Track {
       if (DateTime.now().difference(lastTimeElevationChecked!).inSeconds >
           elevationTimeGap) {
         int? newElevation = wpt.ele != null ? wpt.ele!.toInt() : null;
-        print('ELEVATION POINT $newElevation');
+
         if (newElevation != null && lastElevationChecked != null) {
-          elevationGain += (newElevation - lastElevationChecked!);
+          if (newElevation > lastElevationChecked!) {
+            elevationGain += (newElevation - lastElevationChecked!);
+          } else {
+            elevationLoss += (lastElevationChecked! - newElevation);
+          }
+
           lastElevationChecked = newElevation;
         }
       }
